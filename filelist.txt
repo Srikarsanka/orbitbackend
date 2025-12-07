@@ -1,0 +1,12 @@
+.env
+controllers
+face_encode.py
+filelist.txt
+middleware
+models
+node_modules
+package-lock.json
+package.json
+routes
+server.js
+venv

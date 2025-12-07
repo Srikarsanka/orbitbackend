@@ -1,0 +1,2455 @@
+<div class="dashboard-container">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+            <h2 class="brand">
+                  <span class="brand-highlight">O</span>rbit
+            </h2>
+            <nav class="menu">
+                  <a class="menu-item" (click)="selectone('dashboard')"
+                        [ngClass]="{ active: selectedSection === 'dashboard' }">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                  </a>
+
+                  <a class="menu-item" (click)="selectone('myclasses')"
+                        [ngClass]="{ active: selectedSection === 'myclasses' }">
+                        <i class="fa-solid fa-graduation-cap"></i> My Classes
+                  </a>
+
+                  <a class="menu-item" (click)="selectone('createclass')"
+                        [ngClass]="{ active: selectedSection === 'createclass' }">
+                        <i class="fa-solid fa-circle-plus"></i> Create Class
+                  </a>
+
+                  <a class="menu-item" (click)="selectone('anouncements')"
+                        [ngClass]="{ active: selectedSection === 'anouncements' }">
+                        <i class="fa-solid fa-bullhorn"></i> Announcements
+                  </a>
+
+                  <a class="menu-item" (click)="selectone('material')"
+                        [ngClass]="{ active: selectedSection === 'material' }">
+                        <i class="fa-solid fa-folder-open"></i> Materials Upload
+                  </a>
+
+                  <a class="menu-item" (click)="selectone('profile')"
+                        [ngClass]="{ active: selectedSection === 'profile' }">
+                        <i class="fa-solid fa-user"></i> Profile
+                  </a>
+
+                  <a class="menu-item logout">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                  </a>
+            </nav>
+      </aside>
+
+      <!-- MAIN AREA -->
+      <main class="main">
+            <!-- TOP BAR -->
+            <header class="topbar">
+                  <div></div>
+                  <div class="profile-box">
+                        <img [src]="photourl" class="profile-img" />
+                        <div class="profile-info">
+                              <h4>{{name}}</h4>
+                              <p>{{role}}</p>
+                        </div>
+                  </div>
+            </header>
+
+            <div id="content">
+                  <!-- DASHBOARD SECTION -->
+                  <section [hidden]="selectedSection !== 'dashboard'" class="dashboard">
+                        <div class="dashboard-header">
+                              <h1 class="section-title">Welcome back, {{ name }}</h1>
+                              <p>Here's your teaching overview</p>
+                        </div>
+
+                        <!-- Stats Cards -->
+                        <div class="stats-grid">
+                              <div class="stat-card">
+                                    <div class="stat-icon">
+                                          <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                          <h3>{{ totalclasses || 0 }}</h3>
+                                          <p>Active Classes</p>
+                                    </div>
+                              </div>
+
+                              <div class="stat-card">
+                                    <div class="stat-icon">
+                                          <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                          <h3>{{ 0 }}</h3>
+                                          <p>Total Students</p>
+                                    </div>
+                              </div>
+
+                              <div class="stat-card">
+                                    <div class="stat-icon">
+                                          <i class="fas fa-bullhorn"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                          <h3>{{ 0 || announcementsCount}}</h3>
+                                          <p>Announcements</p>
+                                    </div>
+                              </div>
+
+                              <div class="stat-card">
+                                    <div class="stat-icon">
+                                          <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                          <h3>{{ 0 }}</h3>
+                                          <p>Materials</p>
+                                    </div>
+                              </div>
+                        </div>
+
+                        <!-- Main Content Area -->
+                        <div class="dashboard-content">
+                              <div class="content-section">
+                                    <div class="section-header">
+                                          <h3>Recent Classes</h3>
+                                          <button class="view-all-btn" (click)="selectone('myclasses')">View
+                                                All</button>
+                                    </div>
+                                    <div class="recent-classes">
+                                          <div *ngFor="let class of recentClasses" class="class-item">
+                                                <div class="class-info">
+                                                      <h4>{{ class.className }}</h4>
+                                                      <p>{{ class.subject }}</p>
+                                                </div>
+                                                <div class="class-stats">
+                                                      <span>{{ class.studentsCount || 0 }} students</span>
+                                                </div>
+                                          </div>
+                                          <div *ngIf="recentClasses.length === 0" class="empty-state">
+                                                <p>No classes yet. <a (click)="selectone('createclass')">Create your
+                                                            first class</a></p>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <div class="content-section">
+                                    <div class="section-header">
+                                          <h3>Quick Actions</h3>
+                                    </div>
+                                    <div class="quick-actions">
+                                          <button class="action-btn" (click)="selectone('createclass')">
+                                                <i class="fas fa-plus-circle"></i>
+                                                <span>Create Class</span>
+                                          </button>
+                                          <button class="action-btn" (click)="selectone('anouncements')">
+                                                <i class="fas fa-bullhorn"></i>
+                                                <span>New Announcement</span>
+                                          </button>
+                                          <button class="action-btn" (click)="selectone('material')">
+                                                <i class="fas fa-file-upload"></i>
+                                                <span>Upload Material</span>
+                                          </button>
+                                    </div>
+                              </div>
+                        </div>
+                  </section>
+
+                  <!-- MY CLASSES SECTION -->
+                  <section [hidden]="selectedSection !== 'myclasses'" class="myclasses-section">
+                        <div class="section-header">
+                              <h1 class="section-title">My Classes</h1>
+                              <br>
+                              <p style="text-align: left;">Organize, Manage, and Explore Your Teaching Space</p>
+                        </div>
+
+                        <!-- Empty State with Animation -->
+                        <div *ngIf="myClasses.length === 0" class="empty-state">
+                              <div class="empty-animation">
+                                    <div class="emoji-container">
+                                          <div class="sad-emoji">😔</div>
+                                          <div class="tear"></div>
+                                    </div>
+                                    <div class="floating-books">
+                                          <div class="book book-1">📚</div>
+                                          <div class="book book-2">📖</div>
+                                          <div class="book book-3">🎓</div>
+                                    </div>
+                              </div>
+                              <div class="empty-text">
+                                    <h3>No Classes Yet</h3>
+                                    <p>Create your first class to start your teaching journey</p>
+                                    <button class="btn-create-first" (click)="selectone('createclass')">
+                                          Create Your First Class
+                                    </button>
+                              </div>
+                        </div>
+
+                        <!-- Classes Grid -->
+                        <div *ngIf="myClasses.length > 0" class="class-grid">
+                              <div class="class-card" *ngFor="let c of myClasses; let i = index"
+                                    [style.animation-delay]="i * 0.1 + 's'">
+                                    <!-- Gradient Background -->
+                                    <div class="card-gradient" [ngClass]="'gradient-' + (i % 4)"></div>
+
+                                    <!-- Animated Background Pattern -->
+                                    <div class="card-pattern"></div>
+
+                                    <!-- Content -->
+                                    <div class="class-content">
+                                          <div class="class-header">
+                                                <h2>{{ c.className }}</h2>
+                                                <div class="subject-badge">{{ c.subject }}</div>
+                                          </div>
+
+                                          <div class="class-stats">
+                                                <div class="stat">
+                                                      <span class="stat-icon">👥</span>
+                                                      <span class="stat-text">{{ c.studentsCount || 0 }} Students</span>
+                                                </div>
+                                                <div class="stat">
+                                                      <span class="stat-icon">📅</span>
+                                                      <span class="stat-text">{{ c.createdDate | date:'MMM d' }}</span>
+                                                </div>
+                                          </div>
+
+                                          <div class="code-section">
+                                                <div class="code-label">Class Code</div>
+                                                <div class="code-value">
+                                                      {{ c.classCode }}
+                                                      <button class="btn-copy" (click)="copyCodeModern(c.classCode)">
+                                                            <span class="copy-text">Copy</span>
+                                                            <span class="copied-text">Copied!</span>
+                                                      </button>
+                                                </div>
+                                          </div>
+
+                                          <button class="btn-open-class" (click)="openclass(c.classCode)">
+                                                <span>Open Class</span>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                      <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round" />
+                                                </svg>
+                                          </button>
+                                    </div>
+                              </div>
+
+                              <!-- Add New Class Card -->
+                              <div class="class-card add-new-card" (click)="selectone('createclass')">
+                                    <div class="add-new-content">
+                                          <div class="add-icon">
+                                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                                      <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                          </div>
+                                          <h3>Create New Class</h3>
+                                          <p>Start a new teaching journey</p>
+                                    </div>
+                              </div>
+                        </div>
+                  </section>
+
+                  <!-- CREATE CLASS SECTION -->
+                  <section [hidden]="selectedSection !== 'createclass'" class="create-section">
+                        <div class="create-header">
+                              <h1 class="section-title">Create New Class</h1>
+                              <p>Set up your class details and start inviting students</p>
+                        </div>
+
+                        <div class="create-container">
+                              <!-- FORM SECTION -->
+                              <div class="form-section">
+                                    <form [formGroup]="form" (ngSubmit)="createClass()" class="create-form">
+                                          <div class="form-group">
+                                                <label for="className">Class Name <span>*</span></label>
+                                                <div class="input-wrapper">
+                                                      <input id="className" formControlName="className"
+                                                            placeholder="e.g. Web Technologies - A" type="text" />
+                                                      <div class="input-icon">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                                  xmlns="http://www.w3.org/2000/svg">
+                                                                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z"
+                                                                        fill="#8A94A6" />
+                                                                  <path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z"
+                                                                        fill="#8A94A6" />
+                                                                  <path d="M12 16C8.67 16 6 17.34 6 19V20H18V19C18 17.34 15.33 16 12 16Z"
+                                                                        fill="#8A94A6" />
+                                                            </svg>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-group">
+                                                <label for="subject">Subject <span>*</span></label>
+                                                <div class="input-wrapper">
+                                                      <input id="subject" formControlName="subject"
+                                                            placeholder="e.g. Full Stack Web Development" type="text" />
+                                                      <div class="input-icon">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                                  xmlns="http://www.w3.org/2000/svg">
+                                                                  <path d="M12 2L1 7L12 12L23 7L12 2Z" stroke="#8A94A6"
+                                                                        stroke-width="2" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M1 17L12 22L23 17" stroke="#8A94A6"
+                                                                        stroke-width="2" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M1 12L12 17L23 12" stroke="#8A94A6"
+                                                                        stroke-width="2" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                            </svg>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-group">
+                                                <label for="description">Description</label>
+                                                <div class="input-wrapper">
+                                                      <textarea id="description" formControlName="description"
+                                                            placeholder="Short description of your class (optional)"
+                                                            rows="4"></textarea>
+                                                      <div class="input-icon textarea-icon">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                                  xmlns="http://www.w3.org/2000/svg">
+                                                                  <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"
+                                                                        stroke="#8A94A6" stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M14 2V8H20" stroke="#8A94A6" stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M16 13H8" stroke="#8A94A6" stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M16 17H8" stroke="#8A94A6" stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                  <path d="M10 9H9H8" stroke="#8A94A6" stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                            </svg>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <button class="btn-create" type="submit" [disabled]="submitting">
+                                                <span *ngIf="!submitting">Create Class</span>
+                                                <span *ngIf="submitting" class="loading">
+                                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M12 2V6" stroke="white" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M12 18V22" stroke="white" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M4.93 4.93L7.76 7.76" stroke="white"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                            <path d="M16.24 16.24L19.07 19.07" stroke="white"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                            <path d="M2 12H6" stroke="white" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M18 12H22" stroke="white" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M4.93 19.07L7.76 16.24" stroke="white"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                            <path d="M16.24 7.76L19.07 4.93" stroke="white"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                      </svg>
+                                                      Creating...
+                                                </span>
+                                          </button>
+
+                                          <div class="form-messages">
+                                                <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+                                                <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+                                          </div>
+
+                                          <div class="created-box" *ngIf="createdClass">
+                                                <div class="success-header">
+                                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"
+                                                                  stroke="#10B981" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M22 4L12 14.01L9 11.01" stroke="#10B981"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                      </svg>
+                                                      <h3>Class Created Successfully!</h3>
+                                                </div>
+                                                <div class="success-details">
+                                                      <div class="detail-item">
+                                                            <span class="label">Class Name:</span>
+                                                            <span class="value">{{ createdClass.className }}</span>
+                                                      </div>
+                                                      <div class="detail-item">
+                                                            <span class="label">Subject:</span>
+                                                            <span class="value">{{ createdClass.subject }}</span>
+                                                      </div>
+                                                      <div class="detail-item">
+                                                            <span class="label">Class Code:</span>
+                                                            <span class="value code">{{ createdClass.classCode }}</span>
+                                                      </div>
+                                                </div>
+                                                <div class="success-actions">
+                                                      <button class="btn-secondary">Copy Class Code</button>
+                                                      <button class="btn-primary">Go to Class</button>
+                                                </div>
+                                          </div>
+                                    </form>
+                              </div>
+
+                              <!-- ILLUSTRATION SECTION -->
+                              <div class="illustration-section">
+                                    <div class="illustration-card">
+                                          <div class="card-header">
+                                                <h3>Create Engaging Classes</h3>
+                                                <p>Set up your virtual classroom in minutes</p>
+                                          </div>
+                                          <div class="illustration">
+                                                <img src="https://res.cloudinary.com/dnevq4wek/image/upload/v1763960117/42112f5b-0f1f-46ce-afe6-81e840737c8d-removebg-preview_y1jlpz.png"
+                                                      alt="Classroom Illustration" />
+                                          </div>
+                                          <div class="card-features">
+                                                <div class="feature">
+                                                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"
+                                                                  stroke="#10B981" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M22 4L12 14.01L9 11.01" stroke="#10B981"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                      </svg>
+                                                      <span>Share class code with students</span>
+                                                </div>
+                                                <div class="feature">
+                                                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"
+                                                                  stroke="#10B981" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M22 4L12 14.01L9 11.01" stroke="#10B981"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                      </svg>
+                                                      <span>Upload materials and resources</span>
+                                                </div>
+                                                <div class="feature">
+                                                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999"
+                                                                  stroke="#10B981" stroke-width="2"
+                                                                  stroke-linecap="round" stroke-linejoin="round" />
+                                                            <path d="M22 4L12 14.01L9 11.01" stroke="#10B981"
+                                                                  stroke-width="2" stroke-linecap="round"
+                                                                  stroke-linejoin="round" />
+                                                      </svg>
+                                                      <span>Make announcements and updates</span>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </section>
+
+                  <!-- ANNOUNCEMENTS SECTION -->
+                  <!-- ANNOUNCEMENTS SECTION -->
+                  <section [hidden]="selectedSection !== 'anouncements'" class="announcements-section">
+                        <div class="announcements-header">
+                              <h1 class="section-title">Announcements</h1>
+                              <p class="section-sub">Share important updates with your students</p>
+                        </div>
+
+                        <div class="announcements-container">
+                              <!-- Create Announcement Form -->
+                              <div class="create-announcement-card">
+                                    <div class="card-header">
+                                          <h3>Create New Announcement</h3>
+                                          <p>Send messages to your class through the platform or email</p>
+                                    </div>
+
+                                    <form [formGroup]="announcementForm" (ngSubmit)="sendAnnouncement()"
+                                          class="announcement-form">
+                                          <!-- Class Selection -->
+                                          <div class="form-group">
+                                                <label for="selectedClass">Select Class <span>*</span></label>
+                                                <div class="input-wrapper">
+                                                      <select id="selectedClass" formControlName="selectedClass"
+                                                            class="form-select">
+                                                            <option value="">Choose a class</option>
+                                                            <option *ngFor="let class of myClasses" [value]="class._id">
+
+                                                                  {{ class.className }} - {{ class.subject }}
+                                                            </option>
+                                                      </select>
+                                                      <div class="input-icon">
+                                                            <i class="fas fa-chalkboard-teacher"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <!-- Announcement Title -->
+                                          <div class="form-group">
+                                                <label for="announcementTitle">Title <span>*</span></label>
+                                                <div class="input-wrapper">
+                                                      <input id="announcementTitle" formControlName="title"
+                                                            placeholder="Enter announcement title  Title must be at least 5 characters"
+                                                            type="text" />
+                                                      <div class="input-icon">
+                                                            <i class="fas fa-heading"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <!-- Announcement Message -->
+                                          <div class="form-group">
+                                                <label for="announcementMessage">Message <span>*</span></label>
+                                                <div class="input-wrapper">
+                                                      <textarea id="announcementMessage" formControlName="message"
+                                                            placeholder="Write your announcement message here and message length should be more than 5 words"
+                                                            rows="5"></textarea>
+                                                      <div class="input-icon textarea-icon">
+                                                            <i class="fas fa-comment-dots"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <!-- Delivery Options -->
+                                          <div class="form-group">
+                                                <label class="checkbox-label">
+                                                      <input type="checkbox" formControlName="sendEmail" />
+                                                      <span class="checkmark"></span>
+                                                      Also send via email to all students
+                                                </label>
+                                                <small class="hint">Students will receive this announcement in their
+                                                      email inbox</small>
+                                          </div>
+
+                                          <!-- Action Buttons -->
+                                          <div class="form-actions">
+                                                <button type="button" class="btn-secondary" (click)="clearForm()">
+                                                      Clear
+                                                </button>
+                                                <button type="submit" class="btn-primary"
+                                                      [disabled]="!announcementForm.valid || sending">
+                                                      <span *ngIf="!sending">Send Announcement</span>
+                                                      <span *ngIf="sending" class="loading">
+                                                            <i class="fas fa-spinner"></i> Sending...
+                                                      </span>
+                                                </button>
+                                          </div>
+
+                                          <!-- Form Messages -->
+                                          <div class="form-messages">
+                                                <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+                                                <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+                                          </div>
+                                    </form>
+                              </div>
+
+                              <!-- Recent Announcements -->
+                              <div class="recent-announcements">
+                                    <div class="section-header">
+                                          <h3>Recent Announcements</h3>
+                                          <span class="badge">{{ recentAnnouncements.length }}</span>
+                                    </div>
+
+                                    <div class="announcements-list">
+                                          <div *ngFor="let announcement of recentAnnouncements"
+                                                class="announcement-item">
+                                                <div class="announcement-header">
+                                                      <div class="announcement-info">
+                                                            <h4>{{ announcement.title }}</h4>
+                                                            <div class="meta">
+                                                                  <span class="class-name">{{
+                                                                        getClassName(announcement.classId) }}</span>
+                                                                  <span class="dot">•</span>
+                                                                  <span class="date">{{ announcement.createdAt |
+                                                                        date:'MMM d, yyyy' }}</span>
+                                                                  <span class="dot">•</span>
+                                                                  <span class="delivery-method">
+                                                                        <i class="fas"
+                                                                              [class.fa-envelope]="announcement.sendEmail"
+                                                                              [class.fa-bullhorn]="!announcement.sendEmail"></i>
+                                                                        {{ announcement.sendEmail ? 'Email & Platform' :
+                                                                        'Platform Only' }}
+                                                                  </span>
+                                                            </div>
+                                                      </div>
+                                                      <div class="announcement-actions">
+                                                            <button class="btn-icon"
+                                                                  (click)="viewAnnouncement(announcement)">
+                                                                  <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button class="btn-icon"
+                                                                  (click)="resendAnnouncement(announcement)">
+                                                                  <i class="fas fa-redo"></i>
+                                                            </button>
+                                                      </div>
+                                                </div>
+                                                <p class="announcement-preview">{{ announcement.message | truncate:120
+                                                      }}</p>
+                                          </div>
+
+                                          <!-- Empty State -->
+                                          <div *ngIf="recentAnnouncements.length === 0" class="empty-state">
+                                                <div class="empty-icon">
+                                                      <i class="fas fa-bullhorn"></i>
+                                                </div>
+                                                <h4>No Announcements Yet</h4>
+                                                <p>Create your first announcement to share with your students</p>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </section>
+
+                  <!-- MATERIALS UPLOAD SECTION -->
+                  <!-- MATERIALS UPLOAD SECTION -->
+                  <section [hidden]="selectedSection !== 'material'" class="materials-section">
+                        <div class="section-header">
+                              <h1 class="section-title">Materials Upload</h1>
+                              <p class="section-sub">Upload and organize your teaching materials</p>
+                        </div>
+
+                        <div class="materials-container">
+                              <!-- Upload Card -->
+                              <div class="upload-card">
+                                    <div class="upload-header">
+                                          <div class="upload-icon">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                          </div>
+                                          <div class="upload-info">
+                                                <h3>Upload New Material</h3>
+                                                <p>Drag and drop files or click to browse</p>
+                                          </div>
+                                    </div>
+
+                                    <div class="upload-area" (click)="fileInput.click()">
+                                          <input type="file" #fileInput hidden (change)="onFileSelect($event)" multiple>
+                                          <div class="upload-content">
+                                                <i class="fa-solid fa-file-arrow-up"></i>
+                                                <h4>Select files to upload</h4>
+                                                <p>Supports PDF, DOC, PPT, ZIP, Images, and more</p>
+                                                <span class="file-size">Max file size: 50MB</span>
+                                          </div>
+                                    </div>
+
+                                    <div class="upload-actions">
+                                          <div class="form-group">
+                                                <label for="classSelect">Assign to Class</label>
+                                                <select id="classSelect" class="form-select">
+                                                      <option value="">All Classes</option>
+                                                      <option *ngFor="let class of myClasses" [value]="class._id">
+                                                            {{ class.className }} - {{ class.subject }}
+                                                      </option>
+                                                </select>
+                                          </div>
+
+                                          <div class="form-group">
+                                                <label for="materialTitle">Material Title</label>
+                                                <input id="materialTitle" type="text"
+                                                      placeholder="Enter material title">
+                                          </div>
+
+                                          <div class="action-buttons">
+                                                <button class="btn-secondary">Cancel</button>
+                                                <button class="btn-primary" [disabled]="!selectedFiles.length">
+                                                      <i class="fa-solid fa-upload"></i>
+                                                      Upload Materials
+                                                </button>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <!-- Upload Progress (Conditional) -->
+                              <div *ngIf="uploading" class="upload-progress">
+                                    <h4>Uploading Files</h4>
+                                    <div class="progress-list">
+                                          <div *ngFor="let file of selectedFiles" class="progress-item">
+                                                <div class="file-info">
+                                                      <i class="fa-solid fa-file"></i>
+                                                      <span class="file-name">{{ file.name }}</span>
+                                                </div>
+                                                <div class="progress-bar">
+                                                      <div class="progress-fill" [style.width]="file.progress + '%'">
+                                                      </div>
+                                                </div>
+                                                <span class="progress-text">{{ file.progress }}%</span>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <!-- Materials Grid -->
+                              <div class="materials-grid" *ngIf="materials.length > 0">
+                                    <div class="grid-header">
+                                          <h3>Your Materials ({{ materials.length }})</h3>
+                                          <div class="filter-options">
+                                                <select class="filter-select">
+                                                      <option>All Classes</option>
+                                                      <option>Recent</option>
+                                                      <option>PDF</option>
+                                                      <option>Images</option>
+                                                </select>
+                                                <div class="search-box">
+                                                      <i class="fa-solid fa-search"></i>
+                                                      <input type="text" placeholder="Search materials...">
+                                                </div>
+                                          </div>
+                                    </div>
+
+                                    <div class="materials-list">
+                                          <div *ngFor="let material of materials" class="material-card">
+                                                <div class="material-icon">
+                                                      <i [class]="getFileIcon(material.type)"></i>
+                                                </div>
+                                                <div class="material-info">
+                                                      <h4>{{ material.title }}</h4>
+                                                      <p class="material-meta">
+                                                            <span class="file-type">{{ material.type }}</span>
+                                                            <span class="file-size">{{ material.size }}</span>
+                                                            <span class="upload-date">{{ material.date }}</span>
+                                                      </p>
+                                                      <div class="material-classes">
+                                                            <span class="class-tag"
+                                                                  *ngFor="let class of material.assignedClasses">
+                                                                  {{ class }}
+                                                            </span>
+                                                      </div>
+                                                </div>
+                                                <div class="material-actions">
+                                                      <button class="btn-icon" title="Download">
+                                                            <i class="fa-solid fa-download"></i>
+                                                      </button>
+                                                      <button class="btn-icon" title="Share">
+                                                            <i class="fa-solid fa-share"></i>
+                                                      </button>
+                                                      <button class="btn-icon" title="Delete">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                      </button>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <!-- Empty State -->
+                              <div *ngIf="materials.length === 0 && !uploading" class="empty-state">
+                                    <div class="empty-icon">
+                                          <i class="fa-solid fa-folder-open"></i>
+                                    </div>
+                                    <h3>No Materials Yet</h3>
+                                    <p>Upload your first material to share with your classes</p>
+                                    <button class="btn-primary" (click)="fileInput.click()">
+                                          <i class="fa-solid fa-plus"></i>
+                                          Upload Material
+                                    </button>
+                              </div>
+                        </div>
+                  </section>
+                  <!-- PROFILE SECTION -->
+                  <section [hidden]="selectedSection !== 'profile'" class="profile-section">
+                        <div class="profile-header">
+                              <h1 class="section-title">Profile Settings</h1>
+                              <p>Manage your account information and preferences</p>
+                        </div>
+
+                        <div class="profile-container">
+                              <!-- Profile Information Card -->
+                              <div class="profile-card">
+                                    <div class="card-header">
+                                          <h3>Personal Information</h3>
+                                          <p>Update your profile details</p>
+                                    </div>
+
+                                    <div class="profile-content">
+                                          <div class="profile-avatar-section">
+                                                <div class="avatar-wrapper">
+                                                      <img [src]="photourl" class="profile-avatar" />
+                                                      <div class="avatar-overlay" (click)="setEditMode('photo')">
+                                                            <i class="fa-solid fa-camera"></i>
+                                                      </div>
+                                                </div>
+                                                <h2 class="profile-name">{{ name }}</h2>
+                                                <p class="profile-role">{{ role }}</p>
+                                          </div>
+
+                                          <div class="profile-details">
+                                                <div class="detail-item">
+                                                      <div class="detail-icon">
+                                                            <i class="fa-solid fa-envelope"></i>
+                                                      </div>
+                                                      <div class="detail-content">
+                                                            <label>Email Address</label>
+                                                            <p>{{ user?.email }}</p>
+                                                      </div>
+                                                </div>
+
+                                                <div class="detail-item">
+                                                      <div class="detail-icon">
+                                                            <i class="fa-solid fa-shield-halved"></i>
+                                                      </div>
+                                                      <div class="detail-content">
+                                                            <label>Password</label>
+                                                            <p>••••••••</p>
+                                                            <button class="btn-edit" (click)="setEditMode('password')">
+                                                                  <i class="fa-solid fa-lock"></i>
+                                                                  Change Password
+                                                            </button>
+                                                      </div>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </div>
+
+                              <!-- Edit Panel -->
+                              <div class="edit-panel">
+                                    <!-- Default View -->
+                                    <div *ngIf="editMode === ''" class="placeholder-content">
+                                          <div class="placeholder-icon">
+                                                <i class="fa-solid fa-user-gear"></i>
+                                          </div>
+                                          <h4>Select an option to update your profile</h4>
+                                          <p>Choose from the options on the left to edit your profile information</p>
+                                    </div>
+
+                                    <!-- Update Photo -->
+                                    <div *ngIf="editMode === 'photo'" class="edit-content">
+                                          <div class="form-group">
+                                                <label for="profilePhoto">Upload New Photo</label>
+                                                <div class="file-upload-wrapper">
+                                                      <input type="file" id="profilePhoto"
+                                                            (change)="onFileSelect($event)" accept="image/*"
+                                                            class="file-input" />
+                                                      <div class="file-upload-area">
+                                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                                            <p>Drag & drop or click to upload</p>
+                                                            <span>JPG, PNG up to 5MB</span>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-actions">
+                                                <button class="btn-secondary" (click)="setEditMode('')">Cancel</button>
+                                                <button class="btn-primary" (click)="updatePhoto()"
+                                                      [disabled]="!selectedFile">
+                                                      <span *ngIf="!submitting">Update Photo</span>
+                                                      <span *ngIf="submitting" class="loading">
+                                                            <i class="fa-solid fa-spinner"></i> Updating...
+                                                      </span>
+                                                </button>
+                                          </div>
+
+                                          <div class="form-messages">
+                                                <p class="success" *ngIf="successMsg">{{ successMsg }}</p>
+                                                <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+                                          </div>
+                                    </div>
+
+                                    <!-- Change Password -->
+                                    <div *ngIf="editMode === 'password'" class="edit-content">
+                                          <div class="form-group">
+                                                <label for="currentPassword">Current Password</label>
+                                                <div class="input-wrapper">
+                                                      <input id="currentPassword" type="password"
+                                                            [(ngModel)]="currentPass"
+                                                            placeholder="Enter current password" />
+                                                      <div class="input-icon">
+                                                            <i class="fa-solid fa-lock"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-group">
+                                                <label for="newPassword">New Password</label>
+                                                <div class="input-wrapper">
+                                                      <input id="newPassword" type="password" [(ngModel)]="newPass"
+                                                            placeholder="Enter new password" />
+                                                      <div class="input-icon">
+                                                            <i class="fa-solid fa-lock"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-group">
+                                                <label for="confirmPassword">Confirm New Password</label>
+                                                <div class="input-wrapper">
+                                                      <input id="confirmPassword" type="password"
+                                                            [(ngModel)]="confirmPass"
+                                                            placeholder="Confirm new password" />
+                                                      <div class="input-icon">
+                                                            <i class="fa-solid fa-lock"></i>
+                                                      </div>
+                                                </div>
+                                          </div>
+
+                                          <div class="form-actions">
+                                                <button class="btn-secondary" (click)="setEditMode('')">Cancel</button>
+                                                <button class="btn-primary" (click)="updatePassword()">
+                                                      Change Password
+                                                </button>
+                                          </div>
+
+                                          <div class="form-messages">
+                                                <p class="success" *ngIf="successMsg">{{ successMsg }}</p>
+                                                <p class="error" *ngIf="errorMsg">{{ errorMsg }}</p>
+                                          </div>
+                                    </div>
+                              </div>
+                        </div>
+                  </section>
+            </div>
+      </main>
+</div>
+-----------------------------------------------------------------------------------------------
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {
+  HttpClient,
+  HttpClientModule,
+  HttpEventType,
+} from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TruncatePipe } from '../../../truncatepipe';
+
+interface UserPayload {
+  fullName: string;
+  email: string;
+  role: string;
+  photo: string;
+}
+
+interface Announcement {
+  id: string;
+  classId: string;
+  className?: string;
+  title: string;
+  message: string;
+  sendEmail: boolean;
+  createdAt: Date;
+}
+interface UploadFile extends File {
+  progress: number;
+}
+
+
+@Component({
+  selector: 'app-faculty',
+  templateUrl: './faculty.html',
+  styleUrls: ['./faculty.css'],
+  imports: [
+    ReactiveFormsModule,
+    HttpClientModule,
+    CommonModule,
+    FormsModule,
+    TruncatePipe,
+  ],
+  standalone: true,
+})
+export class Faculty implements OnInit {
+  // ---------- USER & CLASS DATA ----------
+  user: UserPayload | null = null;
+  myClasses: any[] = [];
+  recentClasses: any[] = [];
+  totalclasses = 0;
+
+  name: string | undefined;
+  role: string | undefined;
+  photourl: string | undefined;
+
+  classesCount = 0;
+  studentsCount = 0;
+  announcementsCount = 0;
+  materialsCount = 0;
+
+  // ---------- CLASS CREATION ----------
+  form!: FormGroup;
+  submitting = false;
+  successMessage = '';
+  errorMessage = '';
+  createdClass: any = null;
+
+  // ---------- ANNOUNCEMENTS ----------
+  announcementForm!: FormGroup;
+  sending = false;
+  announcementSuccessMessage = '';
+  announcementErrorMessage = '';
+  recentAnnouncements: Announcement[] = [];
+
+  // ---------- PROFILE EDIT ----------
+  editMode: '' | 'photo' | 'password' = '';
+  selectedFile: File | null = null;
+
+  successMsg = '';
+  errorMsg = '';
+
+  currentPass = '';
+  newPass = '';
+  confirmPass = '';
+
+  // ---------- UI SECTIONS ----------
+  selectedSection: string = 'dashboard';
+
+  // ---------- MATERIALS (UPLOAD + LIST) ----------
+  materials: any[] = []; // will hold materials from backend
+  selectedFiles: File[] = []; // files chosen in input
+  uploading = false; // to show upload state
+  uploadProgress = 0; // overall % progress (all files)
+  // We will keep track of which class materials are being shown
+  currentMaterialClassId: string | null = null;
+
+  // reference to <input type="file" #fileInput>
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {
+    this.initializeForms();
+  }
+
+  // ---------------------------------------------------
+  // FORM INITIALIZATION
+  // ---------------------------------------------------
+  initializeForms() {
+    this.form = this.fb.group({
+      className: ['', [Validators.required, Validators.minLength(3)]],
+      subject: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+    });
+
+    this.announcementForm = this.fb.group({
+      selectedClass: ['', Validators.required],
+      title: ['', [Validators.required, Validators.minLength(5)]],
+      message: ['', [Validators.required, Validators.minLength(10)]],
+      sendEmail: [false],
+    });
+
+    // Debug: announcement form status
+    this.announcementForm.statusChanges.subscribe((status) => {
+      console.log('Announcement Form status:', status);
+    });
+  }
+
+  // ---------------------------------------------------
+  // LIFECYCLE
+  // ---------------------------------------------------
+  ngOnInit() {
+    this.loadUser();
+    this.requestNotificationPermission();
+  }
+
+  // ---------------------------------------------------
+  // USER & BASE DATA LOAD
+  // ---------------------------------------------------
+  loadUser() {
+    this.http
+      .get('http://localhost:5000/auth/redirect', { withCredentials: true })
+      .subscribe((res: any) => {
+        if (!res.user) {
+          window.location.href = '/login';
+          return;
+        }
+
+        this.user = res.user;
+        this.name = res.user.fullName;
+        this.role = res.user.role;
+        this.photourl = res.user.photo;
+
+        this.loadclass();
+        this.loadRecentAnnouncements();
+      });
+  }
+
+  async createClass() {
+    this.submitting = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.createdClass = null;
+
+    if (this.form.invalid) {
+      this.errorMessage = 'Please fill required fields.';
+      this.submitting = false;
+      return;
+    }
+
+    const payload = {
+      className: this.form.value.className,
+      subject: this.form.value.subject,
+      description: this.form.value.description,
+      facultyEmail: this.user?.email,
+      facultyName: this.user?.fullName,
+      facultyPhoto: this.user?.photo,
+    };
+
+    try {
+      const res: any = await this.http
+        .post('http://localhost:5000/api/class/create', payload, {
+          withCredentials: true,
+        })
+        .toPromise();
+
+      this.successMessage = res?.message || 'Class created successfully';
+      this.createdClass = res?.class || null;
+      this.form.reset();
+      await this.loadclass();
+    } catch (err: any) {
+      console.error('Create class error:', err);
+      this.errorMessage = err?.error?.message || 'Failed to create class';
+    } finally {
+      this.submitting = false;
+    }
+  }
+
+  async loadclass() {
+    if (!this.user?.email) return;
+
+    try {
+      const res: any = await this.http
+        .post(
+          'http://localhost:5000/api/classes/myclass',
+          { facultyEmail: this.user.email },
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      this.myClasses = res.classes || [];
+      this.totalclasses = this.myClasses.length;
+      this.classesCount = this.myClasses.length;
+      this.studentsCount = this.myClasses.reduce(
+        (total, cls) => total + (cls.studentsCount || 0),
+        0
+      );
+      this.recentClasses = this.myClasses.slice(0, 3);
+
+      console.log('My classes structure:', this.myClasses);
+    } catch (e) {
+      console.error('Error loading classes', e);
+    }
+  }
+
+  // ---------------------------------------------------
+  // CLASS POPUP (OPEN CLASS)  — your existing code
+  // ---------------------------------------------------
+  async openclass(classCode: string) {
+    try {
+      const res: any = await this.http
+        .post(
+          `http://localhost:5000/api/openclass/${classCode}`,
+          {},
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      const room = res.room;
+      const students = room.students || [];
+
+      // ================== OVERLAY ==================
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position:fixed; inset:0;
+        background:rgba(0,0,0,0.55);
+        backdrop-filter:blur(6px);
+        display:flex; justify-content:center; align-items:center;
+        z-index:99999; animation:fadeIn .28s ease;
+        font-family:'Inter','Segoe UI',sans-serif;
+      `;
+
+      const animStyle = document.createElement('style');
+      animStyle.innerHTML = `
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+        @keyframes scaleUp { from{transform:scale(.9); opacity:0;} to{transform:scale(1); opacity:1;} }
+        @keyframes slideFade { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+        .tab-content-transition { animation: slideFade .22s ease; }
+        .btn-ripple {
+          position: relative;
+          overflow: hidden;
+        }
+        .btn-ripple span.ripple-circle {
+          position:absolute;
+          border-radius:50%;
+          transform:scale(0);
+          animation:ripple .4s linear;
+          background:rgba(255,255,255,0.6);
+        }
+        @keyframes ripple {
+          to {transform:scale(4); opacity:0;}
+        }
+      `;
+      document.head.appendChild(animStyle);
+
+      const card = document.createElement('div');
+      card.style.cssText = `
+        width:780px; max-height:86vh;
+        background:rgba(255,255,255,0.96);
+        border-radius:20px;
+        box-shadow:0 20px 55px rgba(0,0,0,0.35);
+        border:1px solid rgba(255,255,255,0.8);
+        display:flex; flex-direction:column;
+        overflow:hidden;
+        animation:scaleUp .25s ease;
+      `;
+
+      const header = document.createElement('div');
+      header.style.cssText = `
+        padding:22px 28px;
+        background:linear-gradient(135deg,#0045AA,#007BFF);
+        color:white;
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+      `;
+
+      const headerLeft = document.createElement('div');
+      headerLeft.innerHTML = `
+        <div style="font-size:12px;opacity:.85;letter-spacing:.08em;text-transform:uppercase;">
+          Class Overview
+        </div>
+        <h2 style="margin:4px 0 0;font-size:22px;font-weight:700;">${room.className}</h2>
+        <p style="margin:4px 0 0;font-size:14px;opacity:.92;">${room.subject}</p>
+        <p style="margin:2px 0 0;font-size:13px;opacity:.85;">Faculty: ${room.facultyName}</p>
+        <div style="margin-top:10px;display:flex;gap:16px;font-size:12px;">
+          <div>
+            <div style="opacity:.75;">Students</div>
+            <div style="font-size:16px;font-weight:600;">${students.length}</div>
+          </div>
+          <div>
+            <div style="opacity:.75;">Class Code</div>
+            <div style="font-size:16px;font-weight:600;">${room.classCode}</div>
+          </div>
+        </div>
+      `;
+
+      const headerRight = document.createElement('div');
+      headerRight.style.cssText = `
+        display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+      `;
+
+      const makeIconButton = (
+        tooltip: string,
+        iconClass: string,
+        bg: string,
+        color: string
+      ) => {
+        const btn = document.createElement('button');
+        btn.classList.add('btn-ripple');
+        btn.title = tooltip;
+        btn.style.cssText = `
+          border:none; cursor:pointer;
+          width:34px; height:34px;
+          border-radius:10px;
+          display:flex; align-items:center; justify-content:center;
+          background:${bg}; color:${color};
+          font-size:15px;
+          box-shadow:0 4px 10px rgba(0,0,0,0.18);
+          transition:transform .16s ease, box-shadow .16s ease;
+        `;
+        btn.innerHTML = `<i class="${iconClass}"></i>`;
+
+        btn.onmouseover = () => {
+          btn.style.transform = 'translateY(-1px) scale(1.03)';
+          btn.style.boxShadow = '0 6px 14px rgba(0,0,0,0.22)';
+        };
+        btn.onmouseout = () => {
+          btn.style.transform = 'translateY(0) scale(1)';
+          btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.18)';
+        };
+
+        btn.addEventListener('click', (e: MouseEvent) => {
+          const rect = btn.getBoundingClientRect();
+          const circle = document.createElement('span');
+          const diameter = Math.max(rect.width, rect.height);
+          const radius = diameter / 2;
+          circle.style.width = circle.style.height = `${diameter}px`;
+          circle.style.left = `${e.clientX - rect.left - radius}px`;
+          circle.style.top = `${e.clientY - rect.top - radius}px`;
+          circle.classList.add('ripple-circle');
+          const old = btn.getElementsByClassName('ripple-circle')[0];
+          if (old) old.remove();
+          btn.appendChild(circle);
+        });
+
+        return btn;
+      };
+
+      const changeBtn = makeIconButton(
+        'Change class',
+        'fa-solid fa-arrow-right-arrow-left',
+        'rgba(255,255,255,0.9)',
+        '#0045AA'
+      );
+      changeBtn.onclick = () => overlay.remove();
+
+      const copyCodeBtn = makeIconButton(
+        'Copy class code',
+        'fa-solid fa-copy',
+        'rgba(255,255,255,0.9)',
+        '#0045AA'
+      );
+      copyCodeBtn.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(room.classCode);
+          alert('Class code copied to clipboard');
+        } catch {
+          alert(`Class code: ${room.classCode}`);
+        }
+      };
+
+      const shareBtn = makeIconButton(
+        'Copy join link',
+        'fa-solid fa-link',
+        'rgba(255,255,255,0.9)',
+        '#0045AA'
+      );
+      shareBtn.onclick = async () => {
+        const joinUrl = `${window.location.origin}/join/${room.classCode}`;
+        try {
+          await navigator.clipboard.writeText(joinUrl);
+          alert('Join link copied to clipboard');
+        } catch {
+          alert(`Join link: ${joinUrl}`);
+        }
+      };
+
+      const qrBtn = makeIconButton(
+        'Show QR to join',
+        'fa-solid fa-qrcode',
+        'rgba(255,255,255,0.9)',
+        '#0045AA'
+      );
+      qrBtn.onclick = () => {
+        const joinUrl = `${window.location.origin}/join/${room.classCode}`;
+        const qrOverlay = document.createElement('div');
+        qrOverlay.style.cssText = `
+          position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
+          background:rgba(0,0,0,0.6); z-index:100000;
+        `;
+        const qrCard = document.createElement('div');
+        qrCard.style.cssText = `
+          background:white; padding:20px 24px; border-radius:14px;
+          text-align:center; box-shadow:0 12px 32px rgba(0,0,0,0.3);
+        `;
+        qrCard.innerHTML = `
+          <h3 style="margin:0 0 10px;font-size:18px;">Join Class</h3>
+          <p style="margin:0 0 12px;font-size:13px;color:#555;">Scan this QR to join:</p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(
+            joinUrl
+          )}" alt="QR Code">
+          <p style="margin:12px 0 0;font-size:12px;color:#777;">${joinUrl}</p>
+        `;
+        const closeQr = document.createElement('button');
+        closeQr.textContent = 'Close';
+        closeQr.style.cssText = `
+          margin-top:12px; padding:6px 14px; border-radius:6px;
+          border:none; background:#0045AA; color:white; cursor:pointer;
+          font-size:13px;
+        `;
+        closeQr.onclick = () => qrOverlay.remove();
+        qrCard.appendChild(closeQr);
+        qrOverlay.appendChild(qrCard);
+        qrOverlay.onclick = (e) => e.target === qrOverlay && qrOverlay.remove();
+        document.body.appendChild(qrOverlay);
+      };
+
+      const deleteBtn = makeIconButton(
+        'Delete class',
+        'fa-solid fa-trash',
+        '#E63946',
+        '#fff'
+      );
+      deleteBtn.onclick = async () => {
+        if (!confirm('Are you sure you want to delete this class?')) return;
+        await this.http
+          .delete(`http://localhost:5000/api/deleteclass/${room._id}`, {
+            withCredentials: true,
+          })
+          .toPromise();
+        alert('Class deleted');
+        overlay.remove();
+      };
+
+      const topActions = document.createElement('div');
+      topActions.style.cssText = `display:flex; gap:8px;`;
+      topActions.appendChild(changeBtn);
+      topActions.appendChild(copyCodeBtn);
+      topActions.appendChild(shareBtn);
+      topActions.appendChild(qrBtn);
+      topActions.appendChild(deleteBtn);
+
+      const editBtn = document.createElement('button');
+      editBtn.classList.add('btn-ripple');
+      editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit Class`;
+      editBtn.style.cssText = `
+        margin-top:6px;
+        padding:6px 12px; border-radius:999px;
+        border:none; cursor:pointer;
+        background:rgba(255,255,255,0.16);
+        color:white; font-size:12px;
+        display:flex; align-items:center; gap:6px;
+      `;
+      editBtn.onclick = () => {
+        const name = prompt('Update class name:', room.className);
+        const desc = prompt('Update subject name:', room.description);
+        if (!name || !desc) return;
+
+        this.http
+          .put(
+            `http://localhost:5000/api/change/updateclassname/${room._id}`,
+            { className: name, subject: desc },
+            { withCredentials: true }
+          )
+          .toPromise()
+          .then(() => {
+            alert('Class updated');
+            headerLeft.querySelector('h2')!.textContent = name;
+            const ps = headerLeft.getElementsByTagName('p');
+            if (ps.length > 0) {
+              ps[0].textContent = desc;
+            }
+          })
+          .catch(() => alert('Failed to update class'));
+      };
+
+      headerRight.appendChild(topActions);
+      headerRight.appendChild(editBtn);
+
+      header.appendChild(headerLeft);
+      header.appendChild(headerRight);
+
+      const tabsBar = document.createElement('div');
+      tabsBar.style.cssText = `
+        display:flex; align-items:center;
+        gap:24px; padding:14px 24px;
+        background:#F5F7FB;
+        border-bottom:1px solid #E4E7EB;
+        font-size:14px; font-weight:600; color:#555;
+      `;
+
+      const tabStudents = document.createElement('div');
+      const tabAnnouncements = document.createElement('div');
+      tabStudents.textContent = 'Students';
+      tabAnnouncements.textContent = 'Announcements';
+
+      const setTabActive = (tab: HTMLElement, active: boolean) => {
+        tab.style.cursor = 'pointer';
+        tab.style.paddingBottom = '5px';
+        tab.style.borderBottom = active
+          ? '3px solid #0045AA'
+          : '3px solid transparent';
+        tab.style.color = active ? '#0045AA' : '#555';
+      };
+
+      setTabActive(tabStudents, true);
+      setTabActive(tabAnnouncements, false);
+
+      tabsBar.appendChild(tabStudents);
+      tabsBar.appendChild(tabAnnouncements);
+
+      const content = document.createElement('div');
+      content.style.cssText = `
+        padding:18px 24px 20px;
+        background:#F9FAFC;
+        flex:1; overflow:auto;
+      `;
+
+      // ---------- STUDENTS TAB ----------
+      const renderStudentsTab = () => {
+        content.innerHTML = '';
+        content.classList.add('tab-content-transition');
+
+        const topRow = document.createElement('div');
+        topRow.style.cssText = `
+          display:flex; justify-content:space-between;
+          align-items:center; margin-bottom:14px; gap:10px; flex-wrap:wrap;
+        `;
+
+        const counts = document.createElement('div');
+        counts.innerHTML = `
+          <div style="font-size:13px;color:#555;">
+            Total students: <strong>${students.length}</strong>
+          </div>
+        `;
+
+        const controls = document.createElement('div');
+        controls.style.cssText = `display:flex; gap:10px; flex-wrap:wrap;`;
+
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Search by name or email...';
+        searchInput.style.cssText = `
+          padding:8px 10px; border-radius:8px;
+          border:1px solid #D0D7E2; font-size:13px;
+          min-width:180px;
+        `;
+
+        const sortSelect = document.createElement('select');
+        sortSelect.style.cssText = `
+          padding:8px 10px; border-radius:8px;
+          border:1px solid #D0D7E2; font-size:13px;
+        `;
+        sortSelect.innerHTML = `
+          <option value="nameAsc">Name A–Z</option>
+          <option value="nameDesc">Name Z–A</option>
+          <option value="emailAsc">Email A–Z</option>
+          <option value="emailDesc">Email Z–A</option>
+        `;
+
+        controls.appendChild(searchInput);
+        controls.appendChild(sortSelect);
+        topRow.appendChild(counts);
+        topRow.appendChild(controls);
+        content.appendChild(topRow);
+
+        const listWrap = document.createElement('div');
+        listWrap.style.cssText = `
+          background:white; border-radius:12px;
+          border:1px solid #E4E7EB; padding:6px 0;
+        `;
+        content.appendChild(listWrap);
+
+        const renderList = () => {
+          listWrap.innerHTML = '';
+          const term = searchInput.value.toLowerCase().trim();
+          let filtered = [...students];
+
+          if (term) {
+            filtered = filtered.filter(
+              (s: any) =>
+                (s.studentName || '').toLowerCase().includes(term) ||
+                (s.studentEmail || '').toLowerCase().includes(term)
+            );
+          }
+
+          const sortBy = sortSelect.value;
+          filtered.sort((a: any, b: any) => {
+            const nameA = (a.studentName || '').toLowerCase();
+            const nameB = (b.studentName || '').toLowerCase();
+            const emailA = (a.studentEmail || '').toLowerCase();
+            const emailB = (b.studentEmail || '').toLowerCase();
+
+            switch (sortBy) {
+              case 'nameAsc':
+                return nameA.localeCompare(nameB);
+              case 'nameDesc':
+                return nameB.localeCompare(nameA);
+              case 'emailAsc':
+                return emailA.localeCompare(emailB);
+              case 'emailDesc':
+                return emailB.localeCompare(emailA);
+              default:
+                return 0;
+            }
+          });
+
+          if (!filtered.length) {
+            listWrap.innerHTML = `
+              <div style="padding:18px; text-align:center; color:#777; font-size:13px;">
+                No students match your search.
+              </div>
+            `;
+            return;
+          }
+
+          filtered.forEach((s: any) => {
+            const row = document.createElement('div');
+            row.style.cssText = `
+              display:flex; align-items:center; gap:12px;
+              padding:10px 16px; border-bottom:1px solid #F1F1F5;
+            `;
+
+            const avatar = document.createElement('div');
+            avatar.style.cssText = `
+              width:36px; height:36px; border-radius:50%;
+              background:#0045AA; color:white;
+              display:flex; align-items:center; justify-content:center;
+              font-size:14px; font-weight:600;
+            `;
+            const initials = (s.studentName || '?')
+              .split(' ')
+              .map((w: string) => w[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase();
+            avatar.textContent = initials || 'S';
+
+            const info = document.createElement('div');
+            info.innerHTML = `
+              <div style="font-size:14px;font-weight:600;color:#222;">${s.studentName}</div>
+              <div style="font-size:12px;color:#666;">${s.studentEmail}</div>
+            `;
+
+            row.appendChild(avatar);
+            row.appendChild(info);
+            listWrap.appendChild(row);
+          });
+        };
+
+        searchInput.oninput = renderList;
+        sortSelect.onchange = renderList;
+        renderList();
+      };
+
+      const renderAnnouncementsTab = () => {
+        content.innerHTML = '';
+        content.classList.add('tab-content-transition');
+
+        const createBox = document.createElement('div');
+        createBox.style.cssText = `
+          background:white; border-radius:12px;
+          border:1px solid #E4E7EB;
+          padding:12px 14px 14px;
+          margin-bottom:12px;
+        `;
+        createBox.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center; margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:600;color:#222;">
+              <i class="fa-solid fa-bullhorn"></i> Create Announcement
+            </div>
+            <div style="font-size:11px;color:#888;">Visible to all students of this class</div>
+          </div>
+        `;
+
+        const titleInput = document.createElement('input');
+        titleInput.placeholder = 'Title';
+        titleInput.style.cssText = `
+          width:100%; margin-bottom:6px;
+          padding:8px 10px; border-radius:8px;
+          border:1px solid #D0D7E2; font-size:13px;
+        `;
+
+        const msgInput = document.createElement('textarea');
+        msgInput.placeholder = 'Write announcement message...';
+        msgInput.rows = 3;
+        msgInput.style.cssText = `
+          width:100%; margin-bottom:6px;
+          padding:8px 10px; border-radius:8px;
+          border:1px solid #D0D7E2; font-size:13px;
+          resize:vertical;
+        `;
+
+        const attachInput = document.createElement('input');
+        attachInput.placeholder =
+          'Attachment URL (optional – PDF, image, etc.)';
+        attachInput.style.cssText = `
+          width:100%; margin-bottom:8px;
+          padding:6px 10px; border-radius:8px;
+          border:1px solid #D0D7E2; font-size:12px;
+        `;
+
+        const createBtn = document.createElement('button');
+        createBtn.textContent = 'Post Announcement';
+        createBtn.classList.add('btn-ripple');
+        createBtn.style.cssText = `
+          padding:8px 14px; border-radius:8px;
+          border:none; background:#0045AA; color:white;
+          font-size:13px; font-weight:600; cursor:pointer;
+        `;
+
+        createBtn.onclick = async () => {
+          const title = titleInput.value.trim();
+          const message = msgInput.value.trim();
+          const attachmentUrl = attachInput.value.trim();
+
+          if (!title || !message) {
+            alert('Title and message are required');
+            return;
+          }
+
+          try {
+            await this.http
+              .post(
+                'http://localhost:5000/api/announcements',
+                {
+                  classId: room._id,
+                  title,
+                  message,
+                  attachmentUrl: attachmentUrl || undefined,
+                },
+                { withCredentials: true }
+              )
+              .toPromise();
+
+            titleInput.value = '';
+            msgInput.value = '';
+            attachInput.value = '';
+            alert('Announcement posted');
+            this.loadAnnouncementsForPopup(room._id);
+          } catch (err) {
+            console.error('Create announcement error:', err);
+            alert('Failed to create announcement');
+          }
+        };
+
+        createBox.appendChild(titleInput);
+        createBox.appendChild(msgInput);
+        createBox.appendChild(attachInput);
+        createBox.appendChild(createBtn);
+
+        content.appendChild(createBox);
+
+        const listBox = document.createElement('div');
+        listBox.id = 'popupAnnouncements';
+        listBox.style.cssText = `
+          background:white; border-radius:12px;
+          border:1px solid #E4E7EB;
+          padding:12px 14px;
+          font-size:14px;
+        `;
+        listBox.innerHTML = 'Loading announcements...';
+        content.appendChild(listBox);
+
+        this.loadAnnouncementsForPopup(room._id);
+      };
+
+      card.appendChild(header);
+      card.appendChild(tabsBar);
+      card.appendChild(content);
+
+      const footer = document.createElement('div');
+      footer.style.cssText = `
+        padding:14px 24px;
+        border-top:1px solid #E4E7EB;
+        background:#F5F7FB;
+        display:flex; justify-content:flex-end; gap:10px;
+      `;
+
+      const makeFooterBtn = (html: string, bg: string) => {
+        const btn = document.createElement('button');
+        btn.classList.add('btn-ripple');
+        btn.innerHTML = html;
+        btn.style.cssText = `
+          padding:10px 18px; border-radius:10px;
+          border:none; color:white; background:${bg};
+          cursor:pointer; font-size:14px; font-weight:600;
+          display:flex; align-items:center; gap:8px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.18);
+          transition:transform .16s ease, box-shadow .16s ease;
+        `;
+        btn.onmouseover = () => {
+          btn.style.transform = 'translateY(-1px) scale(1.03)';
+          btn.style.boxShadow = '0 6px 15px rgba(0,0,0,0.22)';
+        };
+        btn.onmouseout = () => {
+          btn.style.transform = 'translateY(0) scale(1)';
+          btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.18)';
+        };
+        return btn;
+      };
+
+      const startBtn = makeFooterBtn(
+        '<i class="fa-solid fa-video"></i> Start Class',
+        '#0045AA'
+      );
+      startBtn.onclick = () => {
+        alert('Live class feature coming soon!');
+      };
+
+      const scheduleBtn = makeFooterBtn(
+        '<i class="fa-solid fa-calendar-check"></i> Schedule Class',
+        '#FFA500'
+      );
+      scheduleBtn.onclick = () => {
+        alert('Scheduling feature coming soon!');
+      };
+
+      footer.appendChild(startBtn);
+      footer.appendChild(scheduleBtn);
+      card.appendChild(footer);
+
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+
+      renderStudentsTab(); // default tab content
+
+      tabStudents.onclick = () => {
+        setTabActive(tabStudents, true);
+        setTabActive(tabAnnouncements, false);
+        renderStudentsTab();
+      };
+      tabAnnouncements.onclick = () => {
+        setTabActive(tabStudents, false);
+        setTabActive(tabAnnouncements, true);
+        renderAnnouncementsTab();
+      };
+
+      overlay.onclick = (e) => {
+        if (e.target === overlay) overlay.remove();
+      };
+
+      const escHandler = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          overlay.remove();
+          document.removeEventListener('keydown', escHandler);
+        }
+      };
+      document.addEventListener('keydown', escHandler);
+    } catch (err) {
+      console.error('Error opening class', err);
+    }
+  }
+
+  // ---------------------------------------------------
+  // ANNOUNCEMENTS POPUP LOADER (USED IN OPENCLASS)
+  // ---------------------------------------------------
+  async loadAnnouncementsForPopup(classId: string) {
+    try {
+      const res: any = await this.http
+        .get(`http://localhost:5000/api/announcements/class/${classId}`, {
+          withCredentials: true,
+        })
+        .toPromise();
+
+      const list = res.announcements || [];
+      const box = document.getElementById('popupAnnouncements');
+      if (!box) return;
+
+      if (!list.length) {
+        box.innerHTML = `
+          <div style="text-align:center; padding:18px; color:#777; font-size:13px;">
+            No announcements yet for this class.
+          </div>
+        `;
+        return;
+      }
+
+      box.innerHTML = list
+        .map((a: any, index: number) => {
+          const date = a.createdAt
+            ? new Date(a.createdAt).toLocaleString()
+            : '';
+          const isLatest = index === 0;
+          const attachment = a.attachmentUrl || a.attachment || '';
+
+          return `
+            <div style="
+              padding:${index > 0 ? '14px 0 0 0' : '4px 0 0 0'};
+              ${index > 0 ? 'border-top:1px solid #E4E7EB;' : ''}
+            ">
+              <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+                <div>
+                  <div style="font-size:14px; font-weight:600; color:#222;">
+                    ${a.title || 'Untitled'}
+                    ${
+                      isLatest
+                        ? '<span style="margin-left:6px;font-size:11px;color:#fff;background:#0045AA;padding:2px 6px;border-radius:999px;">NEW</span>'
+                        : ''
+                    }
+                  </div>
+                  <div style="margin-top:3px; font-size:13px; color:#555; line-height:1.45;">
+                    ${a.message || ''}
+                  </div>
+                  ${
+                    attachment
+                      ? `
+                    <div style="margin-top:6px;">
+                      <a href="${attachment}" target="_blank" style="
+                        font-size:12px; color:#0045AA; text-decoration:none;
+                        display:inline-flex; align-items:center; gap:4px;
+                      ">
+                        <i class="fa-solid fa-paperclip"></i> View attachment
+                      </a>
+                    </div>
+                  `
+                      : ''
+                  }
+                </div>
+                <div style="font-size:11px; color:#888; white-space:nowrap;">
+                  ${date}
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    } catch (err) {
+      console.error('Popup announcement error:', err);
+      const box = document.getElementById('popupAnnouncements');
+      if (box) {
+        box.innerHTML =
+          '<p style="color:red; font-size:13px;">Failed to load announcements</p>';
+      }
+    }
+  }
+
+  // ---------------------------------------------------
+  // ANNOUNCEMENTS (MAIN SECTION)
+  // ---------------------------------------------------
+  async sendAnnouncement() {
+    console.log('Form Status:', this.announcementForm.status);
+    console.log('Form Errors:', this.announcementForm.errors);
+    console.log('Form Values:', this.announcementForm.value);
+
+    if (this.announcementForm.invalid) {
+      this.announcementErrorMessage =
+        'Please fill all required fields correctly.';
+      this.announcementForm.markAllAsTouched();
+      return;
+    }
+
+    this.sending = true;
+    this.announcementErrorMessage = '';
+    this.announcementSuccessMessage = '';
+
+    const formData = this.announcementForm.value;
+
+    try {
+      const selectedClass = this.myClasses.find(
+        (c) => c._id === formData.selectedClass
+      );
+
+      if (!selectedClass) {
+        this.announcementErrorMessage = 'Selected class not found';
+        this.sending = false;
+        return;
+      }
+
+      const announcementData = {
+        classId: formData.selectedClass,
+        className: selectedClass.className,
+        title: formData.title,
+        message: formData.message,
+        sendEmail: formData.sendEmail,
+        facultyEmail: this.user?.email,
+        facultyName: this.user?.fullName,
+      };
+
+      console.log('Sending announcement:', announcementData);
+
+      const res: any = await this.http
+        .post(
+          'http://localhost:5000/api/announcements/send',
+          announcementData,
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      this.announcementSuccessMessage =
+        res?.message || 'Announcement sent successfully!';
+
+      const newAnnouncement: Announcement = {
+        id: res.announcement?._id || Date.now().toString(),
+        classId: formData.selectedClass,
+        title: formData.title,
+        className: selectedClass.className,
+        message: formData.message,
+        sendEmail: formData.sendEmail,
+        createdAt: new Date(),
+      };
+
+      this.recentAnnouncements.unshift(newAnnouncement);
+      this.announcementsCount = this.recentAnnouncements.length;
+      this.clearAnnouncementForm();
+
+      setTimeout(() => {
+        this.announcementSuccessMessage = '';
+      }, 5000);
+    } catch (err: any) {
+      console.error('Error sending announcement:', err);
+      this.announcementErrorMessage =
+        err?.error?.message || 'Failed to send announcement';
+    } finally {
+      this.sending = false;
+    }
+  }
+
+  clearAnnouncementForm() {
+    this.announcementForm.reset({
+      selectedClass: '',
+      title: '',
+      message: '',
+      sendEmail: false,
+    });
+  }
+
+  async loadRecentAnnouncements() {
+    if (!this.user?.email) return;
+
+    try {
+      const res: any = await this.http
+        .post(
+          'http://localhost:5000/api/announcements/recent',
+          { facultyEmail: this.user.email },
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      const all = res.announcements || [];
+      this.announcementsCount = all.length;
+      this.recentAnnouncements = all.slice(0, 3);
+    } catch (err) {
+      console.error('Error loading announcements:', err);
+      this.recentAnnouncements = [];
+      this.announcementsCount = 0;
+    }
+  }
+
+  getClassName(classId: string): string {
+    const classItem = this.myClasses.find((c) => c._id === classId);
+    return classItem
+      ? `${classItem.className} - ${classItem.subject}`
+      : 'Unknown Class';
+  }
+
+  getClassIds(): string[] {
+    return this.myClasses ? this.myClasses.map((c) => c._id) : [];
+  }
+
+  viewAnnouncement(announcement: Announcement) {
+    alert(`Title: ${announcement.title}\n\nMessage: ${announcement.message}`);
+  }
+
+  resendAnnouncement(announcement: Announcement) {
+    this.announcementForm.patchValue({
+      selectedClass: announcement.classId,
+      title: announcement.title,
+      message: announcement.message,
+      sendEmail: announcement.sendEmail,
+    });
+
+    setTimeout(() => {
+      document
+        .querySelector('.create-announcement-card')
+        ?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
+
+  // ---------------------------------------------------
+  // SECTION SWITCHING
+  // ---------------------------------------------------
+  selectone(section: string) {
+    this.selectedSection = section;
+
+    if (section === 'anouncements') {
+      this.loadRecentAnnouncements();
+    }
+
+    // When user opens Material tab, auto-load materials for first class (if any)
+    if (section === 'material' && this.myClasses.length > 0) {
+      const firstClassId = this.myClasses[0]._id;
+      this.currentMaterialClassId = firstClassId;
+      this.loadMaterialsForClass(firstClassId);
+    }
+  }
+
+  // ---------------------------------------------------
+  // NOTIFICATION HELPERS
+  // ---------------------------------------------------
+  async copyCodeModern(classCode: string) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(classCode);
+      } else {
+        const input = document.createElement('input');
+        input.value = classCode;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+      }
+      this.showNotification('Class code copied!');
+    } catch (err) {
+      this.showNotification('Failed to copy', 'error');
+    }
+  }
+
+  showNotification(message: string, type: 'success' | 'error' = 'success') {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('Orbit Classroom', { body: message });
+    }
+  }
+
+  requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+
+  // ---------------------------------------------------
+  // PROFILE EDIT (PHOTO + PASSWORD)
+  // ---------------------------------------------------
+  setEditMode(mode: '' | 'photo' | 'password') {
+    this.editMode = mode;
+    this.successMsg = '';
+    this.errorMsg = '';
+  }
+
+  async updatePhoto() {
+    if (!this.selectedFile) {
+      this.errorMsg = 'Please choose an image';
+      return;
+    }
+
+    const form = new FormData();
+    form.append('email', this.user?.email!);
+    form.append('photo', this.selectedFile);
+
+    try {
+      const res: any = await this.http
+        .post(
+          'http://localhost:5000/api/faculty/updateprofilepic',
+          form,
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      if (res.success) {
+        this.successMsg = 'Profile updated successfully!';
+        this.photourl = res.photo;
+      } else {
+        this.errorMsg = res.message;
+      }
+    } catch {
+      this.errorMsg = 'Server error';
+    }
+  }
+
+  async updatePassword() {
+    this.successMsg = '';
+    this.errorMsg = '';
+
+    if (!this.currentPass || !this.newPass || !this.confirmPass) {
+      this.errorMsg = 'All fields required';
+      return;
+    }
+
+    if (this.newPass !== this.confirmPass) {
+      this.errorMsg = 'Passwords do not match';
+      return;
+    }
+
+    if (this.currentPass === this.newPass) {
+      this.errorMsg = 'New password cannot be same as old password';
+      return;
+    }
+
+    try {
+      const res: any = await this.http
+        .post(
+          'http://localhost:5000/api/updatepassword',
+          {
+            email: this.user?.email,
+            currentPassword: this.currentPass,
+            newPassword: this.newPass,
+          },
+          { withCredentials: true }
+        )
+        .toPromise();
+
+      if (res.success) {
+        this.successMsg = 'Password changed successfully';
+        this.currentPass = this.newPass = this.confirmPass = '';
+        this.editMode = '';
+      } else {
+        this.errorMsg = res.message;
+      }
+    } catch {
+      this.errorMsg = 'Server error';
+    }
+  }
+
+  clearForm(): void {
+    this.clearAnnouncementForm();
+  }
+
+  // ---------------------------------------------------
+  // MATERIALS UPLOAD LOGIC (REAL BACKEND)
+  // ---------------------------------------------------
+
+  // File input change
+  onFileSelect(event: any): void {
+    const files: FileList = event.target.files;
+    if (files && files.length > 0) {
+      this.selectedFiles = Array.from(files);
+
+      // Initialize progress field on each file object (for progress UI)
+      this.selectedFiles.forEach((file: any) => {
+        file.progress = 0;
+      });
+
+      console.log('Selected files:', this.selectedFiles);
+    }
+  }
+
+  // Upload materials to backend (single class at a time)
+  uploadMaterials(): void {
+    if (this.selectedFiles.length === 0) return;
+
+    // Read selected class and title from DOM
+    const classSelect = document.getElementById(
+      'classSelect'
+    ) as HTMLSelectElement | null;
+    const titleInput = document.getElementById(
+      'materialTitle'
+    ) as HTMLInputElement | null;
+
+    if (!classSelect || !classSelect.value) {
+      alert('Please select a class');
+      return;
+    }
+
+    if (!titleInput || !titleInput.value.trim()) {
+      alert('Enter material title');
+      return;
+    }
+
+    const classId = classSelect.value;
+    const title = titleInput.value.trim();
+
+    this.uploading = true;
+    this.uploadProgress = 0;
+
+    // For each file, send POST /api/material/upload
+    this.selectedFiles.forEach((file: any, index) => {
+      const formData = new FormData();
+      formData.append('material', file);
+      formData.append('classId', classId);
+      formData.append('title', title);
+      formData.append('uploadedBy', this.user?.email || '');
+
+      this.http
+        .post('http://localhost:5000/api/material/upload', formData, {
+          observe: 'events',
+          reportProgress: true,
+          withCredentials: true,
+        })
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              const percent = Math.round((event.loaded / event.total) * 100);
+              file.progress = percent;
+              this.updateOverallUploadProgress();
+            }
+
+            if (event.type === HttpEventType.Response) {
+              // If this is last file, cleanup & reload materials
+              if (index === this.selectedFiles.length - 1) {
+                this.loadMaterialsForClass(classId);
+                this.uploading = false;
+                this.selectedFiles = [];
+                this.uploadProgress = 0;
+                if (this.fileInput?.nativeElement) {
+                  this.fileInput.nativeElement.value = '';
+                }
+                alert('Materials uploaded successfully');
+              }
+            }
+          },
+          error: (err) => {
+            console.error('Upload error:', err);
+            this.uploading = false;
+            alert('Failed to upload material');
+          },
+        });
+    });
+  }
+
+  // Helper: update overall upload progress (average of all files)
+  private updateOverallUploadProgress(): void {
+    if (!this.selectedFiles.length) {
+      this.uploadProgress = 0;
+      return;
+    }
+
+    const totalProgress = this.selectedFiles.reduce(
+      (sum: number, file: any) => sum + (file.progress || 0),
+      0
+    );
+    this.uploadProgress = totalProgress / this.selectedFiles.length;
+  }
+
+  // Load materials for particular class
+  loadMaterialsForClass(classId: string): void {
+    this.currentMaterialClassId = classId;
+
+    this.http
+      .get(`http://localhost:5000/api/material/${classId}`, {
+        withCredentials: true,
+      })
+      .subscribe({
+        next: (res: any) => {
+          const list = res.materials || [];
+
+          // Map backend data into UI model
+          this.materials = list.map((m: any) => ({
+            ...m,
+            size: m.size || '—',
+            date: m.createdAt
+              ? new Date(m.createdAt).toLocaleDateString()
+              : '',
+            assignedClasses: [this.getClassName(m.classId) || 'Selected Class'],
+          }));
+
+          this.materialsCount = this.materials.length;
+        },
+        error: (err) => {
+          console.error('Error loading materials:', err);
+          this.materials = [];
+          this.materialsCount = 0;
+        },
+      });
+  }
+
+  // Icon based purely on material.type from backend
+  getFileIcon(fileType: string): string {
+    const iconMap: { [key: string]: string } = {
+      PDF: 'fa-solid fa-file-pdf',
+      DOC: 'fa-solid fa-file-word',
+      PPT: 'fa-solid fa-file-powerpoint',
+      XLS: 'fa-solid fa-file-excel',
+      Image: 'fa-solid fa-file-image',
+      Archive: 'fa-solid fa-file-archive',
+      Text: 'fa-solid fa-file-lines',
+      File: 'fa-solid fa-file',
+      link: 'fa-solid fa-link',
+      file: 'fa-solid fa-file',
+    };
+
+    return iconMap[fileType] || 'fa-solid fa-file';
+  }
+
+  // Download: open file URL stored by backend
+  downloadMaterial(material: any): void {
+    if (material.fileUrl) {
+      window.open('http://localhost:5000' + material.fileUrl, '_blank');
+    } else if (material.externalLink) {
+      window.open(material.externalLink, '_blank');
+    } else {
+      alert('No file or link found for this material');
+    }
+  }
+
+  // Share material: copy link (file or external) to clipboard
+  shareMaterial(material: any): void {
+    let shareUrl = '';
+
+    if (material.externalLink) {
+      shareUrl = material.externalLink;
+    } else if (material.fileUrl) {
+      shareUrl = 'http://localhost:5000' + material.fileUrl;
+    } else {
+      alert('No sharable link available');
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => alert('Shareable link copied to clipboard!'))
+      .catch(() => alert('Failed to copy link'));
+  }
+
+  // Delete material from DB
+  deleteMaterial(material: any): void {
+    if (!confirm('Do you want to delete this material?')) return;
+
+    this.http
+      .delete(
+        `http://localhost:5000/api/material/delete/${material._id}`,
+        { withCredentials: true }
+      )
+      .subscribe({
+        next: () => {
+          this.materials = this.materials.filter(
+            (m: any) => m._id !== material._id
+          );
+          this.materialsCount = this.materials.length;
+        },
+        error: (err) => {
+          console.error('Delete material error:', err);
+          alert('Failed to delete material');
+        },
+      });
+  }
+
+  // Drag & drop helpers
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.add('drag-over');
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.remove('drag-over');
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const uploadArea = event.currentTarget as HTMLElement;
+    uploadArea.classList.remove('drag-over');
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const fakeEvent = { target: { files } };
+      this.onFileSelect(fakeEvent);
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedFiles = [];
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
+  }
+}
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+Erorros
+----------------
+[{
+	"resource": "/c:/ORBIT/frontend/orbit/src/app/components/faculty/faculty.html",
+	"owner": "_generated_diagnostic_collection_name_#4",
+	"code": "2339",
+	"severity": 8,
+	"message": "Property 'progress' does not exist on type 'File'.",
+	"source": "ngtsc",
+	"startLineNumber": 678,
+	"startColumn": 102,
+	"endLineNumber": 678,
+	"endColumn": 110,
+	"relatedInformation": [
+		{
+			"startLineNumber": 45,
+			"startColumn": 16,
+			"endLineNumber": 45,
+			"endColumn": 32,
+			"message": "Error occurs in the template of component Faculty.",
+			"resource": "/c:/ORBIT/frontend/orbit/src/app/components/faculty/faculty.ts"
+		}
+	],
+	"origin": "extHost1"
+},{
+	"resource": "/c:/ORBIT/frontend/orbit/src/app/components/faculty/faculty.html",
+	"owner": "_generated_diagnostic_collection_name_#4",
+	"code": "2339",
+	"severity": 8,
+	"message": "Property 'progress' does not exist on type 'File'.",
+	"source": "ngtsc",
+	"startLineNumber": 681,
+	"startColumn": 85,
+	"endLineNumber": 681,
+	"endColumn": 93,
+	"relatedInformation": [
+		{
+			"startLineNumber": 45,
+			"startColumn": 16,
+			"endLineNumber": 45,
+			"endColumn": 32,
+			"message": "Error occurs in the template of component Faculty.",
+			"resource": "/c:/ORBIT/frontend/orbit/src/app/components/faculty/faculty.ts"
+		}
+	],
+	"origin": "extHost1"
+}]
