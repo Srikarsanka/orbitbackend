@@ -1,14 +1,28 @@
 const bcrypt = require("bcryptjs");
-const { spawn } = require("child_process");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+const FormData = require("form-data");
 require("dotenv").config();
+
+function formFromBase64(base64) {
+  const data = base64.split(",")[1];
+  const buffer = Buffer.from(data, "base64");
+  const form = new FormData();
+  form.append("file", buffer, {
+    filename: "face.jpg",
+    contentType: "image/jpeg",
+  });
+  return form;
+}
 
 const login = async (req, res) => {
   console.log("🔥 LOGIN API CALLED");
+
   try {
-    const { email, password, photoBase64, role } = req.body;
+    const { email, password, role, photoBase64 } = req.body;
 
     if (!email || !password || !photoBase64 || !role) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -17,89 +31,70 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
-
+    // Check role match (OLD behavior)
     if (role !== user.role) {
       return res.status(400).json({ message: "Role mismatch!" });
     }
 
-    // Run Python face encoder
-    const python = spawn("python3", [
-      path.join(__dirname, "../face_encode.py"),
-    ]);
-    let result = "";
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
-    python.stdout.on("data", (data) => (result += data.toString()));
-    python.stderr.on("data", (data) =>
-      console.log("PYTHON ERROR:", data.toString())
+    // Face recognition via FASTAPI (REPLACEMENT FOR spawn python)
+    const form = formFromBase64(photoBase64);
+
+    const pyRes = await fetch("http://localhost:8000/encode", {
+      method: "POST",
+      body: form,
+    });
+
+    const pyOut = await pyRes.json();
+    console.log("🔥 FASTAPI OUTPUT:", pyOut);
+
+    if (!pyOut || pyOut.error) {
+      return res.status(400).json({ message: "Face not detected" });
+    }
+
+    const embedding = pyOut.embedding;
+    const stored = user.faceEmbedding;
+
+    const distance = Math.sqrt(
+      embedding.reduce(
+        (sum, v, i) => sum + (v - stored[i]) * (v - stored[i]),
+        0
+      )
     );
 
-    python.stdin.write(JSON.stringify({ image: photoBase64 }));
-    python.stdin.end();
+    if (distance > 0.55) {
+      return res.status(400).json({ message: "Face does not match!" });
+    }
 
-    python.on("close", async () => {
-      console.log("RAW PYTHON RESULT =", result);
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-      // 🧨 NEW SAFETY CHECK
-      if (!result || result.trim() === "") {
-        return res
-          .status(400)
-          .json({ message: "Python returned no output (face not detected)" });
-      }
+    // ⭐ KEEP OLD COOKIE NAME & ACCESSIBILITY
+    res.cookie("orbit_user", token, {
+      httpOnly: false, // OLD behavior
+      secure: false,
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-      let output;
-      try {
-        output = JSON.parse(result);
-      } catch (e) {
-        return res.status(400).json({ message: "Invalid Python JSON output" });
-      }
-
-      if (output.error) {
-        return res.status(400).json({ message: output.error });
-      }
-
-      const embedding = output.embedding;
-      const stored = user.faceEmbedding;
-
-      const distance = Math.sqrt(
-        embedding.reduce(
-          (sum, v, i) => sum + (v - stored[i]) * (v - stored[i]),
-          0
-        )
-      );
-
-      if (distance > 0.55) {
-        return res.status(400).json({ message: "Face does not match!" });
-      }
-
-      const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      // ⭐ COOKIE FIX
-      res.cookie("orbit_user", token, {
-        httpOnly: false,
-        secure: false,
-        sameSite: "Lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      return res.status(200).json({
-        message: "Login successful!",
-        user: {
-          fullName: user.fullName,
-          email: user.email,
-          role: user.role,
-          photo: user.profilePhoto,
-        },
-      });
+    // ⭐ RETURN EXACT OLD RESPONSE OBJECT
+    return res.status(200).json({
+      message: "Login successful!",
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        photo: user.profilePhoto,
+      },
     });
   } catch (err) {
-    console.log(err);
+    console.log("🔥 LOGIN ERROR:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };

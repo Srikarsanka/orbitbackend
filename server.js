@@ -102,6 +102,8 @@ app.use("/api/deleteclass", require("./routes/deleteclassrouter.js"));
 
 app.use("/otp", require("./routes/otp"));
 
+app.use("/api/student", require("./routes/joinclass.js"));
+
 //-------------------------------------------------------------
 // 🛑 Error Handling Middleware (for backend crashes)
 //-------------------------------------------------------------
