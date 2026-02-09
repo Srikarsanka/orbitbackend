@@ -10,8 +10,19 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["student", "faculty"], required: true },
     password: { type: String, required: true },
     profilePhoto: { type: String, required: true },
-    // Instead of storing full Base64 photo, we store the face embedding array
-    faceEmbedding: { type: [Number], required: true },
+    // Encrypted face embedding (stored as encrypted string for security)
+    faceEmbedding: { type: String, required: true },
+    // Optional: Hash for quick duplicate detection
+    faceEmbeddingHash: { type: String },
+    
+    // Single-device login tracking
+    activeSession: {
+      deviceId: String,
+      loginTime: Date,
+      lastActivity: Date,
+      ipAddress: String,
+      userAgent: String
+    }
   },
   { timestamps: true }
 );

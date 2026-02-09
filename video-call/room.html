@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Orbit Live Class</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/main.css"> <!-- Base styles -->
+    <link rel="stylesheet" href="styles/teams_layout.css"> <!-- New Layout -->
+    <link rel="stylesheet" href="styles/enhancements.css"> <!-- Enhanced Features -->
+    <link rel="stylesheet" href="styles/spectator.css"> <!-- Spectator Card -->
+    <link rel="stylesheet" href="styles/presentation.css"> <!-- Presentation Mode -->
+    <link rel="stylesheet" href="styles/whiteboard.css"> <!-- Whiteboard Styles -->
+    <link rel="stylesheet" href="styles/face_verification.css">`n    <link rel="stylesheet" href="styles/face_verification_layout.css"> <!-- Face Verification Modal -->
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/theme/dracula.css">
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/lib/codemirror.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/javascript/javascript.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.15/mode/python/python.js"></script>
+
+    <!-- CDNs -->
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.18.2.js"></script>
+    <!-- Fabric.js Removed (Replaced by WBO) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Socket.IO Client for Real-Time Sync -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+
+<body class="teams-theme">
+
+    <!-- ================= HEADER ================= -->
+    <header class="teams-header">
+        <div class="header-left">
+            <div class="brand-icon"><i class="fa-solid fa-atom"></i></div>
+            <div class="header-info">
+                <h2>Orbit Live Class</h2>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div id="session-status" class="session-badge">
+                <span style="color:#aaa;">Connecting...</span>
+            </div>
+            <div class="session-timer" id="session-timer-display">
+                <i class="fa-regular fa-clock"></i> 00:00:00
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="network-status" title="Network Good">
+                <span class="network-label">Network</span>
+                <i class="fa-solid fa-signal" style="color: #2e7d32;"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MAIN STAGE ================= -->
+    <main class="teams-container">
+        <div class="teams-stage" id="stage">
+
+            <!-- Faculty Video (Primary) -->
+            <div id="primary-video-container" class="primary-video-area">
+                <!-- Faculty video injected here -->
+                <div class="empty-state-faculty">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Waiting for Faculty...</span>
+                </div>
+            </div>
+
+            <!-- Student Grid (Secondary) -->
+            <div id="student-grid-container" class="student-grid-area">
+                <div id="streams_container" class="video-grid">
+                    <!-- Student videos injected here -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= PRESENTATION MODE ================= -->
+    <div id="presentation-mode-container" class="presentation-mode">
+        <!-- Presentation Content (Screen Share) -->
+        <div id="presentation-content-area" class="presentation-content">
+            <!-- Screen share video will be injected here -->
+        </div>
+
+        <!-- Faculty Picture-in-Picture -->
+        <div id="faculty-pip-container" class="faculty-pip">
+            <!-- Faculty camera will be moved here -->
+        </div>
+
+        <!-- Presentation Indicator (for students) -->
+        <div id="presentation-indicator" class="presentation-indicator" style="display:none;">
+            <i class="fa-solid fa-circle"></i>
+            <span id="presentation-type-label">Presentation Active</span>
+        </div>
+
+        <!-- Presentation Controls (Faculty Only) -->
+        <div id="presentation-controls" class="presentation-controls">
+            <button id="stop-presentation-btn" class="stop-presentation-btn">
+                <i class="fa-solid fa-xmark"></i> Stop Presenting
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= CONTROLS ================= -->
+    <div class="teams-controls">
+        <button class="control-btn" id="mic-btn" title="Mic">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button class="control-btn" id="camera-btn" title="Camera">
+            <i class="fa-solid fa-video"></i>
+        </button>
+
+
+        <div class="separator"></div>
+
+        <button class="control-btn" id="open_whiteboard_btn" title="Whiteboard">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="control-btn" id="screen-btn" title="Screen Share">
+            <i class="fa-solid fa-display"></i>
+        </button>
+        <button class="control-btn" id="open_compiler_btn" title="Compiler">
+            <i class="fa-solid fa-code"></i>
+        </button>
+        <button class="control-btn" id="open_chat_btn" title="Chat">
+            <i class="fa-solid fa-comment"></i>
+        </button>
+        <button class="control-btn" id="open_insights_btn" title="Participants">
+            <i class="fa-solid fa-users"></i>
+        </button>
+
+        <div class="separator"></div>
+
+        <button class="control-btn danger" id="leave-btn" title="End Class">
+            <i class="fa-solid fa-phone-slash"></i>
+            <span>End Class</span>
+        </button>
+    </div>
+
+    <!-- ================= OVERLAYS ================= -->
+
+    <!-- 1. Collaborative Whiteboard Overlay (Canvas-based) -->
+    <section id="whiteboard__section" class="overlay-panel hidden"
+        style="z-index:10000; padding:0; overflow:hidden; width:90vw; height:85vh; display:flex; flex-direction:column;">
+        <div class="overlay-header"
+            style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:#2c2c2c; color:white; height:60px; min-height:60px; flex-shrink:0;">
+            <h3 style="margin:0;"><i class="fa-solid fa-pen-to-square"></i> Collaborative Whiteboard</h3>
+            <div class="wb-header-actions" style="display:flex; gap:10px; align-items:center;">
+                <!-- Drawing Tools -->
+                <div id="wb-tools"
+                    style="display:flex; gap:8px; align-items:center; padding:0 15px; border-left:1px solid #444; border-right:1px solid #444;">
+                    <button class="wb-tool-btn active" data-tool="pen" title="Pen">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="wb-tool-btn" data-tool="eraser" title="Eraser">
+                        <i class="fa-solid fa-eraser"></i>
+                    </button>
+                    <input type="color" id="wb-color-picker" value="#000000" title="Color"
+                        style="width:30px; height:30px; border:none; cursor:pointer; border-radius:4px;">
+                    <select id="wb-line-width" title="Line Width"
+                        style="padding:4px; border-radius:4px; background:#444; color:white; border:1px solid #666;">
+                        <option value="1">Thin</option>
+                        <option value="2" selected>Normal</option>
+                        <option value="4">Thick</option>
+                        <option value="8">Very Thick</option>
+                    </select>
+                    <button id="wb-clear-btn" class="wb-tool-btn" title="Clear Canvas" style="color:#ff5252;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+
+                <!-- Permission Status -->
+                <span id="whiteboard-permission-status"
+                    style="font-size:11px; padding:4px 8px; background:#444; border-radius:4px;">
+                    Loading...
+                </span>
+
+                <button id="whiteboard_back" class="close-overlay"
+                    style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+        <div class="overlay-content"
+            style="padding:0; background:#fff; position:relative; overflow:hidden; flex:1; min-height:0; height:calc(100% - 60px);">
+            <canvas id="whiteboard-canvas" width="800" height="600"
+                style="width:100%; height:100%; cursor:crosshair; display:block; background:#ffffff; position:absolute; top:0; left:0;"></canvas>
+        </div>
+    </section>
+
+    <!-- 2. Enhanced Compiler Overlay with AI Analysis -->
+    <section id="compiler_section" class="overlay-panel hidden dark-theme">
+        <div class="overlay-header">
+            <h3><i class="fa-solid fa-code"></i> IDE & Compiler with AI Analysis</h3>
+            <div class="comp-header-actions">
+                <button class="comp-action-btn" id="comp-analyze-ai" title="AI Analysis">
+                    <i class="fa-solid fa-brain"></i> Analyze
+                </button>
+                <button id="compiler_back" class="close-overlay"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="overlay-content compiler-vscode-layout">
+            <!-- Sidebar -->
+            <div class="compiler-sidebar">
+                <div class="comp-sidebar-header">EXPLORER</div>
+                <div class="file-list">
+                    <div class="file-item active" id="current-file">main.py</div>
+                </div>
+                <div class="comp-lang-select">
+                    <label style="font-size: 11px; color: #888; margin-bottom: 4px; display: block;">Language</label>
+                    <select id="language-select">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python" selected>Python 3</option>
+                        <option value="c">C (GCC)</option>
+                        <option value="cpp">C++ (G++)</option>
+                        <option value="java">Java</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Main Editor Area -->
+            <div class="compiler-main">
+                <div class="editor-tabs">
+                    <div class="tab active" id="editor-tab">main.py</div>
+                    <button id="run-btn" class="run-btn-vscode">
+                        <i class="fa-solid fa-play"></i> Run Code
+                    </button>
+                </div>
+                <div id="codeplace-wrapper" class="editor-container">
+                    <textarea id="codeplace"># Python Example - Fibonacci Series
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Print first 10 Fibonacci numbers
+for i in range(10):
+    print(f"F({i}) = {fibonacci(i)}")</textarea>
+                </div>
+            </div>
+
+            <!-- Right Panel: Output + AI Analysis -->
+            <div class="compiler-right-panel">
+                <!-- Output Terminal -->
+                <div class="compiler-terminal">
+                    <div class="terminal-header">
+                        <span><i class="fa-solid fa-terminal"></i> Output</span>
+                        <div class="terminal-actions">
+                            <span class="execution-time" id="exec-time"></span>
+                            <button class="terminal-btn" id="clear-output" title="Clear">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            <button class="terminal-btn" id="copy-output" title="Copy">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="terminal-body" id="output-text">$ Ready to execute...</div>
+                </div>
+
+                <!-- AI Analysis Panel -->
+                <div class="ai-analysis-panel" id="ai-panel">
+                    <div class="ai-panel-header">
+                        <span><i class="fa-solid fa-brain"></i> AI Code Analysis</span>
+                        <button class="ai-panel-toggle" id="toggle-ai-panel">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="ai-panel-content" id="ai-content">
+                        <div class="ai-placeholder">
+                            <i class="fa-solid fa-lightbulb" style="font-size: 2rem; opacity: 0.3;"></i>
+                            <p>Click "Analyze" to get AI-powered insights</p>
+                        </div>
+                        <!-- AI Analysis Results (populated dynamically) -->
+                        <div class="ai-results" id="ai-results" style="display: none;">
+                            <div class="ai-section">
+                                <h4><i class="fa-solid fa-clock"></i> Time Complexity</h4>
+                                <div class="ai-complexity" id="ai-time-complexity"></div>
+                            </div>
+                            <div class="ai-section">
+                                <h4><i class="fa-solid fa-memory"></i> Space Complexity</h4>
+                                <div class="ai-complexity" id="ai-space-complexity"></div>
+                            </div>
+                            <div class="ai-section">
+                                <h4><i class="fa-solid fa-lightbulb"></i> Optimizations</h4>
+                                <ul class="ai-list" id="ai-optimizations"></ul>
+                            </div>
+                            <div class="ai-section">
+                                <h4><i class="fa-solid fa-wand-magic-sparkles"></i> Suggestions</h4>
+                                <ul class="ai-list" id="ai-suggestions"></ul>
+                            </div>
+                            <div class="ai-section" id="ai-optimal-code-section" style="display: none;">
+                                <h4><i class="fa-solid fa-code"></i> Optimized Code</h4>
+                                <pre class="ai-code" id="ai-optimal-code"></pre>
+                                <button class="ai-apply-btn" id="apply-optimal-code">
+                                    <i class="fa-solid fa-check"></i> Apply Optimized Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Chat Overlay (Right Side) -->
+    <section id="chat_section" class="overlay-panel right-side hidden" style="width: 420px; height: 600px;">
+        <div class="overlay-header">
+            <h3><i class="fa-solid fa-comment"></i> Chat</h3>
+            <button id="chat_back" class="close-overlay"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content chat-layout">
+            <div class="chat-toggle-wrapper" style="padding:10px; border-bottom:1px solid #eee;">
+                <div class="chat-type-select" style="display:flex; background:#eee; border-radius:16px; padding:2px;">
+                    <button id="chat-type-group" class="chat-type-btn active">Group</button>
+                    <button id="chat-type-dm" class="chat-type-btn">Direct (Faculty)</button>
+                </div>
+            </div>
+            <div class="activity-feed" id="activity-feed-list" style="flex:1; overflow-y:auto; padding:10px;">
+                <!-- Messages -->
+            </div>
+            <div class="chat-input-area" style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
+                <input type="text" id="chat-msg-input" placeholder="Type message..."
+                    style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                <button id="send-msg-btn" class="chat-send-btn" title="Send Message">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Insights Overlay (Right Side) -->
+    <section id="insights_section" class="overlay-panel right-side hidden" style="width: 420px; height: 600px;">
+        <div class="overlay-header">
+            <h3><i class="fa-solid fa-users"></i> Participants <span id="participant-count-header"
+                    style="font-size:12px; background:#444; padding:2px 6px; border-radius:10px; margin-left:8px;">0</span>
+            </h3>
+            <button id="insights_back" class="close-overlay"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="overlay-content" style="padding:20px;">
+            <div class="analytics-stat-card">
+                <label>Attendance</label> <span id="stat-attendance">0%</span>
+            </div>
+            <div class="chart-container" style="height:200px; position:relative;">
+                <canvas id="activity-chart"></canvas>
+            </div>
+            <div id="member__list" style="margin-top:20px;"></div>
+        </div>
+    </section>
+
+    <!-- ================= PREMIUM FACE VERIFICATION MODAL ================= -->
+    <div id="faceVerificationModal">
+        <div class="modal-content">
+            <!-- Header with Icon -->
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2>Identity Verification</h2>
+                <p class="modal-subtitle">Secure access with facial recognition</p>
+
+                <!-- Security Badge -->
+                <div class="security-badge">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Secure Class Access</span>
+                </div>
+            </div>
+
+            <!-- Main Flexbox Container -->
+            <div class="modal-body">
+                <!-- LEFT SECTION: Camera & Controls -->
+                <div class="camera-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Live Camera</span>
+                    </div>
+
+                    <!-- Video Container -->
+                    <div class="video-container">
+                        <div class="video-frame" id="videoFrame">
+                            <div class="camera-placeholder" id="cameraPlaceholder">
+                                <i class="fa-solid fa-camera"></i>
+                                <p>Click "Start Camera" to begin</p>
+                            </div>
+                            <video id="verifyVideo" autoplay playsinline muted style="display:none;"></video>
+                            <div class="face-guide"></div>
+                        </div>
+                        <canvas id="verifyCanvas" hidden></canvas>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="verify-controls">
+                        <button id="startVerifyCamera" class="btn-primary">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Start Camera</span>
+                        </button>
+                        <button id="captureVerifyPhoto" class="btn-success" style="display:none;">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <span>Verify Identity</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT SECTION: Animated Status & Info -->
+                <div class="status-section">
+                    <!-- Status Panel -->
+                    <div class="status-panel">
+                        <div class="panel-header">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Verification Status</span>
+                        </div>
+
+                        <div class="status-content">
+                            <!-- Status Message -->
+                            <div id="verifyStatus" class="status-message">
+                                <i class="fa-solid fa-info-circle"></i>
+                                <p>Ready to verify your identity</p>
+                            </div>
+
+                            <!-- Attempt Counter -->
+                            <div id="attemptCounter" class="attempt-display">
+                                <i class="fa-solid fa-shield-check"></i>
+                                <span>3 attempts available</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Panel -->
+                    <div class="instructions-panel">
+                        <div class="panel-header">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <span>Instructions</span>
+                        </div>
+                        <ul class="instruction-list">
+                            <li><i class="fa-solid fa-check"></i> Position your face in the frame</li>
+                            <li><i class="fa-solid fa-check"></i> Ensure good lighting</li>
+                            <li><i class="fa-solid fa-check"></i> Look directly at camera</li>
+                            <li><i class="fa-solid fa-check"></i> Remove glasses if needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Whiteboard Socket.IO Client Logic Removed (Handled by WBO Iframe) -->
+    <script src="js/whiteboard_canvas.js"></script> <!-- Collaborative Whiteboard -->
+    <script src="js/face_verification.js"></script> <!-- Face Verification for Video Call Join -->
+    <script src="js/room_rtc_enhanced.js"></script> <!-- RTC Logic -->
+    <script src="js/room.js"></script> <!-- UI Logic -->
+    <script src="js/compiler_enhanced.js"></script> <!-- Enhanced Compiler with AI -->
+
+</body>
+
+</html>

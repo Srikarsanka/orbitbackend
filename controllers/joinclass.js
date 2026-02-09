@@ -4,7 +4,11 @@ const joinclass = async (req, res) => {
   try {
     const { classCode, student } = req.body;
 
-    if (!classCode || !student?.email) {
+    console.log('📝 Join class request:', { classCode, student });
+
+    // Check for required fields (frontend sends studentEmail, not email)
+    if (!classCode || !student?.studentEmail) {
+      console.log('❌ Missing required data:', { classCode, studentEmail: student?.studentEmail });
       return res.status(400).json({
         success: false,
         message: "Missing required data",
@@ -24,9 +28,9 @@ const joinclass = async (req, res) => {
       classData.students = [];
     }
 
-    // Check if already joined
+    // Check if already joined (check both studentEmail and email for compatibility)
     const alreadyJoined = classData.students.some(
-      (s) => s.studentEmail === student.email
+      (s) => s.studentEmail === student.studentEmail || s.studentEmail === student.email
     );
 
     if (alreadyJoined) {
@@ -38,9 +42,9 @@ const joinclass = async (req, res) => {
 
     // PUSH DATA EXACTLY AS PER SCHEMA
     classData.students.push({
-      studentName: student.name,
-      studentEmail: student.email,
-      studentPhoto: student.photo,
+      studentName: student.studentName || student.name, // Support both field names
+      studentEmail: student.studentEmail || student.email,
+      studentPhoto: student.studentPhoto || student.photo,
     });
 
     await classData.save();

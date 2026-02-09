@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const cloudinary = require("../config/cloudinary");
+const { encryptEmbedding, hashEmbedding } = require("../utils/embeddingCrypto");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const FormData = require("form-data");
@@ -56,6 +57,12 @@ exports.signup = async (req, res) => {
 
     const embedding = pyOut.embedding;
 
+    // Encrypt embedding for secure storage
+    const encryptedEmbedding = encryptEmbedding(embedding);
+    const embeddingHash = hashEmbedding(embedding);
+
+    console.log('🔐 Embedding encrypted for secure storage');
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -68,7 +75,8 @@ exports.signup = async (req, res) => {
       role,
       password: hashedPassword,
       profilePhoto,
-      faceEmbedding: embedding,
+      faceEmbedding: encryptedEmbedding,
+      faceEmbeddingHash: embeddingHash,
     });
 
     return res.json({
@@ -82,3 +90,4 @@ exports.signup = async (req, res) => {
     });
   }
 };
+

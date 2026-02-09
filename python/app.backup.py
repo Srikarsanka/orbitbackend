@@ -15,23 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root Health Check
-@app.get("/")
-async def health_check():
-    """Health check endpoint for Azure App Service"""
-    return {"status": "ok", "message": "Orbit AI Backend is running", "service": "Face Analysis & Code Compiler"}
-
-# Global model variable for lazy loading
-_face_analyzer = None
-
-def get_face_analyzer():
-    """Lazy initialize the InsightFace model only when needed"""
-    global _face_analyzer
-    if _face_analyzer is None:
-        print("🚀 Initializing Face Analysis model...")
-        _face_analyzer = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
-        _face_analyzer.prepare(ctx_id=-1, det_size=(640, 640))  # ctx_id=-1 for CPU, use 0 for GPU
-    return _face_analyzer
+model = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
+model.prepare(ctx_id=0, det_size=(640, 640))
 
 @app.post("/encode")
 async def encode(file: UploadFile = File(...)):
@@ -39,10 +24,7 @@ async def encode(file: UploadFile = File(...)):
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
     arr = np.array(img)
 
-    # Get model via lazy initializer
-    face_model = get_face_analyzer()
-    faces = face_model.get(arr)
-    
+    faces = model.get(arr)
     if not faces:
         return {"error": "NO_FACE_FOUND"}
 

@@ -1,0 +1,14 @@
+1. Create Virtual Environment
+
+Open VS Code terminal and run:
+
+python 
+
+Activate Virtual Environment (Windows)
+venv\Scripts\activate
+
+4. Run FastAPI
+
+If your file is main.py:
+
+uvicorn app:app --reload

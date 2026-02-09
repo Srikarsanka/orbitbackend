@@ -1,0 +1,238 @@
+/* ===============================================
+   ORBIT Live Class - Additional Styles
+   =============================================== */
+
+/* Reconnecting Indicator Animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+/* Reconnecting Indicator Pulse */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+#reconnecting-indicator {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Disabled Camera Button Styling */
+button[disabled].camera-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* Session Status Badge */
+.session-status {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(40, 167, 69, 0.95);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.session-status.ending {
+  background: rgba(220, 53, 69, 0.95);
+}
+
+/* Faculty Badge */
+.faculty-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* Student Camera Locked Indicator */
+.camera-locked-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  z-index: 10;
+}
+
+/* Enhanced Video Container */
+.video__containers {
+  position: relative;
+}
+
+/* Presenter Mode Enhancements */
+.presenter {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.presenter video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Network Status Indicator */
+.network-status {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  z-index: 9999;
+  display: none;
+}
+
+.network-status.show {
+  display: block;
+}
+
+.network-status.good {
+  background: rgba(40, 167, 69, 0.9);
+}
+
+.network-status.poor {
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+}
+
+.network-status.bad {
+  background: rgba(220, 53, 69, 0.9);
+}
+
+/* Attendance Heartbeat Indicator */
+.attendance-indicator {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-indicator::before {
+  content: '●';
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Role-Based UI Adjustments */
+body[data-role="faculty"] .student-only {
+  display: none !important;
+}
+
+body[data-role="student"] .faculty-only {
+  display: none !important;
+}
+
+/* End Session Confirmation Modal */
+.end-session-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+}
+
+.end-session-modal .modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.end-session-modal h3 {
+  margin: 0 0 15px 0;
+  color: #dc3545;
+}
+
+.end-session-modal .button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.end-session-modal button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.end-session-modal .btn-confirm {
+  background: #dc3545;
+  color: white;
+}
+
+.end-session-modal .btn-cancel {
+  background: #6c757d;
+  color: white;
+}

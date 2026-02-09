@@ -1,7 +1,8 @@
-fastapi
-uvicorn
-numpy
-Pillow
-python-multipart
-insightface
-onnxruntime
+fastapi==0.115.0
+uvicorn==0.30.6
+numpy==1.26.4
+pillow==9.5.0
+onnxruntime==1.17.3
+insightface==0.7.3
+openai
+python-multipart==0.0.9

@@ -1,0 +1,198 @@
+/* ===============================================
+   PRESENTATION MODE (TEACHING MODE) STYLES
+   =============================================== */
+
+.presentation-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      z-index: 9999;
+      display: none;
+      /* Hidden by default */
+}
+
+.presentation-mode.active {
+      display: block;
+}
+
+.presentation-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+}
+
+.presentation-content video,
+.presentation-content .video__containers {
+      max-width: 100%;
+      max-height: 100%;
+      width: 100%;
+      height: 100%;
+}
+
+.presentation-content .video-player {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain;
+      /* Don't crop whiteboard/compiler */
+}
+
+/* Faculty Picture-in-Picture */
+.faculty-pip {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 240px;
+      height: 180px;
+      border: 3px solid #FFA500;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      background: #1a1a1a;
+      z-index: 10000;
+}
+
+.faculty-pip .video__containers {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      border-radius: 0;
+}
+
+.faculty-pip .video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+}
+
+.faculty-pip .name-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+}
+
+/* Presentation Controls (Faculty Only) */
+.presentation-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: none;
+      z-index: 10001;
+}
+
+.presentation-controls.active {
+      display: block;
+}
+
+.stop-presentation-btn {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+      transition: all 0.2s;
+}
+
+.stop-presentation-btn:hover {
+      background: #b71c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(211, 47, 47, 0.6);
+}
+
+.stop-presentation-btn:active {
+      transform: translateY(0);
+}
+
+/* Presentation Indicator (for students) */
+.presentation-indicator {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 165, 0, 0.95);
+      color: #000;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10001;
+      animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+      0%,
+      100% {
+            opacity: 1;
+      }
+
+      50% {
+            opacity: 0.8;
+      }
+}
+
+.presentation-indicator i {
+      animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+
+      0%,
+      100% {
+            opacity: 1;
+      }
+
+      50% {
+            opacity: 0.3;
+      }
+}
+
+/* Hide normal grid when in presentation mode */
+body.in-presentation .teams-stage {
+      display: none;
+}
+
+body.in-presentation .teams-controls {
+      z-index: 10002;
+      /* Keep controls above presentation */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+      .faculty-pip {
+            width: 160px;
+            height: 120px;
+            bottom: 80px;
+            /* Above mobile controls */
+            right: 10px;
+      }
+
+      .presentation-controls {
+            top: 10px;
+            right: 10px;
+      }
+
+      .stop-presentation-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+      }
+}

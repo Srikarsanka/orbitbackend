@@ -1,0 +1,697 @@
+/* ============================================================
+   PREMIUM FACE VERIFICATION MODAL - ENHANCED VISUAL DESIGN
+   ============================================================ */
+
+/* Modal Overlay */
+#faceVerificationModal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 10, 69, 0.85);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+}
+
+/* Modal Content Card */
+#faceVerificationModal .modal-content {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+      padding: 0;
+      border-radius: 24px;
+      width: 95%;
+      max-width: 1200px;
+      max-height: 88vh;
+      box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(0, 0, 0, 0.05);
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+}
+
+@keyframes fadeIn {
+      from {
+            opacity: 0;
+      }
+
+      to {
+            opacity: 1;
+      }
+}
+
+@keyframes slideUp {
+      from {
+            opacity: 0;
+            transform: translateY(30px);
+      }
+
+      to {
+            opacity: 1;
+            transform: translateY(0);
+      }
+}
+
+/* Header Section */
+#faceVerificationModal .modal-header {
+      background: linear-gradient(135deg, #000a45 0%, #001a8a 100%);
+      padding: 18px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+}
+
+#faceVerificationModal .modal-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+}
+
+#faceVerificationModal .modal-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 1;
+}
+
+#faceVerificationModal .modal-icon i {
+      font-size: 22px;
+      color: white;
+      animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+      0%,
+      100% {
+            transform: scale(1);
+            opacity: 1;
+      }
+
+      50% {
+            transform: scale(1.05);
+            opacity: 0.9;
+      }
+}
+
+#faceVerificationModal .modal-header h2 {
+      margin: 0 0 4px 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+}
+
+#faceVerificationModal .modal-subtitle {
+      margin: 0;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
+      position: relative;
+      z-index: 1;
+}
+
+/* Security Badge */
+#faceVerificationModal .security-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 10px 18px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: white;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+}
+
+#faceVerificationModal .security-badge i {
+      font-size: 16px;
+}
+
+/* Main Flexbox Container */
+#faceVerificationModal .modal-body {
+      display: flex;
+      gap: 28px;
+      padding: 36px;
+      align-items: stretch;
+      background: white;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+}
+
+/* LEFT SECTION: Camera */
+#faceVerificationModal .camera-section {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+}
+
+/* RIGHT SECTION: Status */
+#faceVerificationModal .status-section {
+      flex: 0 0 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+}
+
+/* Section Headers */
+#faceVerificationModal .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+}
+
+#faceVerificationModal .section-header i {
+      font-size: 14px;
+      color: #000a45;
+}
+
+/* Video Frame - Enhanced */
+#faceVerificationModal .video-frame {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      box-shadow:
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+}
+
+#faceVerificationModal .video-frame.active {
+      box-shadow:
+            0 20px 40px rgba(0, 10, 69, 0.3),
+            0 0 0 4px rgba(0, 10, 69, 0.15),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Camera Placeholder */
+#faceVerificationModal .camera-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      color: rgba(255, 255, 255, 0.6);
+      gap: 20px;
+}
+
+#faceVerificationModal .camera-placeholder i {
+      font-size: 64px;
+      opacity: 0.4;
+      animation: pulse 2s ease-in-out infinite;
+}
+
+#faceVerificationModal .camera-placeholder p {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+}
+
+/* Video Element */
+#faceVerificationModal #verifyVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+}
+
+/* Face Guide */
+#faceVerificationModal .face-guide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 65%;
+      height: 80%;
+      border: 3px dashed rgba(100, 116, 139, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: all 0.3s ease;
+}
+
+#faceVerificationModal .video-frame.active .face-guide {
+      border-color: rgba(16, 185, 129, 0.6);
+      border-style: solid;
+      animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+
+      0%,
+      100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.6;
+      }
+
+      50% {
+            transform: translate(-50%, -50%) scale(1.03);
+            opacity: 1;
+      }
+}
+
+/* Control Buttons */
+#faceVerificationModal .verify-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+}
+
+#faceVerificationModal .verify-controls button {
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#faceVerificationModal .btn-primary {
+      background: linear-gradient(135deg, #000a45 0%, #001a8a 100%);
+      color: white;
+}
+
+#faceVerificationModal .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 10, 69, 0.3);
+}
+
+#faceVerificationModal .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+}
+
+#faceVerificationModal .btn-success:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+#faceVerificationModal .verify-controls button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+}
+
+#faceVerificationModal .verify-controls button i {
+      font-size: 18px;
+}
+
+/* Panel Header */
+#faceVerificationModal .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+}
+
+#faceVerificationModal .panel-header i {
+      font-size: 14px;
+      color: #000a45;
+}
+
+/* Status Panel */
+#faceVerificationModal .status-panel {
+      background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      animation: slideInRight 0.4s ease-out;
+      transition: all 0.3s ease;
+}
+
+@keyframes slideInRight {
+      from {
+            opacity: 0;
+            transform: translateX(20px);
+      }
+
+      to {
+            opacity: 1;
+            transform: translateX(0);
+      }
+}
+
+/* Status Content */
+#faceVerificationModal .status-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+}
+
+/* Status Message */
+#faceVerificationModal .status-message {
+      padding: 20px;
+      border-radius: 14px;
+      background: white;
+      border: 2px solid #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      animation: fadeIn 0.3s ease;
+      transition: all 0.3s ease;
+      min-height: 80px;
+}
+
+#faceVerificationModal .status-message i {
+      font-size: 24px;
+      color: #64748b;
+      margin-top: 2px;
+      flex-shrink: 0;
+}
+
+#faceVerificationModal .status-message p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #334155;
+      font-weight: 500;
+}
+
+/* Loading State */
+#faceVerificationModal .status-message.loading {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border-color: #3b82f6;
+}
+
+#faceVerificationModal .status-message.loading i {
+      color: #1d4ed8;
+      animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Success State */
+#faceVerificationModal .status-message.success {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      border-color: #10b981;
+      animation: successBounce 0.5s ease;
+}
+
+#faceVerificationModal .status-message.success i {
+      color: #059669;
+}
+
+@keyframes successBounce {
+
+      0%,
+      100% {
+            transform: scale(1);
+      }
+
+      50% {
+            transform: scale(1.05);
+      }
+}
+
+/* Error State */
+#faceVerificationModal .status-message.error {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border-color: #ef4444;
+      animation: shake 0.5s ease;
+}
+
+#faceVerificationModal .status-message.error i {
+      color: #dc2626;
+}
+
+@keyframes shake {
+
+      0%,
+      100% {
+            transform: translateX(0);
+      }
+
+      25% {
+            transform: translateX(-5px);
+      }
+
+      75% {
+            transform: translateX(5px);
+      }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(29, 78, 216, 0.3);
+      border-top-color: #1d4ed8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+      to {
+            transform: rotate(360deg);
+      }
+}
+
+/* Attempt Display */
+#faceVerificationModal .attempt-display {
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #475569;
+      transition: all 0.3s ease;
+}
+
+#faceVerificationModal .attempt-display i {
+      font-size: 18px;
+      color: #10b981;
+}
+
+#faceVerificationModal .attempt-display.warning {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+      animation: warningPulse 1s ease-in-out infinite;
+}
+
+#faceVerificationModal .attempt-display.warning i {
+      color: #d97706;
+}
+
+@keyframes warningPulse {
+
+      0%,
+      100% {
+            opacity: 1;
+      }
+
+      50% {
+            opacity: 0.7;
+      }
+}
+
+/* Instructions Panel */
+#faceVerificationModal .instructions-panel {
+      background: linear-gradient(145deg, #eff6ff, #dbeafe);
+      border-radius: 20px;
+      padding: 28px;
+      border: 1px solid #93c5fd;
+      animation: slideInRight 0.5s ease-out;
+}
+
+#faceVerificationModal .instruction-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+}
+
+#faceVerificationModal .instruction-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: #1e40af;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+}
+
+#faceVerificationModal .instruction-list li:hover {
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0, 10, 69, 0.1);
+}
+
+#faceVerificationModal .instruction-list li i {
+      font-size: 14px;
+      color: #10b981;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+      #faceVerificationModal .modal-body {
+            flex-direction: column;
+            padding: 36px;
+      }
+
+      #faceVerificationModal .status-section {
+            flex: 1;
+      }
+
+      #faceVerificationModal .instructions-panel {
+            display: none;
+      }
+}
+
+@media (max-width: 600px) {
+      #faceVerificationModal .modal-content {
+            width: 95%;
+            margin: 2% auto;
+      }
+
+      #faceVerificationModal .modal-body {
+            padding: 24px;
+            gap: 20px;
+      }
+
+      #faceVerificationModal .modal-header {
+            padding: 24px;
+      }
+
+      #faceVerificationModal .security-badge {
+            top: 16px;
+            right: 16px;
+            font-size: 11px;
+            padding: 8px 14px;
+      }
+}
+
+/* Hide scrollbars while keeping scroll functionality */
+#faceVerificationModal .modal-body::-webkit-scrollbar {
+      display: none;
+}
+
+#faceVerificationModal .modal-body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+}
+
+/* Reduce status panel sizes */
+#faceVerificationModal .status-panel {
+      padding: 20px !important;
+}
+
+#faceVerificationModal .instructions-panel {
+      padding: 20px !important;
+}
+
+#faceVerificationModal .status-message {
+      padding: 14px !important;
+      min-height: 60px !important;
+}
+
+/* Ensure all content is visible with fixed heights */
+#faceVerificationModal .camera-section {
+      min-height: 500px;
+}
+
+#faceVerificationModal .status-section {
+      min-height: 500px;
+}
+
+#faceVerificationModal .status-panel {
+      min-height: 200px;
+}
+
+#faceVerificationModal .instructions-panel {
+      min-height: 220px;
+}
+
+#faceVerificationModal .verify-controls button {
+      padding: 18px 28px;
+      font-size: 16px;
+}
+/* Make instructions panel scrollable with hidden scrollbar */
+#faceVerificationModal .instructions-panel {
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Hide scrollbar for instructions panel */
+#faceVerificationModal .instructions-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#faceVerificationModal .instructions-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#faceVerificationModal .instructions-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 10, 69, 0.2);
+    border-radius: 3px;
+}
+
+#faceVerificationModal .instructions-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 10, 69, 0.3);
+}
+
+#faceVerificationModal .instruction-list {
+    padding-right: 8px;
+}

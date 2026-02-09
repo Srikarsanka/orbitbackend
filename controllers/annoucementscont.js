@@ -61,7 +61,7 @@ exports.sendAnnouncement = async (req, res) => {
           to: receiverEmails, // sends to students + your testing account
           subject: `Announcement: ${title}`,
           html: `
-html: 
+ 
 <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
   <!-- Header Image -->
   <img src="https://res.cloudinary.com/djha4r2ys/image/upload/v1764306543/Gemini_Generated_Image_o5vh83o5vh83o5vh_zcfr6w.png" 
@@ -161,6 +161,7 @@ html:
   }
 };
 
+
 exports.getRecentAnnouncements = async (req, res) => {
   try {
     const { facultyEmail } = req.body;
@@ -176,6 +177,49 @@ exports.getRecentAnnouncements = async (req, res) => {
     return res.status(200).json({ announcements });
   } catch (error) {
     console.error("Error fetching announcements:", error);
+    return res.status(500).json({ message: "Failed to fetch announcements" });
+  }
+};
+
+exports.getStudentAnnouncements = async (req, res) => {
+  try {
+    const { studentEmail } = req.body;
+
+    if (!studentEmail) {
+      return res.status(400).json({ message: "Student email required" });
+    }
+
+    console.log(`🔍 Fetching announcements for student: ${studentEmail}`);
+
+    // 1️⃣ Find all classes student is enrolled in
+    const classes = await Class.find({
+      "students.studentEmail": studentEmail,
+    });
+
+    if (!classes || classes.length === 0) {
+      console.log(`ℹ️ No classes found for student: ${studentEmail}`);
+      return res.status(200).json({ announcements: [] });
+    }
+
+    const classIds = classes.map((cls) => cls._id); 
+    const classIdStrings = classIds.map(id => id.toString());
+
+    console.log(`📚 Found ${classes.length} classes for student. IDs:`, classIdStrings);
+
+    // 2️⃣ Fetch announcements for these classes
+    // Using $in with both ObjectId and String formats to be safe
+    const announcements = await Announcement.find({
+      $or: [
+        { classId: { $in: classIdStrings } },
+        { classId: { $in: classIds } }
+      ]
+    }).sort({ createdAt: -1 });
+
+    console.log(`📣 Found ${announcements.length} aggregated announcements`);
+
+    return res.status(200).json({ announcements });
+  } catch (error) {
+    console.error("❌ Error fetching student announcements:", error);
     return res.status(500).json({ message: "Failed to fetch announcements" });
   }
 };
