@@ -39,12 +39,26 @@ const forgotPass = async (req, res) => {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
-      secure: false,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      tls: {
+      rejectUnauthorized: false
+    }
     });
+
+    console.log(`[ForgotPass] Verifying SMTP connection...`);
+    try {
+        await transporter.verify();
+        console.log(`[ForgotPass] SMTP Connection Successful`);
+    } catch (verifyErr) {
+        console.error(`[ForgotPass] SMTP Connection Failed:`, verifyErr);
+        // Fallback: Return success but log error if email fails (to avoid UI hanging)
+        // Or return error. Let's return error for now so user knows.
+        return res.status(500).json({ message: "Email service unavailable", error: verifyErr.message });
+    }
 
     console.log(`[ForgotPass] Sending email to: ${email}`);
     
@@ -52,12 +66,19 @@ const forgotPass = async (req, res) => {
 
     const finalHtml = htmlTemplate.replace("{{OTP}}", generatedOtp);
 
-    await transporter.sendMail({
+    // Send Mail with timeout logic
+    const sendMailPromise = transporter.sendMail({
       from: `<${process.env.EMAIL_USER}>`,
       to: email,
       subject: "OTP — Reset Your Password",
       html: finalHtml,
     });
+
+    const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Email sending timed out")), 10000)
+    );
+
+    await Promise.race([sendMailPromise, timeoutPromise]);
 
     console.log(`[ForgotPass] Email sent successfully to: ${email}`);
 
