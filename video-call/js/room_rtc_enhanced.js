@@ -75,6 +75,15 @@ let joinRoomInit = async () => {
         } else {
             // Faculty - bypass verification
             console.log('✅ Faculty detected - Bypassing face verification');
+            
+            // Explicitly hide modal in case it was triggered or visible by default
+            if (window.FaceVerification && typeof window.FaceVerification.hide === 'function') {
+                window.FaceVerification.hide();
+            } else {
+                const modal = document.getElementById('faceVerificationModal');
+                if(modal) modal.style.display = 'none';
+            }
+
             await continueJoinFlow();
         }
         

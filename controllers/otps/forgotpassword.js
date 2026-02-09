@@ -107,8 +107,17 @@ const forgotPass = async (req, res) => {
 
     return res.status(200).json({ message: "OTP sent to your email" });
   } catch (err) {
-    console.error(`[ForgotPass] Error:`, err);
-    return res.status(500).json({ message: "Internal Server Error", error: err.message });
+    console.error(`[ForgotPass] Error sending email:`, err);
+    
+    // 🔥 FALLBACK FOR TESTING: Log OTP so user can proceed even if email fails
+    console.log(`================================================`);
+    console.log(`🔥 [DEBUG] OTP GENERATED: ${generatedOtp}`);
+    console.log(`================================================`);
+
+    return res.status(200).json({ 
+      message: "OTP generated! (Email failed, check backend logs)", 
+      // isDebug: true 
+    });
   }
 };
 
