@@ -116,7 +116,7 @@ const verifyVideoCallJoin = async (req, res) => {
       contentType: "image/jpeg",
     });
 
-    const pyRes = await fetch("http://localhost:8000/encode", {
+    const pyRes = await fetch("https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net/encode", {
       method: "POST",
       body: form,
     });

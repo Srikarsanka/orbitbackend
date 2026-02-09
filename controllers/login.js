@@ -43,7 +43,7 @@ const login = async (req, res) => {
     // Face recognition via FASTAPI (REPLACEMENT FOR spawn python)
     const form = formFromBase64(photoBase64);
 
-    const pyRes = await fetch("http://localhost:8000/encode", {
+    const pyRes = await fetch("https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net/encode", {
       method: "POST",
       body: form,
     });
