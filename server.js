@@ -14,6 +14,15 @@ require("dotenv").config();
 const app = express(); // Initialize Express App
 const server = http.createServer(app); // Create HTTP server
 
+// Root Route for Health Check
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Orbit Backend is running successfully 🚀",
+    timestamp: new Date().toISOString()
+  });
+});
+
 //-------------------------------------------------------------
 // 🔐 Middleware Setup
 //-------------------------------------------------------------
@@ -33,7 +42,8 @@ app.use(
         'http://localhost:4200',  // Angular frontend
         'http://localhost:5000',  // Backend itself
         'http://127.0.0.1:4200',
-        'http://127.0.0.1:5000'
+        'http://127.0.0.1:5000',
+        'https://orbit-zqsz.vercel.app'
       ];
       
       // Allow all localhost origins for development
@@ -747,7 +757,7 @@ const PORT = process.env.PORT || 5000;
 //-------------------------------------------------------------
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:4200", "http://localhost:5000", "http://127.0.0.1:4200", "http://127.0.0.1:5000"],
+    origin: ["http://localhost:4200", "http://localhost:5000", "http://127.0.0.1:4200", "http://127.0.0.1:5000", "https://orbit-zqsz.vercel.app"],
     credentials: true,
     methods: ["GET", "POST"]
   }
