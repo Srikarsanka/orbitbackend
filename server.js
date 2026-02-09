@@ -129,9 +129,11 @@ app.use("/api/news", newsRoutes);
 app.use("/api/books", booksRoutes);
 const roomRoutes = require("./routes/room");
 const otpRoute = require("./routes/otp");
-const presentationRoutes = require("./routes/presentation"); // NEW: Teaching Mode routesroom.js"));
+const presentationRoutes = require("./routes/presentation"); // NEW: Teaching Mode routes
+const otpRoute = require("./routes/otp");
 
 app.use("/auth", authRoutes);
+app.use("/otp", otpRoute); // 🔥 Fixed: Mount OTP routes here
 
 // Create or Join Class
 app.use("/api/class", classRoutes);
