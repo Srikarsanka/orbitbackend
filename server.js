@@ -183,9 +183,6 @@ app.use("/api/analytics", require("./routes/analytics")); // Analytics Dashboard
 // ==========================================
 // 🎨 WHITEBOARD SERVER (WBO) INTEGRATION
 // ==========================================
-// ==========================================
-// 🎨 WHITEBOARD SERVER (WBO) INTEGRATION
-// ==========================================
 const WBO_PORT = 5001;
 const WBO_DIR = path.join(__dirname, 'whiteboard_data');
 
@@ -194,19 +191,35 @@ if (!require('fs').existsSync(WBO_DIR)){
     require('fs').mkdirSync(WBO_DIR);
 }
 
-const wboProcess = fork(path.join(__dirname, 'whiteboard/server/server.js'), [], {
-    env: { 
-        ...process.env, 
-        PORT: WBO_PORT,
-        HOST: '127.0.0.1', 
-        WBO_HISTORY_DIR: WBO_DIR
-    },
-    stdio: 'inherit'
-});
+// 🔥 FIX: Make whiteboard process non-blocking for Render deployment
+try {
+    const wboProcess = fork(path.join(__dirname, 'whiteboard/server/server.js'), [], {
+        env: { 
+            ...process.env, 
+            PORT: WBO_PORT,
+            HOST: '127.0.0.1', 
+            WBO_HISTORY_DIR: WBO_DIR
+        },
+        stdio: 'inherit'
+    });
 
-console.log(`🎨 WBO Whiteboard Process started on port ${WBO_PORT}`);
+    wboProcess.on('error', (err) => {
+        console.error('❌ WBO Process Error:', err.message);
+        console.log('⚠️  Whiteboard will be unavailable, but server will continue');
+    });
 
-// Proxy /wbo to WBO server
+    wboProcess.on('exit', (code) => {
+        if (code !== 0) {
+            console.log(`⚠️  WBO process exited with code ${code}`);
+        }
+    });
+
+    console.log(`🎨 WBO Whiteboard Process started on port ${WBO_PORT}`);
+} catch (err) {
+    console.error('❌ Failed to start WBO process:', err.message);
+    console.log('⚠️  Server will continue without whiteboard functionality');
+}
+
 // Proxy /wbo to WBO server
 app.use('/wbo', createProxyMiddleware({
     target: `http://127.0.0.1:${WBO_PORT}`,
@@ -217,8 +230,8 @@ app.use('/wbo', createProxyMiddleware({
     },
     logLevel: 'debug',
     onError: (err, req, res) => {
-        console.error('🔥 Proxy Error:', err);
-        res.status(500).send('Proxy Error');
+        console.error('🔥 Proxy Error:', err.message);
+        res.status(503).send('Whiteboard service unavailable');
     }
 }));
 
