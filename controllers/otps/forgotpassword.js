@@ -46,30 +46,9 @@ const forgotPass = async (req, res) => {
       },
     });
 
-    // 🔥 Email HTML Template with Banner
-    const htmlTemplate = `
-    <div style="max-width: 550px; margin: auto; border-radius: 8px; overflow: hidden; font-family: Arial, sans-serif; border: 1px solid #e5e5e5;">
-      <div style="background: linear-gradient(135deg, #4f46e5, #06b6d4); padding: 22px; text-align: center; color: white; font-size: 22px; font-weight: bold;">
-        Reset Password
-      </div>
-      <div style="padding: 30px;">
-        <p style="font-size: 16px; margin-bottom: 20px; color: #333;">
-          Hello 👋,<br><br>
-          Please use the verification code below to reset your password for <strong>Orbit — AI Powered Virtual Classroom</strong>.
-        </p>
-        <div style="font-size: 38px; font-weight: bold; text-align: center; letter-spacing: 6px; margin: 30px 0; color: #4f46e5;">
-          {{OTP}}
-        </div>
-        <p style="font-size: 15px; color: #444;">
-          This OTP will expire in <strong>5 minutes</strong>.
-          If you didn’t request this reset, you can safely ignore this email.
-        </p>
-      </div>
-      <div style="background: #f5f5f5; padding: 15px; text-align: center; font-size: 13px; color: #666;">
-        © 2025 Orbit — AI Powered Virtual Classroom
-      </div>
-    </div>
-    `;
+    console.log(`[ForgotPass] Sending email to: ${email}`);
+    
+    // ... HTML Template ...
 
     const finalHtml = htmlTemplate.replace("{{OTP}}", generatedOtp);
 
@@ -80,10 +59,12 @@ const forgotPass = async (req, res) => {
       html: finalHtml,
     });
 
+    console.log(`[ForgotPass] Email sent successfully to: ${email}`);
+
     return res.status(200).json({ message: "OTP sent to your email" });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error(`[ForgotPass] Error:`, err);
+    return res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 };
 
