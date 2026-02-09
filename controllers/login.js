@@ -159,9 +159,10 @@ const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // ⭐ RETURN EXACT OLD RESPONSE OBJECT
+    // ⭐ RETURN TOKEN IN BODY (Fallback for Cross-Site)
     return res.status(200).json({
       message: "Login successful!",
+      token: token, // 🔥 Added token here
       user: {
         fullName: user.fullName,
         email: user.email,

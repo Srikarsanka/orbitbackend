@@ -4,7 +4,12 @@ require("dotenv").config();
 
 const redirectUser = async (req, res) => {
   try {
-    const token = req.cookies.orbit_user;
+    let token = req.cookies.orbit_user;
+
+    // 🔥 Fallback to Authorization Header
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
     if (!token) {
       return res.json({ redirectTo: "/login" });

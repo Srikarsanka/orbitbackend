@@ -5,9 +5,17 @@ require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const auth = (req, res, next) => {
-  const cookie = req.cookies.orbit_user;
+  let token = req.cookies.orbit_user;
 
-  if (!cookie || !cookie.token) {
+  // 🔥 Fallback to Authorization Header
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    token = { token: req.headers.authorization.split(" ")[1] }; // Wrap to match cookie structure
+  } else if (token && typeof token === 'string') {
+     // Handle case where cookie is just the string (some setups)
+     token = { token: token };
+  }
+
+  if (!token || !token.token) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 
