@@ -150,10 +150,11 @@ const login = async (req, res) => {
     );
 
     // ⭐ KEEP OLD COOKIE NAME & ACCESSIBILITY
+    // ⭐ UPDATED COOKIE FOR CROSS-SITE (Vercel -> Render)
     res.cookie("orbit_user", token, {
-      httpOnly: false, // OLD behavior
-      secure: false,
-      sameSite: "Lax",
+      httpOnly: false, 
+      secure: true, // Required for SameSite: None
+      sameSite: "None", // Required for cross-site
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });

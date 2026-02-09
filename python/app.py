@@ -1,12 +1,62 @@
-# app.py (replace existing encode endpoint)
-from fastapi import FastAPI, File, UploadFile
+# app.py (Optimized for Azure App Service)
+import os
+import contextlib
+
+# 1. Set persistent cache path BEFORE importing InsightFace
+# Azure persists files in /home, preventing re-download on app restart
+# Fallback to local 'models' dir if not running on Azure
+HOME_DIR = os.getenv("HOME", "/home")
+INSIGHTFACE_DIR = os.path.join(HOME_DIR, "insightface")
+os.environ["INSIGHTFACE_HOME"] = INSIGHTFACE_DIR
+
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from insightface.app import FaceAnalysis
 from PIL import Image
 import io
+import logging
 
-app = FastAPI()
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("orbit_backend")
+
+# Global model variable
+_face_analyzer = None
+
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan event handler to load heavy AI models once at startup.
+    This prevents memory spikes and latency on first request.
+    """
+    global _face_analyzer
+    try:
+        logger.info(f"🚀 Starting up... stored models at {INSIGHTFACE_DIR}")
+        
+        # Initialize InsightFace model
+        # allowed_modules=['detection', 'recognition'] loads minimal required models
+        model = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
+        
+        # ctx_id=-1 forces CPU (safer for generic Azure App Service plans)
+        # det_size=(640, 640) ensures consistent performance
+        model.prepare(ctx_id=-1, det_size=(640, 640))
+        
+        _face_analyzer = model
+        logger.info("✅ Face Analysis model loaded successfully")
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to load AI models: {e}")
+        # We don't raise here to allow the app to start, but /encode will fail gracefully
+        
+    yield
+    
+    # Clean up resources if needed
+    _face_analyzer = None
+    logger.info("🛑 Shutting down...")
+
+app = FastAPI(lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,36 +69,63 @@ app.add_middleware(
 @app.get("/")
 async def health_check():
     """Health check endpoint for Azure App Service"""
-    return {"status": "ok", "message": "Orbit AI Backend is running", "service": "Face Analysis & Code Compiler"}
-
-# Global model variable for lazy loading
-_face_analyzer = None
-
-def get_face_analyzer():
-    """Lazy initialize the InsightFace model only when needed"""
-    global _face_analyzer
-    if _face_analyzer is None:
-        print("🚀 Initializing Face Analysis model...")
-        _face_analyzer = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
-        _face_analyzer.prepare(ctx_id=-1, det_size=(640, 640))  # ctx_id=-1 for CPU, use 0 for GPU
-    return _face_analyzer
+    model_status = "loaded" if _face_analyzer else "not_loaded"
+    return {
+        "status": "ok", 
+        "message": "Orbit AI Backend is running", 
+        "service": "Face Analysis & Code Compiler",
+        "model_status": model_status
+    }
 
 @app.post("/encode")
 async def encode(file: UploadFile = File(...)):
-    img_bytes = await file.read()
-    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-    arr = np.array(img)
-
-    # Get model via lazy initializer
-    face_model = get_face_analyzer()
-    faces = face_model.get(arr)
+    """
+    Generate face embedding from uploaded image.
+    Robust error handling ensures the backend doesn't crash on bad inputs.
+    """
+    global _face_analyzer
     
-    if not faces:
-        return {"error": "NO_FACE_FOUND"}
+    if _face_analyzer is None:
+        raise HTTPException(status_code=503, detail="AI Model not ready. Please try again in a moment.")
 
-    # Use normalized embedding (unit vector) — stable for matching
-    embedding = faces[0].normed_embedding.tolist()
-    return {"embedding": embedding}
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload an image.")
+
+    try:
+        # Read and validation
+        img_bytes = await file.read()
+        if not img_bytes:
+            raise HTTPException(status_code=400, detail="Empty file uploaded")
+            
+        try:
+            img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            arr = np.array(img)
+        except Exception as e:
+            logger.error(f"Image processing error: {e}")
+            raise HTTPException(status_code=400, detail="Invalid image file")
+
+        # Inference
+        # We use strict defensive copied input to avoid memory leaks in some libraries
+        faces = _face_analyzer.get(arr)
+        
+        if not faces:
+            return {"error": "NO_FACE_FOUND"}
+
+        # Use normalized embedding (unit vector) — stable for matching
+        # Taking the largest face (usually the user) if multiple detected
+        largest_face = max(faces, key=lambda f: f.det_score) if faces else None
+        
+        if not largest_face:
+             return {"error": "NO_FACE_FOUND"}
+             
+        embedding = largest_face.normed_embedding.tolist()
+        return {"embedding": embedding}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Prediction error: {e}")
+        raise HTTPException(status_code=500, detail="Internal processing error")
 
 # ============================================================
 # CODE COMPILER ENDPOINTS

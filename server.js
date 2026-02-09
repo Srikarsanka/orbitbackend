@@ -43,7 +43,8 @@ app.use(
         'http://localhost:5000',  // Backend itself
         'http://127.0.0.1:4200',
         'http://127.0.0.1:5000',
-        'https://orbit-zqsz.vercel.app'
+        'https://orbit-zqsz.vercel.app',
+        'https://orbit-vert.vercel.app'
       ];
       
       // Allow all localhost origins for development
@@ -757,7 +758,10 @@ const PORT = process.env.PORT || 5000;
 //-------------------------------------------------------------
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:4200", "http://localhost:5000", "http://127.0.0.1:4200", "http://127.0.0.1:5000", "https://orbit-zqsz.vercel.app"],
+    origin: ["http://localhost:4200",    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+    "https://orbit-vert.vercel.app",
+    "https://orbit-zqsz.vercel.app", "http://127.0.0.1:5000", "https://orbit-zqsz.vercel.app"],
     credentials: true,
     methods: ["GET", "POST"]
   }

@@ -5,7 +5,7 @@
 
 // API Configuration - Update this URL based on your deployment
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api'
+    ? 'https://orbitbackend-0i66.onrender.com/api'
     : 'https://your-api-domain.com/api'; // Update for production
 
 // Language file extensions mapping
