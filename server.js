@@ -178,6 +178,92 @@ app.use("/api/student", require("./routes/studentjoinclass.js"));
 // Session management (Video Call)
 app.use("/api/sessions", require("./routes/sessions.js"));
 app.use("/api/video-call", require("./routes/videoCallVerification.js")); // Face verification for video calls
+
+// 📧 Test Email Endpoint (for debugging email configuration)
+app.get("/api/test-email", async (req, res) => {
+  try {
+    const nodemailer = require("nodemailer");
+    
+    console.log("🔍 [TEST-EMAIL] Testing email configuration...");
+    console.log("📧 EMAIL_HOST:", process.env.EMAIL_HOST);
+    console.log("📧 EMAIL_PORT:", process.env.EMAIL_PORT);
+    console.log("📧 EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("📧 EMAIL_PASS:", process.env.EMAIL_PASS ? "***SET***" : "❌ NOT SET");
+
+    if (!process.env.EMAIL_HOST || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return res.status(500).json({
+        success: false,
+        message: "Email environment variables not configured",
+        config: {
+          EMAIL_HOST: !!process.env.EMAIL_HOST,
+          EMAIL_PORT: !!process.env.EMAIL_PORT,
+          EMAIL_USER: !!process.env.EMAIL_USER,
+          EMAIL_PASS: !!process.env.EMAIL_PASS
+        }
+      });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    console.log("🔍 [TEST-EMAIL] Verifying SMTP connection...");
+    await transporter.verify();
+    console.log("✅ [TEST-EMAIL] SMTP Connection Successful!");
+
+    console.log("📧 [TEST-EMAIL] Sending test email...");
+    await transporter.sendMail({
+      from: `Orbit Test <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject: "✅ Orbit Email Test - Success!",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #4A47E6;">🎉 Email Configuration Successful!</h2>
+          <p>Your Orbit backend email system is working correctly on Render.</p>
+          <p><strong>Configuration:</strong></p>
+          <ul>
+            <li>Host: ${process.env.EMAIL_HOST}</li>
+            <li>Port: ${process.env.EMAIL_PORT}</li>
+            <li>User: ${process.env.EMAIL_USER}</li>
+          </ul>
+          <p style="color: #666; font-size: 12px; margin-top: 20px;">
+            Sent from Orbit Backend on Render at ${new Date().toISOString()}
+          </p>
+        </div>
+      `
+    });
+
+    console.log("✅ [TEST-EMAIL] Test email sent successfully!");
+    
+    return res.status(200).json({
+      success: true,
+      message: "Email sent successfully! Check your inbox: " + process.env.EMAIL_USER,
+      config: {
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        user: process.env.EMAIL_USER
+      }
+    });
+  } catch (error) {
+    console.error("❌ [TEST-EMAIL] Failed:", error.message);
+    console.error("Full error:", error);
+    
+    return res.status(500).json({
+      success: false,
+      message: "Email test failed: " + error.message,
+      error: error.toString()
+    });
+  }
+});
 app.use("/api/analytics", require("./routes/analytics")); // Analytics Dashboard Data
 
 // ==========================================
