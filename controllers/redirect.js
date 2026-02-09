@@ -6,8 +6,8 @@ const redirectUser = async (req, res) => {
   try {
     let token = req.cookies.orbit_user;
 
-    // 🔥 Fallback to Authorization Header
-    if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+    // 🔥 PRIORITIZE Authorization Header (Fixes loop if cookie is stale)
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
       token = req.headers.authorization.split(" ")[1];
     }
 
