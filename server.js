@@ -194,16 +194,11 @@ app.get("/api/test-email", async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Email environment variables not configured",
-        config: {
-          EMAIL_HOST: !!process.env.EMAIL_HOST,
-          EMAIL_PORT: !!process.env.EMAIL_PORT,
-          EMAIL_USER: !!process.env.EMAIL_USER,
-          EMAIL_PASS: !!process.env.EMAIL_PASS
-        }
       });
     }
 
-    const transporter = nodemailer.createTransport({
+    // METHOD A: Standard
+    const configA = {
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
       secure: false,
@@ -211,30 +206,83 @@ app.get("/api/test-email", async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false
+      tls: { rejectUnauthorized: false }
+    };
+
+    // METHOD B: Service 'gmail' (Simplest)
+    const configB = {
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    };
+
+    // METHOD C: Force IPv4 & Timeout
+    const configC = {
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // SSL
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 10000, // 10s
+    };
+
+    const configs = [
+      { name: "Standard (TLS 587)", config: configA },
+      { name: "Service: Gmail", config: configB },
+      { name: "SSL (465) + IPv4", config: configC }
+    ];
+
+    let successConfig = null;
+    let errors = [];
+
+    // Try each config
+    for (const method of configs) {
+      console.log(`Trying ${method.name}...`);
+      try {
+        const transporter = nodemailer.createTransport(method.config);
+        console.log(`[${method.name}] Verifying...`);
+        
+        // Timeout the verify call after 5s
+        await Promise.race([
+          transporter.verify(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 8000))
+        ]);
+        
+        console.log(`✅ [${method.name}] Connection Successful!`);
+        successConfig = method;
+        break; // Stop on first success
+      } catch (err) {
+        console.error(`❌ [${method.name}] Failed: ${err.message}`);
+        errors.push({ method: method.name, error: err.message });
       }
-    });
+    }
 
-    console.log("🔍 [TEST-EMAIL] Verifying SMTP connection...");
-    await transporter.verify();
-    console.log("✅ [TEST-EMAIL] SMTP Connection Successful!");
+    if (!successConfig) {
+      return res.status(500).json({
+        success: false,
+        message: "All email connection methods failed",
+        errors: errors
+      });
+    }
 
-    console.log("📧 [TEST-EMAIL] Sending test email...");
+    // Send email using the successful config
+    console.log(`📧 Sending email using ${successConfig.name}...`);
+    const transporter = nodemailer.createTransport(successConfig.config);
+    
     await transporter.sendMail({
       from: `Orbit Test <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
-      subject: "✅ Orbit Email Test - Success!",
+      subject: `✅ Orbit Email Test - Success (${successConfig.name})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-          <h2 style="color: #4A47E6;">🎉 Email Configuration Successful!</h2>
-          <p>Your Orbit backend email system is working correctly on Render.</p>
-          <p><strong>Configuration:</strong></p>
-          <ul>
-            <li>Host: ${process.env.EMAIL_HOST}</li>
-            <li>Port: ${process.env.EMAIL_PORT}</li>
-            <li>User: ${process.env.EMAIL_USER}</li>
-          </ul>
+          <h2 style="color: #4A47E6;">🎉 Email Worked!</h2>
+          <p>The backend successfully connected using: <strong>${successConfig.name}</strong></p>
+          <p>Please update your production code to use this configuration if needed.</p>
           <p style="color: #666; font-size: 12px; margin-top: 20px;">
             Sent from Orbit Backend on Render at ${new Date().toISOString()}
           </p>
@@ -242,21 +290,17 @@ app.get("/api/test-email", async (req, res) => {
       `
     });
 
-    console.log("✅ [TEST-EMAIL] Test email sent successfully!");
+    console.log("✅ Test email sent successfully!");
     
     return res.status(200).json({
       success: true,
-      message: "Email sent successfully! Check your inbox: " + process.env.EMAIL_USER,
-      config: {
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        user: process.env.EMAIL_USER
-      }
+      message: "Email sent successfully using " + successConfig.name,
+      workingMethod: successConfig.name,
+      checkedMethods: errors
     });
+
   } catch (error) {
     console.error("❌ [TEST-EMAIL] Failed:", error.message);
-    console.error("Full error:", error);
-    
     return res.status(500).json({
       success: false,
       message: "Email test failed: " + error.message,
