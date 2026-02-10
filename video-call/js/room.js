@@ -336,9 +336,15 @@ const SessionManager = {
              if(this.state.activeOverlay === sectionId) {
                  this.closeAllOverlays();
              } else {
+                 const panel = document.getElementById(sectionId);
+                 
+                 // Nuclear Option: Force Visibility via Inline Styles
                  this.closeAllOverlays();
-                 document.getElementById(sectionId).classList.remove('hidden');
+                 panel.classList.remove('hidden');
+                 panel.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; z-index: 2147483647 !important; top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; width: 90vw; height: 85vh; background: white;';
+                 
                  this.state.activeOverlay = sectionId;
+                 console.log(`✅ Forced visibility on ${sectionId}`, panel);
                  
                  // Refresh contents specific
                  if(sectionId === 'whiteboard__section') {
@@ -365,6 +371,7 @@ const SessionManager = {
 
     // ================= MODULES ================= //
     initWhiteboard: function() {
+        try {
         console.log('🎨 Initializing Canvas Whiteboard...');
         console.log('📊 Current state:', {
             sessionId: this.state.sessionId,
@@ -460,6 +467,11 @@ const SessionManager = {
                 hasSessionId: !!this.state.sessionId
             });
         }
+
+    } catch(e) {
+        console.error("❌ Critical Whiteboard Init Error:", e);
+        alert("Whiteboard Init Error: " + e.message);
+    }
     },
 
     setupSocketListeners: function() {
