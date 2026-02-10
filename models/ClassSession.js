@@ -66,6 +66,36 @@ const classSessionSchema = new mongoose.Schema({
     }
   },
   
+  // Attendance Configuration
+  attendanceConfig: {
+    enabled: {
+      type: Boolean,
+      default: true // Attendance enabled by default
+    },
+    captureInterval: {
+      type: Number, // seconds
+      default: 60,
+      min: 45,
+      max: 60
+    },
+    threshold: {
+      type: Number, // percentage for present/absent
+      default: 70,
+      min: 0,
+      max: 100
+    },
+    startTime: {
+      type: Date // When attendance tracking started
+    },
+    endTime: {
+      type: Date // When attendance tracking ended
+    },
+    totalIntervals: {
+      type: Number, // Total expected intervals for this session
+      default: 0
+    }
+  },
+  
   // Session Statistics
   totalEnrolledStudents: Number,
   attendanceCount: Number,

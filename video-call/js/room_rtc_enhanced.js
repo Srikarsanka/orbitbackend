@@ -257,7 +257,18 @@ let joinStream = async () => {
     }, 2000);
     
     
-    if(userRole === 'student') enforceCameraAlwaysOn(localTracks[1]);
+    if(userRole === 'student') {
+        enforceCameraAlwaysOn(localTracks[1]);
+        
+        // Initialize Attendance Tracking
+        if (window.AttendanceClient) {
+            console.log("📸 Initializing Attendance Tracking for Student");
+            // Add a small delay to ensure video is fully ready
+            setTimeout(() => {
+                window.AttendanceClient.init(sessionId, userEmail, userName);
+            }, 5000);
+        }
+    }
 
     // Add a dummy spectator card for visual interest
     addDummySpectator();

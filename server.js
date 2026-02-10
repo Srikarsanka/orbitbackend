@@ -115,6 +115,7 @@ const materialRoute = require("./routes/materialRoute");
 const sessionRoutes = require("./routes/sessions");
 const newsRoutes = require("./routes/news");
 const booksRoutes = require("./routes/books");
+const attendanceRoutes = require("./routes/attendance"); // NEW: Attendance routes
 
 // Use Routes
 app.use("/api/auth", authRoutes);
@@ -131,6 +132,7 @@ app.use("/api/material", materialRoute);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/books", booksRoutes);
+app.use("/api/attendance", attendanceRoutes); // NEW: Attendance API
 const roomRoutes = require("./routes/room");
 const otpRoute = require("./routes/otp");
 const presentationRoutes = require("./routes/presentation"); // NEW: Teaching Mode routes
