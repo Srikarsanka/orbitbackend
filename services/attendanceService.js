@@ -242,7 +242,10 @@ async function getSessionAttendanceSummary(sessionId) {
     const attendanceRecords = await SessionAttendance.find({ sessionId });
     
     // Filter out faculty members - only count students
-    const studentRecords = attendanceRecords.filter(a => a.participantRole !== 'faculty');
+    // Handle both old records (no participantRole field) and new records
+    const studentRecords = attendanceRecords.filter(a => 
+      !a.participantRole || a.participantRole === null || a.participantRole === 'student'
+    );
     
     // Calculate statistics (only for students)
     const totalParticipants = studentRecords.length;
@@ -435,6 +438,13 @@ async function getClassAnalytics(classId) {
     // 3. Get all students enrolled in the class
     const students = classInfo.students || [];
     
+    console.log('=== CLASS ANALYTICS DEBUG ===');
+    console.log('Class ID:', classId);
+    console.log('Class Name:', classInfo.className);
+    console.log('Total Students:', students.length);
+    console.log('Total Sessions:', sessions.length);
+    console.log('Sample Student:', students[0]);
+    
     // 4. Build student attendance map
     const studentAttendanceMap = new Map();
     
@@ -452,10 +462,26 @@ async function getClassAnalytics(classId) {
     // 5. Process each session and update student records
     for (const session of sessions) {
       // Get attendance records for this session (students only, faculty excluded)
+      // Handle both old records (no participantRole field) and new records
       const attendanceRecords = await SessionAttendance.find({
         sessionId: session._id,
-        participantRole: { $ne: 'faculty' }
+        $or: [
+          { participantRole: { $exists: false } }, // Old records without the field
+          { participantRole: null }, // Records with null value
+          { participantRole: 'student' } // New records explicitly marked as student
+        ]
       });
+
+      console.log(`\nSession: ${session.sessionTitle}`);
+      console.log('Attendance Records Count:', attendanceRecords.length);
+      if (attendanceRecords.length > 0) {
+        console.log('Sample Attendance Record:', {
+          participantEmail: attendanceRecords[0].participantEmail,
+          participantName: attendanceRecords[0].participantName,
+          status: attendanceRecords[0].status,
+          participantRole: attendanceRecords[0].participantRole
+        });
+      }
 
       // Create a map of who attended this session
       const attendedEmails = new Set(
@@ -463,6 +489,8 @@ async function getClassAnalytics(classId) {
           .filter(a => a.status === 'present')
           .map(a => a.participantEmail)
       );
+      
+      console.log('Attended Emails:', Array.from(attendedEmails));
 
       // Update each student's record
       for (const student of students) {
