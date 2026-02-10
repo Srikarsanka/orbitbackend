@@ -49,6 +49,11 @@
 
 .overlay-panel:not(.hidden) {
       display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 2147483647 !important;
+      /* Maximum Z-Index */
+      pointer-events: auto !important;
 }
 
 /* Ensure overlay panels are properly sized and centered */
