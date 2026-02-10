@@ -14,6 +14,9 @@ require("dotenv").config();
 const app = express(); // Initialize Express App
 const server = http.createServer(app); // Create HTTP server
 
+// 🔥 CRITICAL: Define PORT (Render requires this!)
+// Socket.IO Setup (for Whiteboard + Chat)
+
 // Root Route for Health Check
 app.get("/", (req, res) => {
   res.status(200).json({
