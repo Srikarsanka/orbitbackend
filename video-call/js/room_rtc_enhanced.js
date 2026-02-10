@@ -355,6 +355,12 @@ function setupMediaControls() {
     document.getElementById('camera-btn')?.addEventListener('click', toggleCamera);
     document.getElementById('screen-btn')?.addEventListener('click', toggleScreen);
     document.getElementById('leave-btn')?.addEventListener('click', leaveRoom);
+
+    // Hide Screen Share button for students
+    if(userRole !== 'faculty') {
+        const screenBtn = document.getElementById('screen-btn');
+        if(screenBtn) screenBtn.style.display = 'none';
+    }
 }
 
 let screenClient = null;
@@ -621,20 +627,19 @@ let handleUserPublished = async (user, mediaType) => {
         let targetId = "student-grid-container";
 
         if(isScreenShare) {
-            // Check if we're in presentation mode
-            const presentationMode = SessionManager?.state?.presentationMode;
-            if(presentationMode && presentationMode.isActive) {
-                // Route to presentation area
-                targetId = "presentation-content-area";
-                console.log("🎬 Routing screen share to PRESENTATION AREA");
-                
-                // Move faculty camera to PIP
-                moveFacultyCameraToPIP(facultyUid);
-            } else {
-                // Normal screen share behavior (primary area)
-                targetId = "primary-video-container";
-                moveFacultyCameraToGrid(facultyUid);
-            }
+            // ALWAYS Enforce Presentation Mode for Screen Share
+            console.log("🖥️ Screen Share Detected - Enforcing Presentation Mode");
+            targetId = "presentation-content-area";
+            
+            // 1. Show Presentation Container
+            const presentationContainer = document.getElementById("presentation-mode-container");
+            if(presentationContainer) presentationContainer.classList.add('active');
+
+            // 2. Hide Grid/Controls (via CSS class on body)
+            document.body.classList.add('in-presentation');
+
+            // 3. Move Faculty to PIP
+            moveFacultyCameraToPIP(facultyUid);
         } else if(isFaculty) {
              // Only put faculty in primary if screen share is NOT active
              // Check if screen share (facultyUid + 1000000) exists in DOM
@@ -688,7 +693,16 @@ let handleUserLeft = (user) => {
     // Check if Screen Share Left (FacultyUID + 1000000)
     let facultyUid = window.SESSION_DATA ? window.SESSION_DATA.facultyUid : null;
     if(facultyUid && Number(user.uid) === Number(facultyUid) + 1000000) {
-        console.log("🖥️ Screen Share Ended - Restoring Faculty Camera");
+        console.log("🖥️ Screen Share Ended - Restoring Layout");
+        
+        // 1. Hide Presentation Container
+        const presentationContainer = document.getElementById("presentation-mode-container");
+        if(presentationContainer) presentationContainer.classList.remove('active');
+
+        // 2. Restore Grid
+        document.body.classList.remove('in-presentation');
+
+        // 3. Restore Faculty Camera
         restoreFacultyCameraToPrimary(facultyUid);
     }
 
