@@ -16,15 +16,9 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      /* Use margin-based centering instead of transform to avoid stacking context issues */
-      width: 90vw;
-      height: 85vh;
-      max-width: 1600px;
-      max-height: 900px;
-      margin-left: -45vw;
-      /* Half of width for centering */
-      margin-top: -42.5vh;
-      /* Half of height for centering */
+      transform: translate(-50%, -50%);
+      /* Use transform with will-change for better performance */
+      will-change: transform;
       background: white;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -35,6 +29,11 @@
       overflow: hidden;
       /* Create independent stacking context */
       isolation: isolate;
+      /* Explicit dimensions to ensure visibility */
+      width: 90vw;
+      height: 85vh;
+      max-width: 1600px;
+      max-height: 900px;
 }
 
 .overlay-panel.right-side {
@@ -42,11 +41,9 @@
       left: auto;
       right: 20px;
       top: 50%;
+      transform: translateY(-50%);
       width: 420px;
       height: 600px;
-      margin-left: 0;
-      margin-top: -300px;
-      /* Half of 600px */
 }
 
 .overlay-panel.dark-theme {
