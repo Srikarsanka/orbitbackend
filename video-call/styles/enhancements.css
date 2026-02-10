@@ -53,12 +53,25 @@
 
 .overlay-panel.hidden {
       display: none !important;
+      visibility: hidden !important;
 }
 
 .overlay-panel:not(.hidden) {
       display: flex !important;
       visibility: visible !important;
       opacity: 1 !important;
+      pointer-events: auto !important;
+}
+
+/* Force specific overlays to be visible when not hidden */
+#whiteboard__section:not(.hidden),
+#compiler_section:not(.hidden),
+#chat_section:not(.hidden),
+#insights_section:not(.hidden) {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 10000 !important;
       pointer-events: auto !important;
 }
 
