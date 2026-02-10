@@ -163,6 +163,21 @@ exports.validateSession = async (req, res) => {
   console.log(`Email: ${email}`);
   console.log(`Role: ${role}`);
   console.log(`========================================`);
+
+  const APP_ID = process.env.AGORA_APP_ID;
+  const APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
+
+  console.log(`🔍 [ValidateSession] Checking Agora Config...`);
+  console.log(`🆔 App ID: ${APP_ID ? '✅ Loaded' : '❌ MISSING'} ${APP_ID ? '(' + APP_ID.substring(0, 5) + '...)' : ''}`);
+  console.log(`🔑 App Cert: ${APP_CERTIFICATE ? '✅ Loaded' : '❌ MISSING'}`);
+
+  if (!APP_ID || !APP_CERTIFICATE) {
+      console.error("❌ CRTICAL: Agora App ID or Certificate is missing in environment variables!");
+      return res.status(500).json({ 
+          isValid: false, 
+          error: "Server configuration error: Agora credentials missing" 
+      });
+  }
   
   try {
     // DEV BYPASS: Allow 'test' session for local verification

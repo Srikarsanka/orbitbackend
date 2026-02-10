@@ -96,7 +96,18 @@ let joinRoomInit = async () => {
             // Do not alert. Room.js will handle UI "Starting Soon".
             // And Room.js will trigger joinRoomInit when LIVE.
         } else {
-            alert("Failed to join: " + error.message);
+
+            console.error("🚨 JOIN ERROR DETAILS:", error);
+            // safe stringify for error object
+            let errorDetails = error.message || "Unknown error";
+            if(error.code) errorDetails += ` (Code: ${error.code})`;
+            
+            // Checks for common Agora errors
+            if (error.code === 'INVALID_APP_ID') errorDetails += " - Check App ID in Render config";
+            if (error.code === 'INVALID_TOKEN') errorDetails += " - Token invalid or expired";
+            if (error.code === 'NOT_AUTHORIZED') errorDetails += " - Certificate issue?";
+
+            alert(`Failed to join call. \nDetails: ${errorDetails}\nCheck console for full log.`);
         }
     } finally {
         isJoining = false;
@@ -143,7 +154,9 @@ async function validateSession() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ email: userEmail, deviceId, role: userRole })
     });
+    console.log(`📡 Validate Response Status: ${res.status}`);
     const data = await res.json();
+    console.log(`📦 Validate Data:`, data);
     
     // Handle redirect to active session
     if (data.redirect && data.newSessionId) {
@@ -154,7 +167,11 @@ async function validateSession() {
         return; // Stop execution, page will reload
     }
     
-    if(!data.isValid) throw new Error(data.reason);
+    if(!data.isValid) {
+        const errorMsg = data.reason || data.error || data.message || "Unknown validation failure";
+        console.error("❌ Validation Failed:", errorMsg, data);
+        throw new Error(errorMsg);
+    }
     token = data.token;
     screenToken = data.screenToken; // Store screen token
     APP_ID = data.appId;
