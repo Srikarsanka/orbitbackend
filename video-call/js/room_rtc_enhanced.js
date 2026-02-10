@@ -107,7 +107,38 @@ let joinRoomInit = async () => {
             if (error.code === 'INVALID_TOKEN') errorDetails += " - Token invalid or expired";
             if (error.code === 'NOT_AUTHORIZED') errorDetails += " - Certificate issue?";
 
-            alert(`Failed to join call. \nDetails: ${errorDetails}\nCheck console for full log.`);
+            // Create a copyable error display
+            const errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '20px';
+            errorDiv.style.left = '50%';
+            errorDiv.style.transform = 'translateX(-50%)';
+            errorDiv.style.background = '#ffebee';
+            errorDiv.style.color = '#c62828';
+            errorDiv.style.padding = '15px';
+            errorDiv.style.borderRadius = '8px';
+            errorDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            errorDiv.style.zIndex = '9999';
+            errorDiv.style.maxWidth = '80%';
+            errorDiv.style.fontFamily = 'monospace';
+            errorDiv.style.whiteSpace = 'pre-wrap';
+            errorDiv.innerHTML = `<strong>⚠️ Failed to join call:</strong><br>${errorDetails}<br><br><small>Check console (F12) for full details.</small>`;
+            
+            // Allow closing
+            const closeBtn = document.createElement('button');
+            closeBtn.innerText = '✕';
+            closeBtn.style.position = 'absolute';
+            closeBtn.style.top = '5px';
+            closeBtn.style.right = '5px';
+            closeBtn.style.background = 'transparent';
+            closeBtn.style.border = 'none';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.onclick = () => errorDiv.remove();
+            errorDiv.appendChild(closeBtn);
+
+            document.body.appendChild(errorDiv);
+            
+            console.error("🚨 SHOWN ERROR IN UI:", errorDetails);
         }
     } finally {
         isJoining = false;
