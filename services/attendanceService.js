@@ -1,6 +1,7 @@
 const AttendanceInterval = require('../models/AttendanceInterval');
 const SessionAttendance = require('../models/SessionAttendance');
 const ClassSession = require('../models/ClassSession');
+const Class = require('../models/createclass');
 const User = require('../models/user');
 const { decryptEmbedding } = require('../utils/embeddingCrypto');
 const FormData = require('form-data');
@@ -240,14 +241,17 @@ async function getSessionAttendanceSummary(sessionId) {
     
     const attendanceRecords = await SessionAttendance.find({ sessionId });
     
-    // Calculate statistics
-    const totalParticipants = attendanceRecords.length;
-    const presentCount = attendanceRecords.filter(a => a.status === 'present').length;
-    const absentCount = attendanceRecords.filter(a => a.status === 'absent').length;
-    const partialCount = attendanceRecords.filter(a => a.status === 'partial').length;
+    // Filter out faculty members - only count students
+    const studentRecords = attendanceRecords.filter(a => a.participantRole !== 'faculty');
+    
+    // Calculate statistics (only for students)
+    const totalParticipants = studentRecords.length;
+    const presentCount = studentRecords.filter(a => a.status === 'present').length;
+    const absentCount = studentRecords.filter(a => a.status === 'absent').length;
+    const partialCount = studentRecords.filter(a => a.status === 'partial').length;
     
     const averageAttendance = totalParticipants > 0
-      ? attendanceRecords.reduce((sum, a) => sum + a.attendancePercentage, 0) / totalParticipants
+      ? studentRecords.reduce((sum, a) => sum + a.attendancePercentage, 0) / totalParticipants
       : 0;
     
     return {
@@ -259,7 +263,7 @@ async function getSessionAttendanceSummary(sessionId) {
       partialCount,
       averageAttendance: Math.round(averageAttendance * 100) / 100,
       attendanceConfig: session.attendanceConfig,
-      participants: attendanceRecords
+      participants: studentRecords // Return only student records
     };
   } catch (err) {
     console.error('Error getting session attendance summary:', err);
@@ -396,6 +400,128 @@ async function getFacultyAttendanceAnalytics(facultyEmail) {
   }
 }
 
+/**
+ * Get detailed class-level analytics with per-student attendance breakdown
+ * @param {String} classId - Class ID
+ * @returns {Promise<Object>} - Class analytics with student attendance details
+ */
+async function getClassAnalytics(classId) {
+  try {
+    // 1. Get class information
+    const classInfo = await Class.findById(classId);
+    if (!classInfo) {
+      throw new Error('Class not found');
+    }
+
+    // 2. Get all ENDED sessions for this class
+    const sessions = await ClassSession.find({
+      classId,
+      status: 'ENDED'
+    }).sort({ actualStartTime: -1 });
+
+    if (!sessions || sessions.length === 0) {
+      return {
+        success: true,
+        classInfo: {
+          className: classInfo.className,
+          classCode: classInfo.classCode,
+          totalSessions: 0,
+          averageAttendance: 0
+        },
+        studentAttendance: []
+      };
+    }
+
+    // 3. Get all students enrolled in the class
+    const students = classInfo.students || [];
+    
+    // 4. Build student attendance map
+    const studentAttendanceMap = new Map();
+    
+    for (const student of students) {
+      studentAttendanceMap.set(student.studentEmail, {
+        studentName: student.studentName,
+        studentEmail: student.studentEmail,
+        totalSessions: sessions.length,
+        attendedSessions: 0,
+        absentSessions: 0,
+        sessionDetails: []
+      });
+    }
+
+    // 5. Process each session and update student records
+    for (const session of sessions) {
+      // Get attendance records for this session (students only, faculty excluded)
+      const attendanceRecords = await SessionAttendance.find({
+        sessionId: session._id,
+        participantRole: { $ne: 'faculty' }
+      });
+
+      // Create a map of who attended this session
+      const attendedEmails = new Set(
+        attendanceRecords
+          .filter(a => a.status === 'present')
+          .map(a => a.participantEmail)
+      );
+
+      // Update each student's record
+      for (const student of students) {
+        const studentData = studentAttendanceMap.get(student.studentEmail);
+        if (!studentData) continue;
+
+        const attended = attendedEmails.has(student.studentEmail);
+        const attendanceRecord = attendanceRecords.find(a => a.participantEmail === student.studentEmail);
+
+        if (attended) {
+          studentData.attendedSessions++;
+        } else {
+          studentData.absentSessions++;
+        }
+
+        studentData.sessionDetails.push({
+          sessionId: session._id,
+          sessionTitle: session.sessionTitle,
+          date: session.actualStartTime || session.scheduledStartTime,
+          attended: attended,
+          attendancePercentage: attendanceRecord ? attendanceRecord.attendancePercentage : 0,
+          status: attendanceRecord ? attendanceRecord.status : 'absent'
+        });
+      }
+    }
+
+    // 6. Calculate attendance rates and convert map to array
+    const studentAttendance = Array.from(studentAttendanceMap.values()).map(student => ({
+      ...student,
+      attendanceRate: student.totalSessions > 0
+        ? Math.round((student.attendedSessions / student.totalSessions) * 100)
+        : 0
+    })).sort((a, b) => b.attendanceRate - a.attendanceRate); // Sort by attendance rate descending
+
+    // 7. Calculate class average attendance
+    const totalAttendanceRate = studentAttendance.reduce((sum, s) => sum + s.attendanceRate, 0);
+    const averageAttendance = studentAttendance.length > 0
+      ? Math.round(totalAttendanceRate / studentAttendance.length)
+      : 0;
+
+    return {
+      success: true,
+      classInfo: {
+        className: classInfo.className,
+        classCode: classInfo.classCode,
+        subject: classInfo.subject,
+        totalSessions: sessions.length,
+        averageAttendance: averageAttendance,
+        totalStudents: students.length
+      },
+      studentAttendance
+    };
+
+  } catch (err) {
+    console.error('Error getting class analytics:', err);
+    throw err;
+  }
+}
+
 module.exports = {
   verifyAndRecordAttendance,
   recordAttendanceInterval,
@@ -403,5 +529,6 @@ module.exports = {
   getSessionAttendanceSummary,
   getParticipantAttendance,
   calculateExpectedIntervals,
-  getFacultyAttendanceAnalytics
+  getFacultyAttendanceAnalytics,
+  getClassAnalytics
 };

@@ -343,4 +343,32 @@ router.get('/faculty-analytics/:facultyEmail', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/attendance/class-analytics/:classId
+ * Get detailed class-level analytics with per-student breakdown
+ */
+router.get('/class-analytics/:classId', async (req, res) => {
+  try {
+    const { classId } = req.params;
+    
+    if (!classId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Class ID is required'
+      });
+    }
+
+    const analytics = await attendanceService.getClassAnalytics(classId);
+    
+    res.json(analytics);
+    
+  } catch (err) {
+    console.error('Error getting class analytics:', err);
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
 module.exports = router;

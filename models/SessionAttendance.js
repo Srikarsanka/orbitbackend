@@ -23,6 +23,11 @@ const sessionAttendanceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  participantRole: {
+    type: String,
+    enum: ['student', 'faculty'],
+    default: 'student'
+  },
   
   // Attendance statistics
   totalIntervals: {
