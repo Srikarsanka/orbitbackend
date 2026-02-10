@@ -233,6 +233,9 @@ async function validateSession() {
 let joinStream = async () => {
     localTracks = await AgoraRTC.createMicrophoneAndCameraTracks({}, { encoderConfig: '1080p_1' });
     
+    // Expose to window for attendance client
+    window.localTracks = localTracks;
+    
     // Determine where to place LOCAL video
     // If I am faculty, I go to Primary. Else Grid.
     let targetId = "student-grid-container";
