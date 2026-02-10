@@ -616,3 +616,33 @@
 .attendance-indicator.hidden {
     display: none;
 }
+/* Attendance Verification Border Feedback (Students Only) */
+.attendance-verified {
+    border: 4px solid #10b981 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+    animation: pulse-green 1s ease-in-out;
+}
+
+.attendance-failed {
+    border: 4px solid #ef4444 !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+    animation: pulse-red 1s ease-in-out;
+}
+
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.9);
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.9);
+    }
+}

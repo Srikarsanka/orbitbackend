@@ -198,16 +198,54 @@ const AttendanceClient = {
       if (result.success) {
         if (result.interval.matchResult) {
             console.log('✅ Attendance verified (Match)');
+            this.updateVideoBorder('verified'); // Green border
         } else {
             console.warn('⚠️ Attendance match failed', result.interval.error);
+            this.updateVideoBorder('failed'); // Red border
         }
       } else {
         console.error('❌ Attendance API error:', result.error);
+        this.updateVideoBorder('failed'); // Red border on error
       }
       
     } catch (err) {
       console.error('❌ Network error sending attendance:', err);
+      this.updateVideoBorder('failed'); // Red border on network error
     }
+  },
+  
+  /**
+   * Update video border based on verification status
+   * @param {String} status - 'verified' or 'failed'
+   */
+  updateVideoBorder: function(status) {
+    // Find the local user's video container
+    // Agora creates containers with ID pattern: user-{uid}
+    const localUid = window.localUid || window.uid;
+    if (!localUid) return;
+    
+    const videoContainer = document.getElementById(`user-${localUid}`);
+    if (!videoContainer) {
+      console.warn('Could not find video container for border update');
+      return;
+    }
+    
+    // Remove existing status classes
+    videoContainer.classList.remove('attendance-verified', 'attendance-failed');
+    
+    // Add new status class
+    if (status === 'verified') {
+      videoContainer.classList.add('attendance-verified');
+      console.log('🟢 Video border: GREEN (verified)');
+    } else {
+      videoContainer.classList.add('attendance-failed');
+      console.log('🔴 Video border: RED (failed)');
+    }
+    
+    // Auto-remove the border after 5 seconds to avoid clutter
+    setTimeout(() => {
+      videoContainer.classList.remove('attendance-verified', 'attendance-failed');
+    }, 5000);
   }
 };
 
