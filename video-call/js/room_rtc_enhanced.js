@@ -22,6 +22,7 @@ let sessionActive = false;
 let screenTrack = null;
 let isJoining = false; // Prevent duplicate joins
 let hasJoined = false; // Track if already joined
+let hasPassedVerification = false; // Prevent re-verification loop
 
 // ===============================================
 // Helpers
@@ -53,9 +54,26 @@ let joinRoomInit = async () => {
             
             // Show verification modal and wait for completion
             return new Promise((resolve, reject) => {
+                // If already passed previously (e.g. retry after error), skip UI
+                if(hasPassedVerification) {
+                     console.log("✅ Verification already passed previously - skipping UI");
+                     continueJoinFlow().then(resolve).catch(reject);
+                     return;
+                }
+
                 // Override the proceedToJoinCall function to continue after verification
                 window.proceedToJoinCall = async () => {
                     console.log('✅ Face verification passed - Continuing join flow');
+                    hasPassedVerification = true; // Mark as passed
+                    
+                    // Explicitly hide modal
+                    if (window.FaceVerification && typeof window.FaceVerification.hide === 'function') {
+                        window.FaceVerification.hide();
+                    } else {
+                         const modal = document.getElementById('faceVerificationModal');
+                         if(modal) modal.style.display = 'none';
+                    }
+
                     try {
                         await continueJoinFlow();
                         resolve();
