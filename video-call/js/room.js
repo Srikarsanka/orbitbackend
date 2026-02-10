@@ -18,6 +18,7 @@ const SessionManager = {
     },
 
     init: async function() {
+        try {
         console.log("🚀 Initializing Session Manager V3...");
         const params = new URLSearchParams(window.location.search);
         this.state.sessionId = params.get('session');
@@ -69,6 +70,10 @@ const SessionManager = {
                 const dmBtn = document.getElementById('chat-type-dm');
                 if(dmBtn) dmBtn.style.display = 'none';
             }
+        }
+        } catch(e) {
+            console.error("Session Init Error:", e);
+            alert("Session Init Error: " + e.message);
         }
     },
 
