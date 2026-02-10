@@ -657,30 +657,14 @@ let handleUserPublished = async (user, mediaType) => {
         
         user.videoTrack.play(`user-${user.uid}`);
     }
-    if(mediaType === 'audio') {
-        user.audioTrack.play();
-        console.log(`🔊 Audio playing for UID=${user.uid}`);
+        if(mediaType === 'audio') {
+            user.audioTrack.play();
+            // ... (audio logic)
+        }
         
-        // Handle Autoplay Policy
-        AgoraRTC.onAudioAutoplayFailed = () => {
-             console.warn("⚠️ Audio Autoplay Failed! interacting with DOM...");
-             const btn = document.createElement("button");
-             btn.innerText = "CLICK TO HEAR AUDIO";
-             btn.style.position = "fixed";
-             btn.style.top = "50%";
-             btn.style.left = "50%";
-             btn.style.zIndex = "9999";
-             btn.style.padding = "20px";
-             btn.style.background = "red";
-             btn.style.color = "white";
-             btn.onclick = () => {
-                 user.audioTrack.play();
-                 btn.remove();
-             };
-             document.body.appendChild(btn);
-        };
-    }
-};
+        // Store remote user for later track access (e.g. Layout shifts)
+        remoteUsers[user.uid] = user;
+    };
 
 let handleRemoteMuteVideo = (user, muted) => {
     updatePlaceholder(user.uid, muted);
@@ -689,6 +673,9 @@ let handleRemoteMuteVideo = (user, muted) => {
 let handleUserLeft = (user) => {
     const el = document.getElementById(`user-container-${user.uid}`);
     if(el) el.remove();
+    
+    // Remove from store
+    delete remoteUsers[user.uid];
 
     // Check if Screen Share Left (FacultyUID + 1000000)
     let facultyUid = window.SESSION_DATA ? window.SESSION_DATA.facultyUid : null;
@@ -784,6 +771,19 @@ function restoreFacultyCameraToPrimary(facultyUid) {
          const primary = document.getElementById("primary-video-container");
          if(facultyContainer.parentElement !== primary) {
             primary.appendChild(facultyContainer);
+            
+            // ROBUST RE-PLAY: Re-bind the track
+            let track = null;
+            if(userRole === 'faculty' && uid == facultyUid) {
+                 track = localTracks[1];
+            } else if (remoteUsers[facultyUid]) {
+                 track = remoteUsers[facultyUid].videoTrack;
+            }
+            
+            if(track) {
+                console.log("🔄 Re-playing Faculty Track in Primary");
+                track.play(`user-${facultyUid}`);
+            }
          }
     }
 }
@@ -804,9 +804,23 @@ function moveFacultyCameraToPIP(facultyUid) {
             pipContainer.innerHTML = ''; // Clear any existing content
             pipContainer.appendChild(facultyContainer);
             
-            // Force play video again after DOM move (safety)
-            const video = facultyContainer.querySelector('video');
-            if(video) video.play().catch(e => console.error("PIP Play Error:", e));
+            // ROBUST RE-PLAY: Re-bind the track to the element
+            // This ensures Agora knows the video element has moved/changed context
+            let track = null;
+            if(userRole === 'faculty' && uid == facultyUid) {
+                 track = localTracks[1]; // My Camera
+            } else if (remoteUsers[facultyUid]) {
+                 track = remoteUsers[facultyUid].videoTrack; // Remote Faculty Camera
+            }
+            
+            if(track) {
+                console.log("🔄 Re-playing Faculty Track in PIP");
+                track.play(`user-${facultyUid}`);
+            } else {
+                 // Fallback if track not found (shouldn't happen if they are published)
+                 const video = facultyContainer.querySelector('video');
+                 if(video) video.play().catch(e => console.error("PIP Play Error:", e));
+            }
         }
     }
 }
