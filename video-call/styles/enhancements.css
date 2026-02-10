@@ -490,3 +490,42 @@
       color: #FF6B6B;
       font-size: 12px;
 }
+
+/* === Chat Enhancements === */
+.chat-type-select {
+      display: flex;
+      background: #f0f0f0;
+      border-radius: 16px;
+      padding: 4px;
+      margin-bottom: 10px;
+}
+
+.chat-type-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s ease;
+}
+
+.chat-type-btn:hover {
+      color: #333;
+}
+
+.chat-type-btn.active {
+      background: white;
+      color: #000;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.chat-layout {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+}

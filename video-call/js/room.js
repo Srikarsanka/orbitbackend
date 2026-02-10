@@ -13,9 +13,10 @@ const SessionManager = {
         facultyUid: null,
         participants: [], // { email, uid, role, name }
         chartData: { labels: [], values: [] }, // Persistent Chart Data
-        presentationMode: { isActive: false, type: null } // Teaching Mode
+        presentationMode: { isActive: false, type: null }, // Teaching Mode
+        chatType: 'group' // 'group' or 'direct'
     },
-    
+
     init: async function() {
         console.log("🚀 Initializing Session Manager V3...");
         const params = new URLSearchParams(window.location.search);
@@ -212,38 +213,52 @@ const SessionManager = {
         
         // Presentation Mode Controls
         document.getElementById('stop-presentation-btn')?.addEventListener('click', () => this.stopPresentation());
+
+        // Chat Type Toggles
+        const groupBtn = document.getElementById('chat-type-group');
+        const dmBtn = document.getElementById('chat-type-dm');
+        
+        if(groupBtn && dmBtn) {
+            groupBtn.addEventListener('click', () => {
+                this.state.chatType = 'group';
+                groupBtn.classList.add('active');
+                dmBtn.classList.remove('active');
+            });
+            
+            dmBtn.addEventListener('click', () => {
+                this.state.chatType = 'direct';
+                dmBtn.classList.add('active');
+                groupBtn.classList.remove('active');
+            });
+        }
     },
 
-    sendChatMsg: async function() {
+    sendChatMsg: function() {
         const input = document.getElementById('chat-msg-input');
         if(!input) return;
         const text = input.value.trim();
         if(!text) return;
         
-        try {
-            const res = await fetch(`/api/sessions/${this.state.sessionId}/messages`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    sender: this.state.role === 'faculty' ? 'Faculty' : (this.state.email || 'Student'),
-                    text: text,
-                    type: 'group', // Defaulting to group for now as per request
-                    email: this.state.email
-                })
-            });
-            
-            if(!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error || 'Server rejected message');
-            }
-
-            input.value = '';
-            // Immediate fetch to show own message
-            this.fetchMessages();
-        } catch(e) {
-            console.error("Failed to send message", e);
-            alert("Failed to send message: " + e.message); // Alert user
+        if(!this.socket) {
+            alert("Chat unavailable: Connection lost");
+            return;
         }
+
+        const msgData = {
+            sessionId: this.state.sessionId,
+            sender: this.state.role === 'faculty' ? 'Faculty' : (this.state.email || 'Student'),
+            text: text,
+            type: this.state.chatType, 
+            email: this.state.email,
+            senderRole: this.state.role,
+            senderId: this.socket.id // or UID if available
+        };
+
+        this.socket.emit('chat:sendMessage', msgData);
+        input.value = '';
+        
+        // Optimistic update? No, we listen for our own emit back in server.js
+        // But for direct messages, we receive it back. Group messages we receive back too.
     },
     
     fetchMessages: async function() {
@@ -271,22 +286,35 @@ const SessionManager = {
         }
     },
     
-    addChatMessage: function(sender, text, isMe) {
+    addChatMessage: function(sender, text, isMe, type='group') {
         const feed = document.getElementById('activity-feed-list');
         if(!feed) return;
         
         const div = document.createElement('div');
         div.className = 'feed-item';
-        // Style "Me" differently
-        if(isMe || sender === 'Faculty' && this.state.role === 'faculty') {
-             div.style.background = '#e3f2fd';
-             div.style.alignSelf = 'flex-end'; // Optional if flex dir is col
-             if(!isMe) sender = "You (Faculty)"; // Ensure faculty sees "You"
-             else sender = "You";
+        
+        let prefix = "";
+        let styleClass = "";
+        
+        if (type === 'direct') {
+            div.style.borderLeft = "4px solid #FFA500";
+            div.style.backgroundColor = "#fff3e0"; // Light orange for DM
+            prefix = `<span style="font-size:10px; color:#d84315; font-weight:bold; text-transform:uppercase;">[Private]</span> `;
+            sender = isMe ? "You (to Faculty)" : sender;
+        } else {
+             // Group
+             if(isMe || (sender === 'Faculty' && this.state.role === 'faculty')) {
+                 div.style.background = '#e3f2fd'; // Light blue for me
+                 div.style.alignSelf = 'flex-end'; 
+                 if(!isMe) sender = "You (Faculty)";
+                 else sender = "You";
+             }
         }
         
-        div.innerHTML = `<strong style="color:#0F346C;">${sender}</strong>: <span style="color:#333;">${text}</span>`;
+        div.innerHTML = `${prefix}<strong style="color:#0F346C;">${sender}</strong>: <span style="color:#333;">${text}</span>`;
         feed.appendChild(div);
+        
+        // Auto scroll
         feed.scrollTop = feed.scrollHeight;
     },
 
@@ -435,9 +463,23 @@ const SessionManager = {
              this.socket.on('connect', () => {
                  console.log("✅ Main Socket Connected");
                  if(this.state.sessionId) {
-                     this.socket.emit('join-session', this.state.sessionId);
+                     // Join with Role for Direct Messaging routing
+                     this.socket.emit('join-session', { 
+                         sessionId: this.state.sessionId, 
+                         role: this.state.role 
+                     });
                      console.log(`📝 Joined socket room: ${this.state.sessionId}`);
                  }
+             });
+
+             // Chat Message Listener
+             this.socket.on('chat:message', (msg) => {
+                 const isMe = (msg.email === this.state.email && msg.senderRole === this.state.role);
+                 // If undefined email (guest?), check sender text? Better to rely on isMe flag if socket.id matches?
+                 // But we don't have socket.id easily here. 
+                 // Simple check: 
+                 
+                 this.addChatMessage(msg.sender, msg.text, isMe, msg.type);
              });
              
              this.socket.on('whiteboard:opened', (data) => {

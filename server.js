@@ -918,14 +918,57 @@ const { setupWhiteboardHandlers } = require('./whiteboard_socket');
 // Setup Whiteboard Handlers
 setupWhiteboardHandlers(io);
 
-// Main Signal Handler (for backward compatibility)
+// Main Signal Handler
 io.on('connection', (socket) => {
   // console.log(`🔌 Client connected: ${socket.id}`);
 
   // Join session room for signaling
-  socket.on('join-session', (sessionId) => {
+  socket.on('join-session', (data) => {
+    // Support object or string (legacy)
+    const sessionId = typeof data === 'object' ? data.sessionId : data;
+    const role = typeof data === 'object' ? data.role : 'student'; // Default student
+    
     socket.join(sessionId);
-    // console.log(`📝 Client ${socket.id} joined session: ${sessionId}`);
+    // console.log(`📝 Client ${socket.id} joined session: ${sessionId} as ${role}`);
+    
+    // If Faculty, join a special "Faculty Room" for this session to receive Direct Messages
+    if (role === 'faculty') {
+        const facultyRoom = `${sessionId}_faculty`;
+        socket.join(facultyRoom);
+        console.log(`👨‍🏫 Faculty joined private channel: ${facultyRoom}`);
+    }
+  });
+
+  // 💬 CHAT SYSTEM (Socket.IO)
+  socket.on('chat:sendMessage', (data) => {
+      const { sessionId, sender, text, type, email, senderRole, senderId } = data;
+      const timestamp = new Date().toISOString();
+
+      const messagePayload = {
+          sender,
+          text,
+          type, // 'group' or 'direct'
+          email,
+          senderRole,
+          senderId,
+          timestamp
+      };
+
+      if (type === 'direct') {
+          // DIRECT MESSAGE: Student -> Faculty
+          // Emit to Faculty Room
+          const facultyRoom = `${sessionId}_faculty`;
+          io.to(facultyRoom).emit('chat:message', messagePayload);
+          
+          // Emit back to Sender (so they know it sent)
+          socket.emit('chat:message', messagePayload);
+          
+          console.log(`🔒 DM from ${sender} to Faculty in ${sessionId}`);
+      } else {
+          // GROUP MESSAGE: Broadcast to everyone in session
+          io.to(sessionId).emit('chat:message', messagePayload);
+          console.log(`📢 Group msg from ${sender} in ${sessionId}`);
+      }
   });
   
   // Broadcast whiteboard open event (legacy - now handled by whiteboard_socket.js)
