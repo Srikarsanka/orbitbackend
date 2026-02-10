@@ -36,8 +36,8 @@ function generateDeviceId() {
 let joinRoomInit = async () => {
     console.log('🚀 joinRoomInit called');
     
-    if (isJoining) {
-        console.log('⚠️ Already joining, skipping duplicate call');
+    if (isJoining || hasJoined || sessionActive) {
+        console.log('⚠️ Already joining or joined, skipping duplicate call');
         return;
     }
     
