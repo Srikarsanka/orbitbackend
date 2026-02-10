@@ -198,8 +198,8 @@ const SessionManager = {
         // Overlay Toggles
         this.setupOverlayToggle('open_whiteboard_btn', 'whiteboard__section');
         this.setupOverlayToggle('open_compiler_btn', 'compiler_section');
+        this.setupOverlayToggle('open_compiler_btn', 'compiler_section');
         this.setupOverlayToggle('open_chat_btn', 'chat_section');
-        this.setupOverlayToggle('open_insights_btn', 'insights_section');
         
         document.querySelectorAll('.close-overlay').forEach(btn => {
             btn.addEventListener('click', () => this.closeAllOverlays());

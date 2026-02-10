@@ -47,6 +47,10 @@
       display: none !important;
 }
 
+.overlay-panel:not(.hidden) {
+      display: flex !important;
+}
+
 /* Ensure overlay panels are properly sized and centered */
 #whiteboard__section {
       width: 90vw;
