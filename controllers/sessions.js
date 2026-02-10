@@ -391,10 +391,11 @@ exports.validateSession = async (req, res) => {
     return res.json(validationResponse);
 
   } catch (error) {
-    console.error('Session validation error:', error);
+    console.error('Validate session error:', error);
     return res.status(500).json({ 
       isValid: false, 
-      reason: 'Server error' 
+      error: error.message || 'Server error',
+      reason: error.message || 'Server error'
     });
   }
 };
