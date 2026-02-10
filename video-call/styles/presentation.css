@@ -64,6 +64,11 @@
       border-radius: 0;
 }
 
+.faculty-pip .video-box {
+      width: 100%;
+      height: 100%;
+}
+
 .faculty-pip .video-player {
       width: 100%;
       height: 100%;

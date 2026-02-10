@@ -803,6 +803,10 @@ function moveFacultyCameraToPIP(facultyUid) {
         if(pipContainer) {
             pipContainer.innerHTML = ''; // Clear any existing content
             pipContainer.appendChild(facultyContainer);
+            
+            // Force play video again after DOM move (safety)
+            const video = facultyContainer.querySelector('video');
+            if(video) video.play().catch(e => console.error("PIP Play Error:", e));
         }
     }
 }
