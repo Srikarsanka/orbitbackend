@@ -226,6 +226,8 @@ async function validateSession() {
     APP_ID = data.appId;
     if(data.uid) {
         uid = data.uid;
+        // Expose to window for attendance client
+        window.uid =uid;
         localStorage.setItem('orbit_uid', uid);
     }
 }

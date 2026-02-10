@@ -219,14 +219,34 @@ const AttendanceClient = {
    * @param {String} status - 'verified' or 'failed'
    */
   updateVideoBorder: function(status) {
+    console.log('🎨 updateVideoBorder called with status:', status);
+    
     // Find the local user's video container
     // Agora creates containers with ID pattern: user-{uid}
     const localUid = window.localUid || window.uid;
-    if (!localUid) return;
+    console.log('🔍 Looking for video container with UID:', localUid);
     
-    const videoContainer = document.getElementById(`user-${localUid}`);
+    if (!localUid) {
+      console.error('❌ No localUid or uid found in window object');
+      return;
+    }
+    
+    let videoContainer = document.getElementById(`user-${localUid}`);
+    console.log('📦 Video container found (video element):', videoContainer);
+    
+    // Fallback: Try the container div if video element not found
     if (!videoContainer) {
-      console.warn('Could not find video container for border update');
+        console.warn(`⚠️ Could not find element with ID: user-${localUid}`);
+        console.log('🔄 Trying fallback: user-container-' + localUid);
+        videoContainer = document.getElementById(`user-container-${localUid}`);
+        if(videoContainer) console.log('📦 Video container found (wrapper div):', videoContainer);
+    }
+
+    if (!videoContainer) {
+      console.error(`❌ Could not find video container for border update (tried user-${localUid} and user-container-${localUid})`);
+      console.log('🔍 Available ID starts:', 
+        Array.from(document.querySelectorAll('[id^="user-"]')).map(el => el.id)
+      );
       return;
     }
     
@@ -236,15 +256,18 @@ const AttendanceClient = {
     // Add new status class
     if (status === 'verified') {
       videoContainer.classList.add('attendance-verified');
-      console.log('🟢 Video border: GREEN (verified)');
+      console.log('🟢 Video border: GREEN (verified) - Class added to:', videoContainer.id);
     } else {
       videoContainer.classList.add('attendance-failed');
-      console.log('🔴 Video border: RED (failed)');
+      console.log('🔴 Video border: RED (failed) - Class added to:', videoContainer.id);
     }
+    
+    console.log('📋 Current classes on container:', videoContainer.className);
     
     // Auto-remove the border after 5 seconds to avoid clutter
     setTimeout(() => {
       videoContainer.classList.remove('attendance-verified', 'attendance-failed');
+      console.log('⏰ Border removed after 5 seconds');
     }, 5000);
   }
 };
