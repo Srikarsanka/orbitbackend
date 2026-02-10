@@ -2,40 +2,51 @@
    OVERLAY PANEL CENTERING & POSITIONING
    =================================== */
 
+/* 
+   Z-Index Layering System:
+   - Base content (video streams): 1
+   - Video controls: 100
+   - Header: 200
+   - Presentation mode: 500
+   - Overlay panels (modals): 10000
+   - Face verification: 10001
+*/
+
 .overlay-panel {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      /* Use margin-based centering instead of transform to avoid stacking context issues */
+      width: 90vw;
+      height: 85vh;
+      max-width: 1600px;
+      max-height: 900px;
+      margin-left: -45vw;
+      /* Half of width for centering */
+      margin-top: -42.5vh;
+      /* Half of height for centering */
       background: white;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      z-index: 10001;
-      /* Ensure above video controls */
+      z-index: 10000;
+      /* Above all video content and controls */
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      /* Create independent stacking context */
+      isolation: isolate;
 }
 
 .overlay-panel.right-side {
+      /* Right-side panels (chat, insights) */
       left: auto;
       right: 20px;
       top: 50%;
-      transform: translateY(-50%);
-      transform-origin: right center;
-      animation: slideInRight 0.3s ease;
-}
-
-@keyframes slideInRight {
-      from {
-            opacity: 0;
-            transform: translate(50px, -50%);
-      }
-
-      to {
-            opacity: 1;
-            transform: translate(0, -50%);
-      }
+      width: 420px;
+      height: 600px;
+      margin-left: 0;
+      margin-top: -300px;
+      /* Half of 600px */
 }
 
 .overlay-panel.dark-theme {
@@ -51,15 +62,13 @@
       display: flex !important;
       visibility: visible !important;
       opacity: 1 !important;
-      z-index: 2147483647 !important;
-      /* Maximum Z-Index */
       pointer-events: auto !important;
 }
 
 /* Ensure overlay panels are properly sized and centered */
 #whiteboard__section {
       width: 90vw;
-      height: 90vh;
+      height: 85vh;
       max-width: 1600px;
       max-height: 900px;
 }
@@ -69,6 +78,12 @@
       height: 90vh;
       max-width: 1800px;
       max-height: 900px;
+}
+
+#chat_section,
+#insights_section {
+      width: 420px;
+      height: 600px;
 }
 
 /* === Whiteboard Enhancements === */

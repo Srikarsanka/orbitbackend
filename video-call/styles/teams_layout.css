@@ -88,9 +88,10 @@ body.teams-theme {
 .teams-container {
       height: calc(100vh - 64px);
       width: 100%;
-      position: relative;
+      /* Don't use position: relative to avoid creating stacking context */
       display: flex;
       justify-content: center;
+      /* Ensure this doesn't trap fixed-position overlays */
 }
 
 .teams-stage {
@@ -170,10 +171,7 @@ body.teams-theme {
       /* Thicker border for emphasis */
 }
 
-/* Student Card Specifics */
-#student-grid-container .video__containers {
-      /* Using base class defaults (150px height) */
-}
+/* Student cards use base class defaults (150px height, 200px width) */
 
 .video-player {
       width: 100%;
@@ -276,34 +274,8 @@ body.teams-theme {
 }
 
 /* ================= OVERLAYS ================= */
-.overlay-panel {
-      position: fixed;
-      z-index: 99999 !important;
-      background: white;
-      box-shadow: var(--overlay-shadow);
-      border-radius: 12px;
-      display: flex !important;
-      flex-direction: column;
-      overflow: hidden;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 1px solid #eee;
-      width: 90vw !important;
-      height: 85vh !important;
-      max-width: 1400px;
-      max-height: 900px;
-}
-
-.overlay-panel.hidden {
-      display: none !important;
-}
-
-.overlay-panel.right-side {
-      left: auto;
-      right: 24px;
-      transform: translateY(-50%);
-}
+/* Note: Main overlay-panel styles are defined in enhancements.css to avoid conflicts */
+/* This file only contains theme-specific overrides */
 
 .overlay-header {
       height: 60px;

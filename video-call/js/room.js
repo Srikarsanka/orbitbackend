@@ -331,22 +331,40 @@ const SessionManager = {
         
         btn.addEventListener('click', async () => {
              console.log(`🔘 CLICKED: ${btnId} -> Toggling ${sectionId}`);
-             console.log(`Current active: ${this.state.activeOverlay}`);
+             console.log(`Current active overlay: ${this.state.activeOverlay}`);
              
              if(this.state.activeOverlay === sectionId) {
+                 // Close if already open
                  this.closeAllOverlays();
              } else {
                  const panel = document.getElementById(sectionId);
                  
-                 // Nuclear Option: Force Visibility via Inline Styles
+                 if(!panel) {
+                     console.error(`❌ Panel not found: ${sectionId}`);
+                     return;
+                 }
+                 
+                 // Close other overlays first
                  this.closeAllOverlays();
+                 
+                 // Show this overlay by removing hidden class (CSS handles the rest)
                  panel.classList.remove('hidden');
-                 panel.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; z-index: 2147483647 !important; top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; width: 90vw; height: 85vh; background: white;';
                  
                  this.state.activeOverlay = sectionId;
-                 console.log(`✅ Forced visibility on ${sectionId}`, panel);
+                 console.log(`✅ Opened overlay: ${sectionId}`);
                  
-                 // Refresh contents specific
+                 // Log computed styles for debugging
+                 const computed = window.getComputedStyle(panel);
+                 console.log(`📊 Panel styles:`, {
+                     display: computed.display,
+                     visibility: computed.visibility,
+                     zIndex: computed.zIndex,
+                     position: computed.position,
+                     width: computed.width,
+                     height: computed.height
+                 });
+                 
+                 // Initialize panel-specific functionality
                  if(sectionId === 'whiteboard__section') {
                      this.initWhiteboard();
                      // Notify students if Faculty opens it
