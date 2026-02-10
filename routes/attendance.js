@@ -15,10 +15,7 @@ router.post('/capture', async (req, res) => {
       participantEmail,
       participantName,
       intervalNumber,
-      faceDetected,
-      matchResult,
-      confidence,
-      error
+      photoBase64
     } = req.body;
     
     // Validation
@@ -28,17 +25,21 @@ router.post('/capture', async (req, res) => {
         error: 'Missing required fields'
       });
     }
+
+    if (!photoBase64) {
+       return res.status(400).json({
+          success: false,
+          error: 'Missing photo data'
+       });
+    }
     
-    // Record interval
-    const interval = await attendanceService.recordAttendanceInterval({
+    // Verify and record interval
+    const interval = await attendanceService.verifyAndRecordAttendance({
       sessionId,
       participantEmail,
       participantName,
       intervalNumber,
-      faceDetected: faceDetected || false,
-      matchResult: matchResult || false,
-      confidence: confidence || 0,
-      error
+      photoBase64
     });
     
     res.json({
@@ -304,6 +305,37 @@ router.get('/analytics/:sessionId', async (req, res) => {
     
   } catch (err) {
     console.error('Error getting attendance analytics:', err);
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
+/**
+ * GET /api/attendance/faculty-analytics/:facultyEmail
+ * Get aggregated analytics for a faculty member
+ */
+router.get('/faculty-analytics/:facultyEmail', async (req, res) => {
+  try {
+    const { facultyEmail } = req.params;
+    
+    if (!facultyEmail) {
+      return res.status(400).json({
+        success: false,
+        error: 'Faculty email is required'
+      });
+    }
+
+    const analytics = await attendanceService.getFacultyAttendanceAnalytics(decodeURIComponent(facultyEmail));
+    
+    res.json({
+      success: true,
+      analytics
+    });
+    
+  } catch (err) {
+    console.error('Error getting faculty analytics:', err);
     res.status(500).json({
       success: false,
       error: err.message

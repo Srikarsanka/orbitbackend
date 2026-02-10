@@ -893,7 +893,7 @@ exports.getStudentAttendance = async (req, res) => {
     
     // Get all classes the student is enrolled in
     const enrolledClasses = await Class.find({
-      'students.email': studentEmail
+      'students.studentEmail': studentEmail
     }).select('className classCode subject facultyName');
 
     // Get all ended sessions where student was a participant
