@@ -15,7 +15,7 @@ const app = express(); // Initialize Express App
 const server = http.createServer(app); // Create HTTP server
 
 // 🔥 CRITICAL: Define PORT (Render requires this!)
-// Socket.IO Setup (for Whiteboard + Chat)
+const PORT = process.env.PORT || 5000;
 
 // Root Route for Health Check
 app.get("/", (req, res) => {
@@ -899,7 +899,6 @@ app.use((req, res) => {
 //-------------------------------------------------------------
 // 🚀 Start Server
 //-------------------------------------------------------------
-const PORT = process.env.PORT || 5000;
 
 //-------------------------------------------------------------
 // 🔌 Socket.IO Setup for Real-Time Whiteboard & Collaboration
