@@ -2,7 +2,7 @@
 const ClassRoom = require('../models/createclass');
 const Whiteboard = require('../models/WhiteboardState');
 const ScheduledClass = require('../models/ScheduledClass');
-const User = require('../models/User');
+const User = require('../models/user');
 const Message = require('../models/Message');
 const { RtcTokenBuilder, RtcRole } = require('agora-access-token');
 const { loadTemplate, formatDate, formatTime, formatISO } = require('../utils/emailService');
