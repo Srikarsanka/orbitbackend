@@ -1,6 +1,6 @@
 const ScheduledClass = require('../models/ScheduledClass');
 const ClassRoom = require('../models/createclass');
-const User = require('../models/User');
+const User = require('../models/user');
 const nodemailer = require('nodemailer');
 const { loadTemplate, formatDate, formatTime, formatISO } = require('../utils/emailService');
 
