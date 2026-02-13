@@ -1,9 +1,33 @@
 ﻿const ClassSession = require('../models/ClassSession');
+const ClassRoom = require('../models/createclass');
+const Whiteboard = require('../models/WhiteboardState');
+const ScheduledClass = require('../models/ScheduledClass');
+const User = require('../models/User');
 const Message = require('../models/Message');
-const Class = require('../models/createclass');
-const User = require('../models/user');
 const { RtcTokenBuilder, RtcRole } = require('agora-access-token');
+const { loadTemplate, formatDate, formatTime, formatISO } = require('../utils/emailService');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
+
+// Email Transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// Email Helper (Local) - kept for backward compatibility if used elsewhere
+const sendEmail = async (to, subject, html) => {
+  try {
+    if(!to || to.length === 0) return;
+    await transporter.sendMail({ from: process.env.EMAIL_USER, to, subject, html });
+    console.log(`📧 Sent: ${subject}`);
+  } catch (e) {
+    console.error('Email error:', e);
+  }
+};
 
 // Agora credentials from environment
 const APP_ID = process.env.AGORA_APP_ID;
@@ -105,6 +129,56 @@ exports.createSession = async (req, res) => {
     });
 
     await newSession.save();
+
+    // [NEW] Hook: Check for Scheduled Class and Update Status
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - 20 * 60000);
+    const windowEnd = new Date(now.getTime() + 20 * 60000);
+
+    const scheduledClass = await ScheduledClass.findOne({
+        classId,
+        status: 'scheduled',
+        scheduledTime: { $gte: windowStart, $lte: windowEnd }
+    });
+
+    if (scheduledClass) {
+        scheduledClass.status = 'live';
+        await scheduledClass.save();
+        console.log(`✅ Linked to Scheduled Class: ${scheduledClass._id}`);
+
+        // Send "Class Started" Email
+        const classDetails = await ClassRoom.findById(classId);
+        if (classDetails && classDetails.students.length > 0) {
+            
+            const startTime = new Date();
+            const emailVariables = {
+                ORBIT_LOGO_URL: 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png',
+                BANNER_URL: 'https://img.freepik.com/free-vector/webinar-concept-illustration_114360-4764.jpg', // Professional Live Class Banner
+                FACULTY_NAME: facultyName,
+                CLASS_NAME: classDetails.className,
+                DATE: formatDate(startTime),
+                TIME: formatTime(startTime),
+                START_ISO: formatISO(startTime),
+                END_ISO: formatISO(new Date(startTime.getTime() + 60*60000)), // Default 1 hour
+                JOIN_LINK: `https://orbit-zqsz.vercel.app/`, 
+                STUDENT_NAME: 'Student'
+            };
+
+            const emailPromises = classDetails.students.map(student => {
+                 const personalVariables = { ...emailVariables, STUDENT_NAME: student.studentName };
+                 const html = loadTemplate('classStarted', personalVariables);
+
+                 return transporter.sendMail({
+                    from: `"Orbit Class Scheduler" <${process.env.EMAIL_USER}>`,
+                    to: student.studentEmail,
+                    subject: `Class Started – ${classDetails.className} 🚀`,
+                    html: html
+                });
+            });
+
+            Promise.all(emailPromises).catch(err => console.error('Error sending start emails:', err));
+        }
+    }
 
     return res.json({
       sessionId: newSession._id,
@@ -263,7 +337,7 @@ exports.validateSession = async (req, res) => {
 
     // Verify user enrollment (for students)
     if (role === 'student') {
-      const classData = await Class.findById(session.classId);
+      const classData = await ClassRoom.findById(session.classId);
       const isEnrolled = classData.students.some(s => s.studentEmail === email);
       
       if (!isEnrolled) {
@@ -501,8 +575,8 @@ exports.getSessionStatus = async (req, res) => {
     
     if (session.classId) {
       try {
-        const Class = require('../models/createclass');
-        const classDoc = await Class.findById(session.classId);
+        // const Class = require('../models/createclass'); // REMOVED
+        const classDoc = await ClassRoom.findById(session.classId);
         if (classDoc) {
           facultyEmail = classDoc.facultyEmail; // Use class facultyEmail (more reliable)
           className = classDoc.className || className;
@@ -654,7 +728,7 @@ exports.endSession = async (req, res) => {
 
     // Fetch Class details for total enrolled count
     try {
-        const classDoc = await Class.findById(session.classId);
+        const classDoc = await ClassRoom.findById(session.classId);
         if (classDoc) {
             session.totalEnrolledStudents = (classDoc.students || []).length;
         }
@@ -892,7 +966,7 @@ exports.getStudentAttendance = async (req, res) => {
     const studentEmail = req.user.email;
     
     // Get all classes the student is enrolled in
-    const enrolledClasses = await Class.find({
+    const enrolledClasses = await ClassRoom.find({
       'students.studentEmail': studentEmail
     }).select('className classCode subject facultyName');
 

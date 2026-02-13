@@ -159,4 +159,4 @@ classSessionSchema.index({ classId: 1, status: 1 });
 classSessionSchema.index({ scheduledStartTime: 1, status: 1 });
 classSessionSchema.index({ classCode: 1, status: 1 });
 
-module.exports = mongoose.model('ClassSession', classSessionSchema);
+module.exports = mongoose.models.ClassSession || mongoose.model('ClassSession', classSessionSchema);

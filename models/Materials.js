@@ -17,4 +17,4 @@ const materialSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Material", materialSchema);
+module.exports = mongoose.models.Material || mongoose.model("Material", materialSchema);

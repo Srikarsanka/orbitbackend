@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Class Reminder</title>
+</head>
+
+<body
+      style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"
+            style="background-color: #f8fafc; padding: 40px 0;">
+            <tr>
+                  <td align="center">
+                        <!-- Main Container -->
+                        <table role="presentation" width="600" border="0" cellspacing="0" cellpadding="0"
+                              style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 10, 69, 0.05); overflow: hidden; max-width: 600px; width: 100%;">
+
+                              <!-- Header with Logo -->
+                              <tr>
+                                    <td align="center" style="padding: 40px 0 20px 0; background-color: #ffffff;">
+                                          <img src="{{ORBIT_LOGO_URL}}" alt="Orbit" width="120"
+                                                style="display: block; max-height: 50px; width: auto; border: 0;">
+                                    </td>
+                              </tr>
+
+                              <!-- Banner Image -->
+                              <tr>
+                                    <td align="center" style="padding: 0 0 20px 0;">
+                                          <img src="{{BANNER_URL}}" alt="Class Reminder" width="600"
+                                                style="display: block; max-width: 100%; height: auto; border: 0;">
+                                    </td>
+                              </tr>
+
+                              <!-- Title Section -->
+                              <tr>
+                                    <td align="center" style="padding: 0 40px;">
+                                          <h1
+                                                style="margin: 0 0 10px 0; color: #000a45; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">
+                                                Your Class Starts Soon ⏰</h1>
+                                          <p style="margin: 0; color: #64748b; font-size: 16px; line-height: 1.5;">Don't
+                                                miss your upcoming session</p>
+                                    </td>
+                              </tr>
+
+                              <!-- Greeting -->
+                              <tr>
+                                    <td style="padding: 30px 40px 20px 40px;">
+                                          <p style="margin: 0; color: #334155; font-size: 16px; line-height: 1.6;">
+                                                Hi <strong>{{STUDENT_NAME}}</strong>,
+                                                <br><br>
+                                                This is a reminder that your class <strong>{{CLASS_NAME}}</strong> with
+                                                <strong>{{FACULTY_NAME}}</strong> will begin shortly.
+                                          </p>
+                                    </td>
+                              </tr>
+
+                              <!-- Class Info Card -->
+                              <tr>
+                                    <td style="padding: 0 40px;">
+                                          <table role="presentation" width="100%" border="0" cellspacing="0"
+                                                cellpadding="0"
+                                                style="background-color: #f1f5f9; border-radius: 12px; border: 1px solid #e2e8f0;">
+                                                <tr>
+                                                      <td style="padding: 24px;">
+                                                            <table role="presentation" width="100%" border="0"
+                                                                  cellspacing="0" cellpadding="0">
+                                                                  <tr>
+                                                                        <td style="padding-bottom: 12px;">
+                                                                              <p
+                                                                                    style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                                                                                    Class Details</p>
+                                                                              <p
+                                                                                    style="margin: 4px 0 0 0; color: #000a45; font-size: 18px; font-weight: 700;">
+                                                                                    {{CLASS_NAME}}</p>
+                                                                        </td>
+                                                                  </tr>
+                                                                  <tr>
+                                                                        <td
+                                                                              style="padding-bottom: 12px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                                                                              <table role="presentation" width="100%"
+                                                                                    border="0" cellspacing="0"
+                                                                                    cellpadding="0">
+                                                                                    <tr>
+                                                                                          <td width="50%" valign="top">
+                                                                                                <p
+                                                                                                      style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                                                                                                      Time</p>
+                                                                                                <p
+                                                                                                      style="margin: 4px 0 0 0; color: #1e293b; font-size: 15px; font-weight: 500;">
+                                                                                                      {{TIME}}</p>
+                                                                                          </td>
+                                                                                    </tr>
+                                                                              </table>
+                                                                        </td>
+                                                                  </tr>
+                                                            </table>
+                                                      </td>
+                                                </tr>
+                                          </table>
+                                    </td>
+                              </tr>
+
+                              <!-- CTA Buttons -->
+                              <tr>
+                                    <td align="center" style="padding: 30px 40px 40px 40px;">
+                                          <table role="presentation" border="0" cellspacing="0" cellpadding="0">
+                                                <tr>
+                                                      <td align="center"
+                                                            style="border-radius: 8px; background-color: #000a45;">
+                                                            <a href="{{JOIN_LINK}}" target="_blank"
+                                                                  style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; padding: 12px 32px; border-radius: 8px; border: 1px solid #000a45; display: inline-block; font-weight: 600;">Join
+                                                                  Class</a>
+                                                      </td>
+                                                </tr>
+                                                <tr>
+                                                      <td height="16"></td>
+                                                </tr>
+                                                <tr>
+                                                      <td align="center">
+                                                            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{CLASS_NAME}}&dates={{START_ISO}}/{{END_ISO}}&details=Join%20via%20Orbit%20Virtual%20Classroom&location=Online"
+                                                                  target="_blank"
+                                                                  style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #000a45; text-decoration: none; padding: 10px 24px; border-radius: 8px; border: 1px solid #000a45; display: inline-block; font-weight: 500; background-color: #ffffff;">Add
+                                                                  to Google Calendar</a>
+                                                      </td>
+                                                </tr>
+                                          </table>
+                                    </td>
+                              </tr>
+
+                              <!-- Footer -->
+                              <tr>
+                                    <td align="center"
+                                          style="padding: 30px 40px; background-color: #f1f5f9; border-top: 1px solid #e2e8f0;">
+                                          <p style="margin: 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
+                                                © 2026 Orbit Virtual Classroom. All rights reserved.
+                                                <br>
+                                                Revolutionizing education with AI.
+                                          </p>
+                                    </td>
+                              </tr>
+
+                        </table>
+                  </td>
+            </tr>
+      </table>
+</body>
+
+</html>

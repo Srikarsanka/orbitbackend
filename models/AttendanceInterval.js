@@ -61,4 +61,4 @@ const attendanceIntervalSchema = new mongoose.Schema({
 attendanceIntervalSchema.index({ sessionId: 1, participantEmail: 1, intervalNumber: 1 });
 attendanceIntervalSchema.index({ sessionId: 1, timestamp: 1 });
 
-module.exports = mongoose.model('AttendanceInterval', attendanceIntervalSchema);
+module.exports = mongoose.models.AttendanceInterval || mongoose.model('AttendanceInterval', attendanceIntervalSchema);

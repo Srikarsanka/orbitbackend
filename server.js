@@ -139,6 +139,11 @@ const presentationRoutes = require("./routes/presentation"); // NEW: Teaching Mo
 
 app.use("/auth", authRoutes);
 app.use("/otp", otpRoute); // 🔥 Fixed: Mount OTP routes here
+app.use("/api/schedule", require("./routes/schedule")); // NEW: Schedule Routes
+
+// Start Scheduler
+const startScheduler = require("./services/scheduler");
+startScheduler();
 
 // Create or Join Class
 app.use("/api/class", classRoutes);

@@ -106,4 +106,4 @@ sessionAttendanceSchema.methods.calculateAttendance = function() {
   }
 };
 
-module.exports = mongoose.model('SessionAttendance', sessionAttendanceSchema);
+module.exports = mongoose.models.SessionAttendance || mongoose.model('SessionAttendance', sessionAttendanceSchema);

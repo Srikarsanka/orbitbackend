@@ -49,4 +49,4 @@ WhiteboardStateSchema.index({ sessionId: 1, lastUpdated: -1 });
 // Auto-cleanup old whiteboard data (optional - after 30 days)
 WhiteboardStateSchema.index({ createdAt: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
-module.exports = mongoose.model('WhiteboardState', WhiteboardStateSchema);
+module.exports = mongoose.models.WhiteboardState || mongoose.model('WhiteboardState', WhiteboardStateSchema);
