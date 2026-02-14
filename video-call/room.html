@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="styles/spectator.css"> <!-- Spectator Card -->
     <link rel="stylesheet" href="styles/presentation.css"> <!-- Presentation Mode -->
     <link rel="stylesheet" href="styles/whiteboard.css"> <!-- Whiteboard Styles -->
-    <link rel="stylesheet" href="styles/face_verification.css">`n
+    <link rel="stylesheet" href="styles/face_verification.css">
     <link rel="stylesheet" href="styles/face_verification_layout.css"> <!-- Face Verification Modal -->
     <link rel="stylesheet" href="styles/premium_video_ui.css"> <!-- Premium Video UI -->
 
@@ -385,8 +385,10 @@ for i in range(10):
             <div class="chat-input-area premium-chat-input"
                 style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
                 <input type="text" id="chat-msg-input" placeholder="Type a message..."
-                    style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                <button id="send-msg-btn" class="chat-send-btn premium-send-btn" title="Send Message">
+                    style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;"
+                    onkeydown="if(event.key === 'Enter') window.SessionManager.sendChatMsg()">
+                <button id="send-msg-btn" class="chat-send-btn premium-send-btn" title="Send Message"
+                    onclick="window.SessionManager.sendChatMsg()">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>

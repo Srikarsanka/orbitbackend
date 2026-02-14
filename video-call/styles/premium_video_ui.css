@@ -32,6 +32,8 @@ body.teams-theme {
 .teams-container {
       background-color: var(--premium-white);
       padding: 0;
+      display: flex;
+      flex-direction: column;
 }
 
 /* ========================================= */
