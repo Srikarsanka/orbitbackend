@@ -123,11 +123,12 @@ body.teams-theme {
 .premium-main-content {
       width: 100%;
       max-width: 1600px;
-      margin: 32px auto;
-      padding: 0 24px;
+      margin: 0 auto;
+      padding: 24px;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: calc(100vh - 200px);
       position: relative;
       z-index: 1;
 }
@@ -145,6 +146,7 @@ body.teams-theme {
       display: flex;
       justify-content: center;
       align-items: center;
+      margin: 0 auto;
 }
 
 /* Faculty video container styling */
