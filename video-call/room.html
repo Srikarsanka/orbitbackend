@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="styles/whiteboard.css"> <!-- Whiteboard Styles -->
     <link rel="stylesheet" href="styles/face_verification.css">`n
     <link rel="stylesheet" href="styles/face_verification_layout.css"> <!-- Face Verification Modal -->
+    <link rel="stylesheet" href="styles/premium_video_ui.css"> <!-- Premium Video UI -->
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -77,8 +78,25 @@
 
     <!-- ================= MAIN STAGE ================= -->
     <main class="teams-container">
-        <div class="teams-stage" id="stage">
+        <!-- Premium Participant Strip Wrapper -->
+        <div class="premium-participant-strip">
+            <div class="participant-scroll-container" id="participant-scroll">
+                <!-- Student videos will be moved here by CSS/JS -->
+            </div>
+        </div>
 
+        <!-- Premium Main Content Wrapper -->
+        <div class="premium-main-content">
+            <div class="premium-faculty-section" id="premium-faculty-container">
+                <div class="faculty-pin-indicator">
+                    <i class="fa-solid fa-thumbtack"></i>
+                </div>
+                <!-- Faculty video will be moved here -->
+            </div>
+        </div>
+
+        <!-- ORIGINAL STRUCTURE PRESERVED (hidden but functional) -->
+        <div class="teams-stage" id="stage" style="display: none;">
             <!-- Faculty Video (Primary) -->
             <div id="primary-video-container" class="primary-video-area">
                 <!-- Faculty video injected here -->
@@ -94,7 +112,6 @@
                     <!-- Student videos injected here -->
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -124,34 +141,56 @@
         </div>
     </div>
 
-    <!-- ================= CONTROLS ================= -->
-    <div class="teams-controls">
-        <button class="control-btn" id="mic-btn" title="Mic">
+    <!-- ================= PREMIUM CONTROLS ================= -->
+    <div class="premium-control-dock">
+        <button class="premium-control-btn" id="mic-btn" title="Microphone">
             <i class="fa-solid fa-microphone"></i>
         </button>
-        <button class="control-btn" id="camera-btn" title="Camera">
+        <button class="premium-control-btn" id="camera-btn" title="Camera">
             <i class="fa-solid fa-video"></i>
         </button>
-
-
-        <div class="separator"></div>
-
-        <button class="control-btn" id="open_whiteboard_btn" title="Whiteboard">
-            <i class="fa-solid fa-pen-to-square"></i>
-        </button>
-        <button class="control-btn" id="screen-btn" title="Screen Share">
+        <button class="premium-control-btn" id="screen-btn" title="Screen Share">
             <i class="fa-solid fa-display"></i>
         </button>
-        <button class="control-btn" id="open_compiler_btn" title="Compiler">
+        <button class="premium-control-btn" id="open_whiteboard_btn" title="Whiteboard">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="premium-control-btn" id="open_compiler_btn" title="Code">
             <i class="fa-solid fa-code"></i>
         </button>
-        <button class="control-btn" id="open_chat_btn" title="Chat">
+        <button class="premium-control-btn" id="open_chat_btn" title="Chat">
             <i class="fa-solid fa-comment"></i>
         </button>
+        <div class="premium-control-separator"></div>
+        <button class="premium-control-btn premium-end-call" id="leave-btn" title="End Class">
+            <i class="fa-solid fa-phone-slash"></i>
+            <span>End Class</span>
+        </button>
+    </div>
 
+    <!-- ORIGINAL CONTROLS PRESERVED (hidden but IDs intact) -->
+    <div class="teams-controls" style="display: none;">
+        <button class="control-btn" id="mic-btn-old" title="Mic">
+            <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button class="control-btn" id="camera-btn-old" title="Camera">
+            <i class="fa-solid fa-video"></i>
+        </button>
         <div class="separator"></div>
-
-        <button class="control-btn danger" id="leave-btn" title="End Class">
+        <button class="control-btn" id="open_whiteboard_btn-old" title="Whiteboard">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="control-btn" id="screen-btn-old" title="Screen Share">
+            <i class="fa-solid fa-display"></i>
+        </button>
+        <button class="control-btn" id="open_compiler_btn-old" title="Compiler">
+            <i class="fa-solid fa-code"></i>
+        </button>
+        <button class="control-btn" id="open_chat_btn-old" title="Chat">
+            <i class="fa-solid fa-comment"></i>
+        </button>
+        <div class="separator"></div>
+        <button class="control-btn danger" id="leave-btn-old" title="End Class">
             <i class="fa-solid fa-phone-slash"></i>
             <span>End Class</span>
         </button>
@@ -322,26 +361,28 @@ for i in range(10):
         </div>
     </section>
 
-    <!-- 3. Chat Overlay (Right Side) -->
-    <section id="chat_section" class="overlay-panel right-side hidden" style="width: 420px; height: 600px;">
-        <div class="overlay-header">
+    <!-- 3. Chat Overlay (Right Side) - PREMIUM STYLED -->
+    <section id="chat_section" class="overlay-panel right-side hidden premium-chat-panel">
+        <div class="overlay-header premium-chat-header">
             <h3><i class="fa-solid fa-comment"></i> Chat</h3>
-            <button id="chat_back" class="close-overlay"><i class="fa-solid fa-xmark"></i></button>
+            <button id="chat_back" class="close-overlay premium-close-btn"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="overlay-content chat-layout">
+        <div class="overlay-content chat-layout premium-chat-content">
             <div class="chat-toggle-wrapper" style="padding:10px; border-bottom:1px solid #eee;">
                 <div class="chat-type-select" style="display:flex; background:#eee; border-radius:16px; padding:2px;">
                     <button id="chat-type-group" class="chat-type-btn active">Group</button>
                     <button id="chat-type-dm" class="chat-type-btn">Direct (Faculty)</button>
                 </div>
             </div>
-            <div class="activity-feed" id="activity-feed-list" style="flex:1; overflow-y:auto; padding:10px;">
+            <div class="activity-feed premium-chat-messages" id="activity-feed-list"
+                style="flex:1; overflow-y:auto; padding:10px;">
                 <!-- Messages -->
             </div>
-            <div class="chat-input-area" style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
-                <input type="text" id="chat-msg-input" placeholder="Type message..."
+            <div class="chat-input-area premium-chat-input"
+                style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
+                <input type="text" id="chat-msg-input" placeholder="Type a message..."
                     style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                <button id="send-msg-btn" class="chat-send-btn" title="Send Message">
+                <button id="send-msg-btn" class="chat-send-btn premium-send-btn" title="Send Message">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -464,6 +505,7 @@ for i in range(10):
 
     <!-- Scripts -->
     <!-- Whiteboard Socket.IO Client Logic Removed (Handled by WBO Iframe) -->
+    <script src="js/premium_ui_adapter.js"></script> <!-- Premium UI Adapter -->
     <script src="js/whiteboard_canvas.js"></script> <!-- Collaborative Whiteboard -->
     <script src="js/face_verification.js"></script> <!-- Face Verification for Video Call Join -->
     <script src="js/room_rtc_enhanced.js"></script> <!-- RTC Logic -->
