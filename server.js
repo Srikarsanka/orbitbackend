@@ -993,10 +993,11 @@ io.on('connection', (socket) => {
 });
 
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Backend running on http://localhost:${PORT}`);
   console.log(`🔌 Socket.IO whiteboard ready at /whiteboard`);
   console.log(`📹 Video Call App served at http://localhost:${PORT}/video/room.html`);
+  console.log(`✅ Server is ready to accept connections on 0.0.0.0:${PORT}`);
 });
 
 // });
