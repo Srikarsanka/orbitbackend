@@ -417,6 +417,23 @@ exports.validateSession = async (req, res) => {
 
     // Add participant if not already present
     const existingParticipant = session.participants.find(p => p.email === email);
+    
+    // DUPLICATE ENTRY PREVENTION: Check if same name already joined (for students)
+    if (role === 'student') {
+      const userName = user ? user.fullName : 'User';
+      const duplicateByName = session.participants.find(p => 
+        p.name === userName && p.email !== email
+      );
+      
+      if (duplicateByName) {
+        console.log(`❌ Duplicate entry prevented: ${userName} already in session`);
+        return res.status(403).json({ 
+          isValid: false, 
+          reason: `A student with the name "${userName}" is already in this class. Duplicate entries are not allowed.` 
+        });
+      }
+    }
+    
     if (!existingParticipant) {
       session.participants.push({
         email,

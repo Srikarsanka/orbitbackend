@@ -81,7 +81,7 @@
         <!-- Premium Participant Strip Wrapper -->
         <div class="premium-participant-strip">
             <div class="participant-scroll-container" id="participant-scroll">
-                <!-- Student videos will be moved here by CSS/JS -->
+                <!-- Student videos will be moved here by adapter -->
             </div>
         </div>
 
@@ -95,11 +95,12 @@
             </div>
         </div>
 
-        <!-- ORIGINAL STRUCTURE PRESERVED (hidden but functional) -->
-        <div class="teams-stage" id="stage" style="display: none;">
+        <!-- ORIGINAL STRUCTURE (SDK mounts videos here, then adapter moves them) -->
+        <div class="teams-stage" id="stage"
+            style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
             <!-- Faculty Video (Primary) -->
             <div id="primary-video-container" class="primary-video-area">
-                <!-- Faculty video injected here -->
+                <!-- Faculty video injected here by SDK, then moved by adapter -->
                 <div class="empty-state-faculty">
                     <i class="fa-solid fa-chalkboard-user"></i>
                     <span>Waiting for Faculty...</span>
@@ -109,7 +110,7 @@
             <!-- Student Grid (Secondary) -->
             <div id="student-grid-container" class="student-grid-area">
                 <div id="streams_container" class="video-grid">
-                    <!-- Student videos injected here -->
+                    <!-- Student videos injected here by SDK, then moved by adapter -->
                 </div>
             </div>
         </div>

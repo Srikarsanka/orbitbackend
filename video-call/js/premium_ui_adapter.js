@@ -2,6 +2,9 @@
  * Premium UI Adapter
  * Moves videos from original containers to premium layout
  * WITHOUT breaking existing JavaScript selectors
+ * 
+ * CRITICAL: Re-parents original video elements instead of cloning
+ * to preserve MediaStream srcObject
  */
 
 (function() {
@@ -44,15 +47,19 @@
         const studentObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.addedNodes.length > 0) {
-                    console.log('📹 New video detected, reorganizing layout...');
-                    setTimeout(moveVideosToNewLayout, 100);
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.classList && node.classList.contains('video__containers')) {
+                            console.log('📹 New student video detected, moving to strip...');
+                            setTimeout(() => moveStudentVideos(), 100);
+                        }
+                    });
                 }
             });
         });
 
         studentObserver.observe(originalContainer, {
             childList: true,
-            subtree: true
+            subtree: false
         });
 
         // Observer for faculty video
@@ -60,15 +67,19 @@
             const facultyObserver = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     if (mutation.addedNodes.length > 0) {
-                        console.log('👨‍🏫 Faculty video detected, moving to premium area...');
-                        setTimeout(moveFacultyVideo, 100);
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.classList && node.classList.contains('video__containers')) {
+                                console.log('👨‍🏫 Faculty video detected, moving to premium area...');
+                                setTimeout(() => moveFacultyVideo(), 100);
+                            }
+                        });
                     }
                 });
             });
 
             facultyObserver.observe(primaryContainer, {
                 childList: true,
-                subtree: true
+                subtree: false
             });
         }
 
@@ -85,6 +96,7 @@
 
     /**
      * Move student videos to horizontal participant strip
+     * RE-PARENTS original elements (does NOT clone)
      */
     function moveStudentVideos() {
         const originalContainer = document.getElementById('streams_container');
@@ -105,22 +117,20 @@
 
         console.log(`📹 Moving ${videoContainers.length} student videos to strip`);
 
-        // Move each video container to the premium strip
-        videoContainers.forEach((container, index) => {
-            // Clone the container to premium strip
-            const clone = container.cloneNode(true);
+        // RE-PARENT each video container to the premium strip
+        videoContainers.forEach((container) => {
+            // Check if already moved
+            if (container.parentElement === premiumStrip) {
+                return;
+            }
             
-            // Add premium styling classes
-            clone.classList.add('premium-participant-tile');
+            // Add premium styling class
+            container.classList.add('premium-participant-tile');
             
-            // Ensure name tag exists
-            ensureNameTag(clone);
+            // RE-PARENT (move, don't clone) to premium strip
+            premiumStrip.appendChild(container);
             
-            // Append to premium strip
-            premiumStrip.appendChild(clone);
-            
-            // Keep original hidden but in DOM for JS references
-            container.style.display = 'none';
+            console.log(`✅ Re-parented student video: ${container.id}`);
         });
 
         console.log('✅ Student videos moved to participant strip');
@@ -128,6 +138,7 @@
 
     /**
      * Move faculty video to premium faculty section
+     * RE-PARENTS original element (does NOT clone)
      */
     function moveFacultyVideo() {
         const primaryContainer = document.getElementById('primary-video-container');
@@ -146,56 +157,30 @@
             return;
         }
 
+        // Check if already moved
+        if (facultyVideo.parentElement === premiumFaculty) {
+            return;
+        }
+
         console.log('👨‍🏫 Moving faculty video to premium area');
 
-        // Clone to premium area
-        const clone = facultyVideo.cloneNode(true);
-        clone.classList.add('premium-faculty-video');
+        // Add premium styling class
+        facultyVideo.classList.add('premium-faculty-video');
         
-        // Ensure name tag exists
-        ensureNameTag(clone);
-        
-        // Clear previous and append new
-        const existingFaculty = premiumFaculty.querySelector('.video__containers');
-        if (existingFaculty) {
-            existingFaculty.remove();
+        // RE-PARENT (move, don't clone) to premium area
+        // Remove pin indicator first if it exists
+        const pinIndicator = premiumFaculty.querySelector('.faculty-pin-indicator');
+        if (pinIndicator) {
+            pinIndicator.remove();
         }
         
-        premiumFaculty.appendChild(clone);
+        // Clear any existing content
+        premiumFaculty.innerHTML = '';
         
-        // Keep original hidden
-        facultyVideo.style.display = 'none';
+        // Move original element
+        premiumFaculty.appendChild(facultyVideo);
 
         console.log('✅ Faculty video moved to premium section');
-    }
-
-    /**
-     * Ensure video container has a name tag
-     */
-    function ensureNameTag(container) {
-        let nameTag = container.querySelector('.name-tag');
-        
-        if (!nameTag) {
-            // Create name tag if it doesn't exist
-            nameTag = document.createElement('div');
-            nameTag.className = 'name-tag';
-            
-            // Try to get name from placeholder or generate generic name
-            const placeholder = container.querySelector('.placeholder-name');
-            const videoId = container.getAttribute('id') || '';
-            
-            if (placeholder) {
-                nameTag.textContent = placeholder.textContent;
-            } else if (videoId) {
-                // Extract name from ID if possible
-                const match = videoId.match(/user-container-(\d+)/);
-                nameTag.textContent = match ? `User ${match[1]}` : 'Participant';
-            } else {
-                nameTag.textContent = 'Participant';
-            }
-            
-            container.appendChild(nameTag);
-        }
     }
 
     /**
@@ -211,37 +196,7 @@
         const container = document.getElementById(`user-container-${userId}`);
         if (container) {
             container.classList.add('active-speaker');
-            
-            // Also highlight in premium strip
-            const premiumTile = document.querySelector(`.participant-scroll-container [id="user-container-${userId}"]`);
-            if (premiumTile) {
-                premiumTile.classList.add('active-speaker');
-            }
         }
-    }
-
-    /**
-     * Sync video states between original and premium containers
-     */
-    function syncVideoStates() {
-        const originalVideos = document.querySelectorAll('#streams_container .video__containers');
-        
-        originalVideos.forEach(original => {
-            const id = original.getAttribute('id');
-            if (!id) return;
-            
-            const premiumClone = document.querySelector(`.participant-scroll-container [id="${id}"]`);
-            if (!premiumClone) return;
-            
-            // Sync mute states, etc.
-            const originalVideo = original.querySelector('video');
-            const cloneVideo = premiumClone.querySelector('video');
-            
-            if (originalVideo && cloneVideo) {
-                cloneVideo.muted = originalVideo.muted;
-                cloneVideo.volume = originalVideo.volume;
-            }
-        });
     }
 
     // Expose functions globally for external use
@@ -249,8 +204,7 @@
         moveVideosToNewLayout,
         moveStudentVideos,
         moveFacultyVideo,
-        addActiveSpeakerHighlight,
-        syncVideoStates
+        addActiveSpeakerHighlight
     };
 
     console.log('✅ Premium UI Adapter ready');
