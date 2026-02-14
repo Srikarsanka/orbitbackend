@@ -46,6 +46,7 @@ body.teams-theme {
       border-bottom: 1px solid var(--premium-gray-border);
       overflow: hidden;
       position: relative;
+      z-index: 1;
 }
 
 .participant-scroll-container {
@@ -92,9 +93,19 @@ body.teams-theme {
       box-shadow: 0 0 16px rgba(0, 102, 255, 0.3);
 }
 
-/* Hide name overlay for participant strip (preventing duplicates) */
+/* Show name overlay for participant strip */
 .participant-scroll-container .name-tag {
-      display: none !important;
+      position: absolute !important;
+      bottom: 6px !important;
+      left: 6px !important;
+      background: rgba(0, 10, 69, 0.85) !important;
+      color: white !important;
+      padding: 3px 8px !important;
+      border-radius: 4px !important;
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      z-index: 10 !important;
+      display: block !important;
 }
 
 /* Ensure participant strip videos are visible */
@@ -111,18 +122,20 @@ body.teams-theme {
 
 .premium-main-content {
       width: 100%;
-      max-width: 1400px;
-      margin: 24px auto;
+      max-width: 1600px;
+      margin: 32px auto;
       padding: 0 24px;
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      z-index: 1;
 }
 
 .premium-faculty-section {
       position: relative;
-      width: 85%;
-      max-width: 1100px;
+      width: 90%;
+      max-width: 1300px;
       aspect-ratio: 16 / 9;
       border-radius: 20px;
       overflow: hidden;
@@ -174,9 +187,19 @@ body.teams-theme {
       font-size: 16px;
 }
 
-/* Hide faculty name overlay (preventing duplicates) */
+/* Show faculty name overlay */
 .premium-faculty-section .name-tag {
-      display: none !important;
+      position: absolute !important;
+      bottom: 16px !important;
+      left: 16px !important;
+      background: rgba(0, 10, 69, 0.9) !important;
+      color: white !important;
+      padding: 8px 16px !important;
+      border-radius: 8px !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      z-index: 10 !important;
+      display: block !important;
 }
 
 /* ========================================= */
@@ -429,6 +452,14 @@ body.teams-theme {
 
 .teams-controls {
       display: none !important;
+}
+
+/* Ensure main content doesn't overlap header */
+.teams-container {
+      position: relative;
+      z-index: 1;
+      margin-top: 0;
+      padding-top: 0;
 }
 
 /* Ensure premium controls stay visible during presentation mode */
