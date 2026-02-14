@@ -1,0 +1,436 @@
+/* ========================================= */
+/* 🎨 NEW VIDEO CALL UI - Wireframe Design */
+/* Theme: #000a45, White, Light Blue Accents */
+/* ========================================= */
+
+:root {
+      --primary-dark: #000a45;
+      --primary-white: #ffffff;
+      --accent-blue: #4a90e2;
+      --accent-light-blue: #e3f2fd;
+      --text-white: #ffffff;
+      --text-dark: #000a45;
+      --danger-red: #d32f2f;
+      --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ================= TOP BAR ================= */
+.teams-header {
+      height: 60px !important;
+      background: var(--primary-dark) !important;
+      color: var(--text-white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+}
+
+.header-left .class-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-white);
+}
+
+.header-left .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ff4444;
+}
+
+.header-left .live-indicator::before {
+      content: "●";
+      color: #ff4444;
+      font-size: 16px;
+      animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+
+      0%,
+      100% {
+            opacity: 1;
+      }
+
+      50% {
+            opacity: 0.5;
+      }
+}
+
+.header-center {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+}
+
+.session-timer {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 16px;
+      color: var(--text-white);
+}
+
+.header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+}
+
+.toggle-panels-btn,
+.exit-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: var(--text-white);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+}
+
+.toggle-panels-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+}
+
+.exit-btn {
+      background: var(--danger-red);
+      border-color: var(--danger-red);
+}
+
+.exit-btn:hover {
+      background: #b71c1c;
+}
+
+/* ================= STUDENT VIDEO STRIP (Horizontal) ================= */
+.student-video-strip {
+      height: 120px;
+      background: var(--primary-white);
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      padding: 10px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-blue) #f0f0f0;
+}
+
+.student-video-strip::-webkit-scrollbar {
+      height: 6px;
+}
+
+.student-video-strip::-webkit-scrollbar-track {
+      background: #f0f0f0;
+}
+
+.student-video-strip::-webkit-scrollbar-thumb {
+      background: var(--accent-blue);
+      border-radius: 3px;
+}
+
+.student-video-strip::-webkit-scrollbar-thumb:hover {
+      background: #357abd;
+}
+
+.student-video-container {
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+}
+
+/* Student Video Card */
+.student-video-card {
+      position: relative;
+      width: 160px;
+      height: 100px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: var(--shadow-soft);
+      display: inline-block;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+}
+
+.student-video-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+}
+
+.student-video-card.pinned {
+      border: 2px solid var(--accent-blue);
+      box-shadow: 0 0 12px rgba(74, 144, 226, 0.3);
+}
+
+.student-video-card video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+}
+
+.student-video-card .name-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+}
+
+.student-video-card .pin-icon {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+}
+
+.student-video-card:hover .pin-icon,
+.student-video-card.pinned .pin-icon {
+      opacity: 1;
+}
+
+.student-video-card.pinned .pin-icon {
+      background: var(--accent-blue);
+}
+
+/* ================= MAIN WORKSPACE AREA ================= */
+.main-workspace {
+      flex: 1;
+      background: var(--primary-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+}
+
+.pinned-video-large {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-medium);
+      background: #000;
+}
+
+.pinned-video-large video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+}
+
+/* ================= CHAT PANEL (Right Side) ================= */
+.chat-panel-slide {
+      position: fixed;
+      right: 0;
+      top: 60px;
+      width: 320px;
+      height: calc(100vh - 60px - 80px);
+      background: var(--primary-white);
+      border-left: 1px solid #e0e0e0;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+      z-index: 200;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+}
+
+.chat-panel-slide.open {
+      transform: translateX(0);
+}
+
+.chat-panel-header {
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+}
+
+.chat-panel-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+}
+
+.chat-panel-input {
+      padding: 16px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 8px;
+}
+
+.chat-panel-input input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+}
+
+.chat-panel-input input:focus {
+      border-color: var(--accent-blue);
+}
+
+.chat-panel-input button {
+      background: var(--accent-blue);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+}
+
+.chat-panel-input button:hover {
+      background: #357abd;
+      transform: scale(1.05);
+}
+
+/* ================= BOTTOM CONTROL BAR (Floating Pill) ================= */
+.teams-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50px;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      z-index: 300;
+}
+
+.control-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent-light-blue);
+      color: var(--text-dark);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      position: relative;
+}
+
+.control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn.active {
+      background: var(--primary-dark);
+      color: white;
+}
+
+.control-btn.danger {
+      background: var(--danger-red);
+      color: white;
+      width: auto;
+      padding: 0 20px;
+      border-radius: 24px;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+}
+
+.control-btn.danger:hover {
+      background: #b71c1c;
+}
+
+.separator {
+      width: 1px;
+      height: 32px;
+      background: #ddd;
+      margin: 0 4px;
+}
+
+/* ================= RESPONSIVE DESIGN ================= */
+@media (max-width: 1024px) {
+      .student-video-strip {
+            height: 100px;
+      }
+
+      .student-video-card {
+            width: 140px;
+            height: 85px;
+      }
+
+      .chat-panel-slide {
+            width: 280px;
+      }
+}
+
+@media (max-width: 768px) {
+      .header-left .class-name {
+            font-size: 14px;
+      }
+
+      .student-video-strip {
+            height: 90px;
+            padding: 8px 12px;
+      }
+
+      .student-video-card {
+            width: 120px;
+            height: 75px;
+      }
+
+      .teams-controls {
+            width: 90%;
+            padding: 10px 16px;
+      }
+
+      .control-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+      }
+}

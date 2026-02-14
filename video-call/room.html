@@ -9,6 +9,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="styles/main.css"> <!-- Base styles -->
     <link rel="stylesheet" href="styles/teams_layout.css"> <!-- New Layout -->
+    <link rel="stylesheet" href="styles/new_video_ui.css"> <!-- NEW UI REDESIGN -->
     <link rel="stylesheet" href="styles/enhancements.css"> <!-- Enhanced Features -->
     <link rel="stylesheet" href="styles/spectator.css"> <!-- Spectator Card -->
     <link rel="stylesheet" href="styles/presentation.css"> <!-- Presentation Mode -->
@@ -45,19 +46,14 @@
         };
     </script>
 
-    <!-- ================= HEADER ================= -->
+    <!-- ================= HEADER (TOP BAR) ================= -->
     <header class="teams-header">
         <div class="header-left">
-            <div class="brand-icon"><i class="fa-solid fa-atom"></i></div>
-            <div class="header-info">
-                <h2>Orbit Live Class</h2>
-            </div>
+            <span class="class-name" id="class-name-display">Advanced Mathematics</span>
+            <span class="live-indicator">LIVE</span>
         </div>
 
         <div class="header-center">
-            <div id="session-status" class="session-badge">
-                <span style="color:#aaa;">Connecting...</span>
-            </div>
             <div class="session-timer" id="session-timer-display">
                 <i class="fa-regular fa-clock"></i> 00:00:00
             </div>
@@ -68,33 +64,37 @@
         </div>
 
         <div class="header-right">
-            <div class="network-status" title="Network Good">
-                <span class="network-label">Network</span>
-                <i class="fa-solid fa-signal" style="color: #2e7d32;"></i>
-            </div>
+            <button class="toggle-panels-btn" id="toggle-panels-btn" title="Toggle Panels">
+                <i class="fa-solid fa-table-cells"></i> Panels
+            </button>
+            <button class="exit-btn" id="exit-class-btn" title="Exit Class">
+                <i class="fa-solid fa-right-from-bracket"></i> Exit
+            </button>
         </div>
     </header>
 
-    <!-- ================= MAIN STAGE ================= -->
-    <main class="teams-container">
-        <div class="teams-stage" id="stage">
+    <!-- ================= STUDENT VIDEO STRIP (Horizontal Scroll) ================= -->
+    <div class="student-video-strip" id="student-video-strip">
+        <div class="student-video-container" id="student-video-container">
+            <!-- Student video cards will be dynamically inserted here by JavaScript -->
+        </div>
+    </div>
 
-            <!-- Faculty Video (Primary) -->
-            <div id="primary-video-container" class="primary-video-area">
-                <!-- Faculty video injected here -->
-                <div class="empty-state-faculty">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                    <span>Waiting for Faculty...</span>
-                </div>
+    <!-- ================= MAIN WORKSPACE AREA ================= -->
+    <main class="main-workspace" id="main-workspace">
+        <!-- Pinned Video (Faculty or Student) - Large Display -->
+        <div id="pinned-video-display" class="pinned-video-large">
+            <!-- Pinned video will be moved here by JavaScript -->
+            <div class="empty-state-faculty"
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 400px; color: #999;">
+                <i class="fa-solid fa-chalkboard-user" style="font-size: 64px; margin-bottom: 16px;"></i>
+                <span style="font-size: 18px;">Waiting for Faculty...</span>
             </div>
+        </div>
 
-            <!-- Student Grid (Secondary) -->
-            <div id="student-grid-container" class="student-grid-area">
-                <div id="streams_container" class="video-grid">
-                    <!-- Student videos injected here -->
-                </div>
-            </div>
-
+        <!-- Hidden container for original video streams (for JS manipulation) -->
+        <div id="streams_container" style="display: none;">
+            <!-- Video streams will be created here by JavaScript, then moved to appropriate containers -->
         </div>
     </main>
 
@@ -322,29 +322,30 @@ for i in range(10):
         </div>
     </section>
 
-    <!-- 3. Chat Overlay (Right Side) -->
-    <section id="chat_section" class="overlay-panel right-side hidden" style="width: 420px; height: 600px;">
-        <div class="overlay-header">
-            <h3><i class="fa-solid fa-comment"></i> Chat</h3>
-            <button id="chat_back" class="close-overlay"><i class="fa-solid fa-xmark"></i></button>
+    <!-- 3. Chat Overlay (Right Side Slide Panel) -->
+    <section id="chat_section" class="chat-panel-slide" style="width: 320px;">
+        <div class="chat-panel-header">
+            <span><i class="fa-solid fa-comment"></i> Chat</span>
+            <button id="chat_back" class="close-overlay"
+                style="background: transparent; border: none; cursor: pointer; font-size: 18px;"><i
+                    class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="overlay-content chat-layout">
+        <div class="chat-panel-messages" id="activity-feed-list">
             <div class="chat-toggle-wrapper" style="padding:10px; border-bottom:1px solid #eee;">
                 <div class="chat-type-select" style="display:flex; background:#eee; border-radius:16px; padding:2px;">
                     <button id="chat-type-group" class="chat-type-btn active">Group</button>
                     <button id="chat-type-dm" class="chat-type-btn">Direct (Faculty)</button>
                 </div>
             </div>
-            <div class="activity-feed" id="activity-feed-list" style="flex:1; overflow-y:auto; padding:10px;">
-                <!-- Messages -->
+            <div style="padding: 10px;">
+                <!-- Messages will appear here -->
             </div>
-            <div class="chat-input-area" style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
-                <input type="text" id="chat-msg-input" placeholder="Type message..."
-                    style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                <button id="send-msg-btn" class="chat-send-btn" title="Send Message">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
+        </div>
+        <div class="chat-panel-input">
+            <input type="text" id="chat-msg-input" placeholder="Type message...">
+            <button id="send-msg-btn" title="Send Message">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
         </div>
     </section>
 
@@ -463,6 +464,10 @@ for i in range(10):
     </div>
 
     <!-- Scripts -->
+    <!-- NEW UI LAYOUT ADAPTER -->
+    <script src="js/new_ui_adapter.js"></script>
+    <script src="js/chat_panel_controller.js"></script>
+
     <!-- Whiteboard Socket.IO Client Logic Removed (Handled by WBO Iframe) -->
     <script src="js/whiteboard_canvas.js"></script> <!-- Collaborative Whiteboard -->
     <script src="js/face_verification.js"></script> <!-- Face Verification for Video Call Join -->
