@@ -70,9 +70,9 @@ body.teams-theme {
 
 /* Style student video tiles in the strip */
 .participant-scroll-container .video__containers {
-      min-width: 120px !important;
-      width: 120px !important;
-      height: 90px !important;
+      min-width: 160px !important;
+      width: 160px !important;
+      height: 120px !important;
       border-radius: 12px !important;
       overflow: hidden;
       position: relative;
@@ -92,18 +92,17 @@ body.teams-theme {
       box-shadow: 0 0 16px rgba(0, 102, 255, 0.3);
 }
 
-/* Name overlay for participant strip */
+/* Hide name overlay for participant strip (preventing duplicates) */
 .participant-scroll-container .name-tag {
-      position: absolute;
-      bottom: 6px;
-      left: 6px;
-      background: rgba(0, 10, 69, 0.85);
-      color: white;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-      z-index: 10;
+      display: none !important;
+}
+
+/* Ensure participant strip videos are visible */
+.participant-scroll-container .video__containers video,
+.participant-scroll-container .video__containers .video-player {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
 }
 
 /* ========================================= */
@@ -112,8 +111,8 @@ body.teams-theme {
 
 .premium-main-content {
       width: 100%;
-      max-width: 1200px;
-      margin: 32px auto;
+      max-width: 1400px;
+      margin: 24px auto;
       padding: 0 24px;
       display: flex;
       justify-content: center;
@@ -122,14 +121,17 @@ body.teams-theme {
 
 .premium-faculty-section {
       position: relative;
-      width: 70%;
-      max-width: 900px;
+      width: 85%;
+      max-width: 1100px;
       aspect-ratio: 16 / 9;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 8px 24px rgba(0, 10, 69, 0.15);
       border: 2px solid var(--premium-gray-border);
       background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 }
 
 /* Faculty video container styling */
@@ -138,6 +140,17 @@ body.teams-theme {
       height: 100% !important;
       border-radius: 0 !important;
       border: none !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+}
+
+/* Ensure video element fills container */
+.premium-faculty-section .video__containers video,
+.premium-faculty-section .video__containers .video-player {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
 }
 
 /* Pin indicator (UI only) */
@@ -161,18 +174,9 @@ body.teams-theme {
       font-size: 16px;
 }
 
-/* Faculty name overlay */
+/* Hide faculty name overlay (preventing duplicates) */
 .premium-faculty-section .name-tag {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      background: rgba(0, 10, 69, 0.9);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 10;
+      display: none !important;
 }
 
 /* ========================================= */
@@ -427,6 +431,19 @@ body.teams-theme {
       display: none !important;
 }
 
+/* Ensure premium controls stay visible during presentation mode */
+.premium-control-dock {
+      z-index: 10001 !important;
+      /* Above presentation mode overlay */
+}
+
+/* Keep controls visible when presentation mode is active */
+body.presentation-active .premium-control-dock,
+#presentation-mode-container:not(.hidden)~.premium-control-dock {
+      display: flex !important;
+      visibility: visible !important;
+}
+
 /* ========================================= */
 /* RESPONSIVE DESIGN */
 /* ========================================= */
@@ -447,13 +464,14 @@ body.teams-theme {
       }
 
       .participant-scroll-container .video__containers {
-            min-width: 100px !important;
-            width: 100px !important;
-            height: 75px !important;
+            min-width: 140px !important;
+            width: 140px !important;
+            height: 105px !important;
       }
 
       .premium-faculty-section {
             width: 95%;
+            max-width: 100%;
       }
 
       .premium-main-content {
