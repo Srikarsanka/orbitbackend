@@ -153,13 +153,16 @@
         <button class="premium-control-btn" id="screen-btn" title="Screen Share">
             <i class="fa-solid fa-display"></i>
         </button>
-        <button class="premium-control-btn" id="open_whiteboard_btn" title="Whiteboard">
+        <button class="premium-control-btn" id="open_whiteboard_btn" title="Whiteboard"
+            onclick="window.SessionManager.toggleOverlay('whiteboard__section')">
             <i class="fa-solid fa-pen-to-square"></i>
         </button>
-        <button class="premium-control-btn" id="open_compiler_btn" title="Code">
+        <button class="premium-control-btn" id="open_compiler_btn" title="Code"
+            onclick="window.SessionManager.toggleOverlay('compiler_section')">
             <i class="fa-solid fa-code"></i>
         </button>
-        <button class="premium-control-btn" id="open_chat_btn" title="Chat">
+        <button class="premium-control-btn" id="open_chat_btn" title="Chat"
+            onclick="window.SessionManager.toggleOverlay('chat_section')">
             <i class="fa-solid fa-comment"></i>
         </button>
         <div class="premium-control-separator"></div>

@@ -223,8 +223,9 @@ body.teams-theme {
       border: 1px solid rgba(0, 10, 69, 0.1);
       border-radius: 32px;
       box-shadow: 0 8px 32px rgba(0, 10, 69, 0.15);
-      z-index: 1000;
+      z-index: 90;
       height: 64px;
+      pointer-events: auto;
 }
 
 .premium-control-btn {

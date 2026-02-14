@@ -322,64 +322,59 @@ const SessionManager = {
         feed.scrollTop = feed.scrollHeight;
     },
 
+
+    toggleOverlay: function(sectionId) {
+        console.log(`🔘 Toggling overlay: ${sectionId}`);
+        console.log(`Current active overlay: ${this.state.activeOverlay}`);
+        
+        if(this.state.activeOverlay === sectionId) {
+            // Close if already open
+            this.closeAllOverlays();
+        } else {
+            const panel = document.getElementById(sectionId);
+            
+            if(!panel) {
+                console.error(`❌ Panel not found: ${sectionId}`);
+                return;
+            }
+            
+            // Close other overlays first
+            this.closeAllOverlays();
+            
+            // Show this overlay by removing hidden class (CSS handles the rest)
+            panel.classList.remove('hidden');
+            
+            this.state.activeOverlay = sectionId;
+            console.log(`✅ Opened overlay: ${sectionId}`);
+            
+            // Initialize panel-specific functionality
+            if(sectionId === 'whiteboard__section') {
+                this.initWhiteboard();
+                // Notify students if Faculty opens it
+                if(this.state.role === 'faculty' && this.socket) {
+                    this.socket.emit('whiteboard:opened', {
+                        sessionId: this.state.sessionId,
+                        role: this.state.role
+                    });
+                }
+            }
+            if(sectionId === 'compiler_section') this.initCompiler();
+            if(sectionId === 'insights_section') this.initAnalytics();
+            if(sectionId === 'chat_section') {
+                 // Scroll to bottom
+                 const feed = document.getElementById('activity-feed-list');
+                 if(feed) feed.scrollTop = feed.scrollHeight;
+            }
+        }
+    },
+
     setupOverlayToggle: function(btnId, sectionId) {
         const btn = document.getElementById(btnId);
-        if(!btn) {
-            console.error(`❌ Button not found: ${btnId}`);
-            return;
-        }
+        if(!btn) return;
         
-        btn.addEventListener('click', async () => {
-             console.log(`🔘 CLICKED: ${btnId} -> Toggling ${sectionId}`);
-             console.log(`Current active overlay: ${this.state.activeOverlay}`);
-             
-             if(this.state.activeOverlay === sectionId) {
-                 // Close if already open
-                 this.closeAllOverlays();
-             } else {
-                 const panel = document.getElementById(sectionId);
-                 
-                 if(!panel) {
-                     console.error(`❌ Panel not found: ${sectionId}`);
-                     return;
-                 }
-                 
-                 // Close other overlays first
-                 this.closeAllOverlays();
-                 
-                 // Show this overlay by removing hidden class (CSS handles the rest)
-                 panel.classList.remove('hidden');
-                 
-                 this.state.activeOverlay = sectionId;
-                 console.log(`✅ Opened overlay: ${sectionId}`);
-                 
-                 // Log computed styles for debugging
-                 const computed = window.getComputedStyle(panel);
-                 console.log(`📊 Panel styles:`, {
-                     display: computed.display,
-                     visibility: computed.visibility,
-                     zIndex: computed.zIndex,
-                     position: computed.position,
-                     width: computed.width,
-                     height: computed.height
-                 });
-                 
-                 // Initialize panel-specific functionality
-                 if(sectionId === 'whiteboard__section') {
-                     this.initWhiteboard();
-                     // Notify students if Faculty opens it
-                     if(this.state.role === 'faculty' && this.socket) {
-                         this.socket.emit('whiteboard:opened', {
-                             sessionId: this.state.sessionId,
-                             role: this.state.role
-                         });
-                         console.log('📡 Emitted whiteboard:opened');
-                     }
-                 }
-                 if(sectionId === 'compiler_section') this.initCompiler();
-                 if(sectionId === 'insights_section') this.initAnalytics();
-             }
-        });
+        // Remove existing listeners? Not easy. 
+        // Just add new one.
+        btn.onclick = () => this.toggleOverlay(sectionId);
     },
 
     closeAllOverlays: function() {
@@ -736,6 +731,8 @@ function updateChartData(time) {
 
 document.addEventListener("DOMContentLoaded", () => {
     SessionManager.init();
+    // Expose for inline onclick handlers
+    window.SessionManager = SessionManager;
 });
 
 // Debug Global Clicks
