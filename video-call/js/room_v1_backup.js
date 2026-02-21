@@ -14,9 +14,7 @@ const SessionManager = {
         participants: [], // { email, uid, role, name }
         chartData: { labels: [], values: [] }, // Persistent Chart Data
         presentationMode: { isActive: false, type: null }, // Teaching Mode
-        chatType: 'group', // 'group' or 'direct'
-        renderedMsgIds: new Set(), // Track rendered message IDs to prevent duplicates
-        chatLoaded: false // Flag to prevent re-loading initial messages
+        chatType: 'group' // 'group' or 'direct'
     },
 
     init: async function() {
@@ -26,6 +24,11 @@ const SessionManager = {
         this.state.sessionId = params.get('session');
         this.state.role = params.get('role') || 'student';
         this.state.email = params.get('email');
+
+        this.setupEventListeners();
+        this.setupSocketListeners(); 
+
+
 
         // Visual confirmation that JS is running
         const toast = document.createElement('div');
@@ -42,26 +45,25 @@ const SessionManager = {
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
         
+        // initOverlays();
+        
         // Initialize Main Socket for signaling (Chat, Whiteboard, etc.)
         this.socket = io('/', { 
-            query: { sessionId: this.state.sessionId, uid: this.state.facultyUid || 'guest' },
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionAttempts: 10
+            query: { sessionId: this.state.sessionId, uid: this.state.facultyUid || 'guest' } 
         });
 
-        // Setup listeners AFTER socket is created (fixes duplicate listener bug)
         this.setupEventListeners();
         this.setupSocketListeners(); 
 
         if(this.state.sessionId) {
             await this.fetchStatus();
-            // Start Polling (status only, NOT chat)
+            // Start Polling
             setInterval(() => this.fetchStatus(), 5000); 
             setInterval(() => this.tick(), 1000);
             
-            // Load existing messages once from DB (then rely on socket for real-time)
-            this.loadInitialMessages();
+            // Start Chat Polling (every 2s)
+            this.fetchMessages();
+            setInterval(() => this.fetchMessages(), 2000);
             
             // Hide Direct Message option for Faculty
             if(this.state.role === 'faculty') {
@@ -241,9 +243,8 @@ const SessionManager = {
         const text = input.value.trim();
         if(!text) return;
         
-        if(!this.socket || !this.socket.connected) {
-            alert("Chat unavailable: Connection lost. Trying to reconnect...");
-            if(this.socket) this.socket.connect();
+        if(!this.socket) {
+            alert("Chat unavailable: Connection lost");
             return;
         }
 
@@ -254,81 +255,67 @@ const SessionManager = {
             type: this.state.chatType, 
             email: this.state.email,
             senderRole: this.state.role,
-            senderId: this.socket.id
+            senderId: this.socket.id // or UID if available
         };
 
         this.socket.emit('chat:sendMessage', msgData);
         input.value = '';
+        
+        // Optimistic update? No, we listen for our own emit back in server.js
+        // But for direct messages, we receive it back. Group messages we receive back too.
     },
     
-    // Load initial messages from DB (called once on init)
-    loadInitialMessages: async function() {
-        if(this.state.chatLoaded) return;
+    fetchMessages: async function() {
         try {
             const res = await fetch(`/api/sessions/${this.state.sessionId}/messages`);
             if(!res.ok) return;
 
             const messages = await res.json();
-            if(!Array.isArray(messages)) return;
+            
+            if(!Array.isArray(messages)) {
+                // console.warn("Expected array of messages, got:", messages);
+                return;
+            }
+            
+            const feed = document.getElementById('activity-feed-list');
+            if(!feed) return;
+            
+            feed.innerHTML = ''; 
             
             messages.forEach(msg => {
-                const msgId = msg._id ? msg._id.toString() : null;
-                if(msgId && this.state.renderedMsgIds.has(msgId)) return; // Dedup
-                if(msgId) this.state.renderedMsgIds.add(msgId);
-                
-                this.addChatMessage(
-                    msg.senderName || msg.sender || 'Unknown', 
-                    msg.content || msg.text, 
-                    msg.senderEmail === this.state.email,
-                    'group',
-                    msg.timestamp
-                );
+                this.addChatMessage(msg.senderName, msg.content, msg.senderEmail === this.state.email);
             });
-            this.state.chatLoaded = true;
         } catch(e) {
-            console.error("Load messages error", e);
+            // console.error("Poll messages error", e);
         }
     },
     
-    addChatMessage: function(sender, text, isMe, type='group', timestamp) {
+    addChatMessage: function(sender, text, isMe, type='group') {
         const feed = document.getElementById('activity-feed-list');
         if(!feed) return;
         
         const div = document.createElement('div');
         div.className = 'feed-item';
-        div.style.cssText = 'padding:8px 12px; margin:4px 0; border-radius:8px; transition:all 0.2s;';
         
         let prefix = "";
-        let roleBadge = "";
-        
-        // Format timestamp
-        let timeStr = '';
-        if(timestamp) {
-            const d = new Date(timestamp);
-            timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
+        let styleClass = "";
         
         if (type === 'direct') {
             div.style.borderLeft = "4px solid #FFA500";
-            div.style.backgroundColor = "#fff3e0";
+            div.style.backgroundColor = "#fff3e0"; // Light orange for DM
             prefix = `<span style="font-size:10px; color:#d84315; font-weight:bold; text-transform:uppercase;">[Private]</span> `;
             sender = isMe ? "You (to Faculty)" : sender;
         } else {
+             // Group
              if(isMe || (sender === 'Faculty' && this.state.role === 'faculty')) {
-                 div.style.background = '#e3f2fd';
-                 div.style.borderLeft = '3px solid #1976d2';
+                 div.style.background = '#e3f2fd'; // Light blue for me
+                 div.style.alignSelf = 'flex-end'; 
                  if(!isMe) sender = "You (Faculty)";
                  else sender = "You";
-             } else {
-                 div.style.background = '#f5f5f5';
-             }
-             // Role badge
-             if(sender === 'Faculty' || sender === 'You (Faculty)') {
-                 roleBadge = `<span style="font-size:9px; background:#1976d2; color:white; padding:1px 5px; border-radius:3px; margin-left:4px;">Faculty</span>`;
              }
         }
         
-        div.innerHTML = `${prefix}<strong style="color:#0F346C;">${sender}</strong>${roleBadge} <span style="font-size:10px; color:#999; margin-left:6px;">${timeStr}</span><br><span style="color:#333; font-size:13px;">${text}</span>`;
+        div.innerHTML = `${prefix}<strong style="color:#0F346C;">${sender}</strong>: <span style="color:#333;">${text}</span>`;
         feed.appendChild(div);
         
         // Auto scroll
@@ -445,7 +432,7 @@ const SessionManager = {
         // Create new collaborative whiteboard instance
         if (this.socket && this.state.sessionId) {
             try {
-                window.whiteboardInstance = new EnhancedWhiteboard(
+                window.whiteboardInstance = new CollaborativeWhiteboard(
                     'whiteboard-canvas',
                     this.socket,
                     this.state.sessionId,
@@ -454,12 +441,7 @@ const SessionManager = {
                     this.state.email // userName - can be enhanced with actual name
                 );
                 
-                // Initialize Glassmorphic UI
-                window.wbUI = new WhiteboardUI(window.whiteboardInstance);
-
-                // Setup tool buttons (Legacy or New)
-                // The new WhiteboardUI handles its own listeners, but we keep this for backward compatibility 
-                // if legacy DOM elements exist.
+                // Setup tool buttons
                 document.querySelectorAll('.wb-tool-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const tool = e.currentTarget.getAttribute('data-tool');
@@ -506,57 +488,42 @@ const SessionManager = {
     },
 
     setupSocketListeners: function() {
-        if(!this.socket) {
-            console.warn('⚠️ Socket not initialized, cannot setup listeners');
-            return;
+        if(this.socket) {
+             this.socket.on('connect', () => {
+                 console.log("✅ Main Socket Connected");
+                 if(this.state.sessionId) {
+                     // Join with Role for Direct Messaging routing
+                     this.socket.emit('join-session', { 
+                         sessionId: this.state.sessionId, 
+                         role: this.state.role 
+                     });
+                     console.log(`📝 Joined socket room: ${this.state.sessionId}`);
+                 }
+             });
+
+             // Chat Message Listener
+             this.socket.on('chat:message', (msg) => {
+                 const isMe = (msg.email === this.state.email && msg.senderRole === this.state.role);
+                 // If undefined email (guest?), check sender text? Better to rely on isMe flag if socket.id matches?
+                 // But we don't have socket.id easily here. 
+                 // Simple check: 
+                 
+                 this.addChatMessage(msg.sender, msg.text, isMe, msg.type);
+             });
+             
+             this.socket.on('whiteboard:opened', (data) => {
+                 console.log("🎨 Whiteboard opened by faculty!", data);
+                 if(this.state.role === 'student' && this.state.activeOverlay !== 'whiteboard__section') {
+                     this.closeAllOverlays();
+                     document.getElementById('whiteboard__section').classList.remove('hidden');
+                     this.state.activeOverlay = 'whiteboard__section';
+                     this.initWhiteboard();
+                     
+                     // Show a small toast notification properly
+                     // (Optional)
+                 }
+             });
         }
-        
-        this.socket.on('connect', () => {
-            console.log("✅ Main Socket Connected");
-            if(this.state.sessionId) {
-                this.socket.emit('join-session', { 
-                    sessionId: this.state.sessionId, 
-                    role: this.state.role 
-                });
-                console.log(`📝 Joined socket room: ${this.state.sessionId}`);
-            }
-        });
-
-        this.socket.on('disconnect', (reason) => {
-            console.warn(`⚠️ Socket disconnected: ${reason}`);
-        });
-
-        this.socket.on('reconnect', (attemptNumber) => {
-            console.log(`🔄 Socket reconnected after ${attemptNumber} attempts`);
-            // Re-join room after reconnection
-            if(this.state.sessionId) {
-                this.socket.emit('join-session', { 
-                    sessionId: this.state.sessionId, 
-                    role: this.state.role 
-                });
-            }
-        });
-
-        // Chat Message Listener (with deduplication)
-        this.socket.on('chat:message', (msg) => {
-            // Deduplication: skip if already rendered
-            if(msg._id && this.state.renderedMsgIds.has(msg._id)) return;
-            if(msg._id) this.state.renderedMsgIds.add(msg._id);
-            
-            const isMe = (msg.email === this.state.email && msg.senderRole === this.state.role);
-            this.addChatMessage(msg.sender, msg.text, isMe, msg.type, msg.timestamp);
-        });
-        
-        // Whiteboard opened listener (unchanged)
-        this.socket.on('whiteboard:opened', (data) => {
-            console.log("🎨 Whiteboard opened by faculty!", data);
-            if(this.state.role === 'student' && this.state.activeOverlay !== 'whiteboard__section') {
-                this.closeAllOverlays();
-                document.getElementById('whiteboard__section').classList.remove('hidden');
-                this.state.activeOverlay = 'whiteboard__section';
-                this.initWhiteboard();
-            }
-        });
     },
     
     initCompiler: function() {

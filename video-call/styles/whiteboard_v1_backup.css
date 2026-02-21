@@ -1,0 +1,73 @@
+/* ===============================================
+   Whiteboard Tool Button Styles
+   =============================================== */
+
+.wb-tool-btn {
+      background: #444;
+      border: 1px solid #666;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+}
+
+.wb-tool-btn:hover {
+      background: #555;
+      border-color: #888;
+}
+
+.wb-tool-btn.active {
+      background: #FFA500;
+      border-color: #FFA500;
+      color: #000;
+}
+
+.wb-tool-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+}
+
+/* Canvas cursor styles */
+#whiteboard-canvas {
+      touch-action: none;
+      /* Prevent default touch behaviors */
+}
+
+#whiteboard-canvas[data-tool="pen"] {
+      cursor: crosshair;
+}
+
+#whiteboard-canvas[data-tool="eraser"] {
+      cursor: cell;
+}
+
+/* Whiteboard notification animations */
+@keyframes slideInRight {
+      from {
+            transform: translateX(400px);
+            opacity: 0;
+      }
+
+      to {
+            transform: translateX(0);
+            opacity: 1;
+      }
+}
+
+@keyframes slideOutRight {
+      from {
+            transform: translateX(0);
+            opacity: 1;
+      }
+
+      to {
+            transform: translateX(400px);
+            opacity: 0;
+      }
+}
+
+.whiteboard-notification {
+      animation: slideInRight 0.3s ease;
+}

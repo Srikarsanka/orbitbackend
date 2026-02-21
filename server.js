@@ -924,6 +924,9 @@ const io = socketIo(server, {
 // Import Whiteboard Socket Handlers
 const { setupWhiteboardHandlers } = require('./whiteboard_socket');
 
+// Import Message model for chat persistence
+const ChatMessage = require('./models/Message');
+
 // Setup Whiteboard Handlers
 setupWhiteboardHandlers(io);
 
@@ -948,24 +951,41 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 💬 CHAT SYSTEM (Socket.IO)
-  socket.on('chat:sendMessage', (data) => {
+  // 💬 CHAT SYSTEM (Socket.IO) - with DB persistence
+  socket.on('chat:sendMessage', async (data) => {
       const { sessionId, sender, text, type, email, senderRole, senderId } = data;
-      const timestamp = new Date().toISOString();
+      const timestamp = new Date();
+
+      // Save message to database
+      let savedMsgId = null;
+      try {
+          const dbMsg = new ChatMessage({
+              sessionId,
+              senderName: sender || 'Unknown',
+              senderEmail: email || 'anonymous',
+              content: text,
+              isSystemMessage: false,
+              timestamp
+          });
+          const saved = await dbMsg.save();
+          savedMsgId = saved._id.toString();
+      } catch (dbErr) {
+          console.error('⚠️ Chat DB save failed (message still delivered):', dbErr.message);
+      }
 
       const messagePayload = {
+          _id: savedMsgId,
           sender,
           text,
           type, // 'group' or 'direct'
           email,
           senderRole,
           senderId,
-          timestamp
+          timestamp: timestamp.toISOString()
       };
 
       if (type === 'direct') {
           // DIRECT MESSAGE: Student -> Faculty
-          // Emit to Faculty Room
           const facultyRoom = `${sessionId}_faculty`;
           io.to(facultyRoom).emit('chat:message', messagePayload);
           

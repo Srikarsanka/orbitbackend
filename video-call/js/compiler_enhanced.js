@@ -3,10 +3,8 @@
    For Video Call Application
    =================================== */
 
-// API Configuration - Update this URL based on your deployment
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://orbitbackend-0i66.onrender.com/api'
-    : 'https://your-api-domain.com/api'; // Update for production
+// API Configuration - Render Backend
+const API_BASE_URL = 'https://orbitbackend-0i66.onrender.com/api';
 
 // Language file extensions mapping
 const LANGUAGE_EXTENSIONS = {

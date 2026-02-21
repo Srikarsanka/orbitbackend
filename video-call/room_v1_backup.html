@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="styles/spectator.css"> <!-- Spectator Card -->
     <link rel="stylesheet" href="styles/presentation.css"> <!-- Presentation Mode -->
     <link rel="stylesheet" href="styles/whiteboard.css"> <!-- Whiteboard Styles -->
-    <link rel="stylesheet" href="styles/glass_whiteboard.css"> <!-- New Glassmorphic UI -->
     <link rel="stylesheet" href="styles/face_verification.css">
     <link rel="stylesheet" href="styles/face_verification_layout.css"> <!-- Face Verification Modal -->
     <link rel="stylesheet" href="styles/premium_video_ui.css"> <!-- Premium Video UI -->
@@ -206,7 +205,7 @@
     <!-- 1. Collaborative Whiteboard Overlay (Canvas-based) -->
     <section id="whiteboard__section" class="overlay-panel hidden">
         <div class="overlay-header"
-            style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:#000a45; color:white; height:60px; min-height:60px; flex-shrink:0;">
+            style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:#2c2c2c; color:white; height:60px; min-height:60px; flex-shrink:0;">
             <h3 style="margin:0;"><i class="fa-solid fa-pen-to-square"></i> Collaborative Whiteboard</h3>
             <div class="wb-header-actions" style="display:flex; gap:10px; align-items:center;">
                 <!-- Drawing Tools -->
@@ -514,11 +513,12 @@ for i in range(10):
     <!-- Whiteboard Socket.IO Client Logic Removed (Handled by WBO Iframe) -->
     <script src="js/premium_ui_adapter.js"></script> <!-- Premium UI Adapter -->
     <script src="js/whiteboard_canvas.js"></script> <!-- Collaborative Whiteboard -->
-    <script src="js/whiteboard_adapter.js"></script> <!-- Enhanced Adapter -->
-    <script src="js/whiteboard_ui.js"></script> <!-- Glass UI -->
     <script src="js/face_verification.js"></script> <!-- Face Verification for Video Call Join -->
     <script src="js/room_rtc_enhanced.js"></script> <!-- RTC Logic -->
+
+    <!-- Attendance Client -->
     <script src="js/attendance_client.js"></script>
+
     <script src="js/room.js"></script> <!-- UI Logic -->
     <script src="js/compiler_enhanced.js"></script> <!-- Enhanced Compiler with AI -->
 
