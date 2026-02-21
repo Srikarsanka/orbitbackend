@@ -3,15 +3,17 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('../config/cloudinary');
 const Recording = require('../models/Recording');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', 'uploads', 'recordings');
+// Use OS temp dir for temporary upload storage (works on Render)
+const os = require('os');
+const uploadsDir = path.join(os.tmpdir(), 'orbit-recordings');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Multer config for recording uploads
+// Multer config — temp disk storage before Cloudinary upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadsDir);
@@ -24,9 +26,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage,
-    limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max for recordings
+    limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max
     fileFilter: (req, file, cb) => {
-        // Accept video/audio files
         if (file.mimetype.startsWith('video/') || file.mimetype.startsWith('audio/')) {
             cb(null, true);
         } else {
@@ -35,7 +36,7 @@ const upload = multer({
     }
 });
 
-// POST /api/recordings/upload - Upload a recording
+// POST /api/recordings/upload - Upload a recording to Cloudinary
 router.post('/upload', upload.single('recording'), async (req, res) => {
     try {
         if (!req.file) {
@@ -45,10 +46,24 @@ router.post('/upload', upload.single('recording'), async (req, res) => {
         const { sessionId, classId, facultyEmail, facultyName, title, duration } = req.body;
 
         if (!sessionId || !classId || !facultyEmail) {
-            // Clean up uploaded file if validation fails
-            fs.unlinkSync(req.file.path);
+            // Clean up temp file
+            try { fs.unlinkSync(req.file.path); } catch(e) {}
             return res.status(400).json({ error: 'sessionId, classId, and facultyEmail are required' });
         }
+
+        console.log(`🎬 Uploading recording to Cloudinary (${(req.file.size / 1024 / 1024).toFixed(1)}MB)...`);
+
+        // Upload to Cloudinary as video
+        const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+            resource_type: 'video',
+            folder: 'orbit-recordings',
+            public_id: `rec_${sessionId}_${Date.now()}`,
+            chunk_size: 6000000, // 6MB chunks for large file upload
+            timeout: 600000      // 10 minute timeout for large uploads
+        });
+
+        // Delete temp file after successful Cloudinary upload
+        try { fs.unlinkSync(req.file.path); } catch(e) {}
 
         const recording = new Recording({
             sessionId,
@@ -57,16 +72,22 @@ router.post('/upload', upload.single('recording'), async (req, res) => {
             facultyName: facultyName || 'Faculty',
             title: title || 'Class Recording',
             filename: req.file.filename,
-            duration: Number(duration) || 0,
+            fileUrl: cloudinaryResult.secure_url,
+            cloudinaryId: cloudinaryResult.public_id,
+            duration: Number(duration) || Math.round(cloudinaryResult.duration || 0),
             fileSize: req.file.size,
             mimeType: req.file.mimetype || 'video/webm'
         });
 
         await recording.save();
-        console.log(`🎬 Recording saved: ${recording.filename} (${(recording.fileSize / 1024 / 1024).toFixed(1)}MB)`);
+        console.log(`🎬 Recording saved to Cloudinary: ${cloudinaryResult.secure_url}`);
 
         res.json({ success: true, recording });
     } catch (error) {
+        // Clean up temp file on error
+        if (req.file) {
+            try { fs.unlinkSync(req.file.path); } catch(e) {}
+        }
         console.error('Recording upload error:', error);
         res.status(500).json({ error: 'Failed to save recording' });
     }
@@ -84,42 +105,6 @@ router.get('/class/:classId', async (req, res) => {
     }
 });
 
-// GET /api/recordings/file/:filename - Stream a recording file
-router.get('/file/:filename', (req, res) => {
-    const filePath = path.join(uploadsDir, req.params.filename);
-
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'Recording not found' });
-    }
-
-    const stat = fs.statSync(filePath);
-    const fileSize = stat.size;
-    const range = req.headers.range;
-
-    if (range) {
-        // Support range requests for seeking
-        const parts = range.replace(/bytes=/, '').split('-');
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-        const chunkSize = end - start + 1;
-
-        const file = fs.createReadStream(filePath, { start, end });
-        res.writeHead(206, {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunkSize,
-            'Content-Type': 'video/webm',
-        });
-        file.pipe(res);
-    } else {
-        res.writeHead(200, {
-            'Content-Length': fileSize,
-            'Content-Type': 'video/webm',
-        });
-        fs.createReadStream(filePath).pipe(res);
-    }
-});
-
 // DELETE /api/recordings/:id - Delete a recording (faculty only)
 router.delete('/:id', async (req, res) => {
     try {
@@ -128,10 +113,14 @@ router.delete('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Recording not found' });
         }
 
-        // Delete file
-        const filePath = path.join(uploadsDir, recording.filename);
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+        // Delete from Cloudinary
+        if (recording.cloudinaryId) {
+            try {
+                await cloudinary.uploader.destroy(recording.cloudinaryId, { resource_type: 'video' });
+                console.log(`🗑️ Deleted from Cloudinary: ${recording.cloudinaryId}`);
+            } catch(e) {
+                console.warn('Failed to delete from Cloudinary:', e.message);
+            }
         }
 
         await Recording.findByIdAndDelete(req.params.id);

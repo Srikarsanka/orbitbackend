@@ -1,6 +1,8 @@
 const Material = require("../models/Materials");
 const Class = require("../models/createclass"); // make sure this path is correct
 const nodemailer = require("nodemailer");
+const cloudinary = require("../config/cloudinary");
+const fs = require("fs");
 
 exports.uploadMaterial = async (req, res) => {
   try {
@@ -11,10 +13,26 @@ exports.uploadMaterial = async (req, res) => {
 
     let obj = { classId, title, uploadedBy };
 
-    // FILE UPLOAD MODE
+    // FILE UPLOAD MODE - Upload to Cloudinary
     if (req.file) {
       obj.type = "file";
-      obj.fileUrl = `/uploads/materials/${req.file.filename}`;
+      
+      try {
+        const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+          resource_type: 'auto',
+          folder: 'orbit-materials',
+          public_id: `mat_${Date.now()}_${req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_')}`,
+          timeout: 300000
+        });
+        obj.fileUrl = cloudinaryResult.secure_url;
+        obj.cloudinaryId = cloudinaryResult.public_id;
+      } catch(uploadErr) {
+        console.error('Cloudinary upload error:', uploadErr);
+        return res.status(500).json({ message: "Failed to upload file" });
+      } finally {
+        // Clean up temp file
+        try { fs.unlinkSync(req.file.path); } catch(e) {}
+      }
     }
 
     // LINK MODE
@@ -194,9 +212,13 @@ exports.deleteMaterial = async (req, res) => {
     if (!material)
       return res.status(404).json({ message: "Material not found" });
 
-    if (material.fileUrl) {
-      const fs = require("fs");
-      fs.unlink("." + material.fileUrl, () => {});
+    // Delete from Cloudinary if cloudinaryId exists
+    if (material.cloudinaryId) {
+      try {
+        await cloudinary.uploader.destroy(material.cloudinaryId, { resource_type: 'raw' });
+      } catch(e) {
+        console.warn('Failed to delete from Cloudinary:', e.message);
+      }
     }
 
     await Material.findByIdAndDelete(id);

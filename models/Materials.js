@@ -8,6 +8,7 @@ const materialSchema = new mongoose.Schema(
 
     // For uploaded files
     fileUrl: { type: String },
+    cloudinaryId: { type: String },
 
     // For external links
     externalLink: { type: String },

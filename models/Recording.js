@@ -6,7 +6,9 @@ const recordingSchema = new mongoose.Schema({
     facultyEmail: { type: String, required: true },
     facultyName: { type: String, default: 'Faculty' },
     title: { type: String, default: 'Class Recording' },
-    filename: { type: String, required: true },
+    filename: { type: String },
+    fileUrl: { type: String, required: true },       // Cloudinary video URL
+    cloudinaryId: { type: String },                   // Cloudinary public_id for deletion
     originalLanguage: { type: String, default: 'en' },
     duration: { type: Number, default: 0 }, // seconds
     fileSize: { type: Number, default: 0 }, // bytes
