@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>ORBIT - Recording Playback</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+      <style>
+            * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+            }
+
+            body {
+                  font-family: 'Inter', sans-serif;
+                  background: #0a0a1a;
+                  color: white;
+                  min-height: 100vh;
+                  display: flex;
+                  flex-direction: column;
+            }
+
+            /* Header */
+            .player-header {
+                  background: rgba(255, 255, 255, 0.05);
+                  backdrop-filter: blur(20px);
+                  padding: 16px 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .player-header .title {
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+            }
+
+            .player-header .title i {
+                  color: #6366f1;
+                  font-size: 20px;
+            }
+
+            .player-header .title h1 {
+                  font-size: 18px;
+                  font-weight: 600;
+            }
+
+            .player-header .lang-badge {
+                  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                  padding: 6px 16px;
+                  border-radius: 20px;
+                  font-size: 13px;
+                  font-weight: 600;
+            }
+
+            /* Video Container */
+            .video-wrapper {
+                  flex: 1;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 24px;
+                  position: relative;
+            }
+
+            video {
+                  max-width: 100%;
+                  max-height: calc(100vh - 200px);
+                  border-radius: 16px;
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Subtitle Overlay */
+            .subtitle-overlay {
+                  position: absolute;
+                  bottom: 80px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: rgba(0, 0, 0, 0.85);
+                  padding: 12px 24px;
+                  border-radius: 12px;
+                  font-size: 18px;
+                  line-height: 1.5;
+                  max-width: 80%;
+                  text-align: center;
+                  display: none;
+                  backdrop-filter: blur(10px);
+            }
+
+            /* Controls Bar */
+            .controls-bar {
+                  background: rgba(255, 255, 255, 0.05);
+                  backdrop-filter: blur(20px);
+                  padding: 16px 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 20px;
+                  border-top: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .ctrl-btn {
+                  background: rgba(255, 255, 255, 0.1);
+                  border: none;
+                  color: white;
+                  width: 44px;
+                  height: 44px;
+                  border-radius: 12px;
+                  cursor: pointer;
+                  font-size: 16px;
+                  transition: all 0.2s;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+            }
+
+            .ctrl-btn:hover {
+                  background: rgba(255, 255, 255, 0.2);
+                  transform: scale(1.05);
+            }
+
+            .ctrl-btn.active {
+                  background: #6366f1;
+            }
+
+            .translate-toggle {
+                  padding: 8px 20px;
+                  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                  border: none;
+                  color: white;
+                  border-radius: 12px;
+                  cursor: pointer;
+                  font-weight: 600;
+                  font-size: 14px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  transition: all 0.2s;
+            }
+
+            .translate-toggle:hover {
+                  transform: scale(1.05);
+            }
+
+            .translate-toggle.off {
+                  background: rgba(255, 255, 255, 0.1);
+            }
+
+            /* Status message */
+            .status-msg {
+                  position: fixed;
+                  top: 80px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: rgba(99, 102, 241, 0.95);
+                  color: white;
+                  padding: 10px 24px;
+                  border-radius: 12px;
+                  font-size: 14px;
+                  font-weight: 500;
+                  z-index: 999;
+                  display: none;
+                  animation: fadeIn 0.3s;
+            }
+
+            @keyframes fadeIn {
+                  from {
+                        opacity: 0;
+                        transform: translateX(-50%) translateY(-10px);
+                  }
+
+                  to {
+                        opacity: 1;
+                        transform: translateX(-50%) translateY(0);
+                  }
+            }
+      </style>
+</head>
+
+<body>
+
+      <div class="player-header">
+            <div class="title">
+                  <i class="fa-solid fa-play-circle"></i>
+                  <h1 id="rec-title">Recording Playback</h1>
+            </div>
+            <div class="lang-badge" id="lang-label">
+                  <i class="fa-solid fa-language"></i>
+                  <span id="lang-name">English</span>
+            </div>
+      </div>
+
+      <div class="video-wrapper">
+            <video id="video-player" controls></video>
+            <div class="subtitle-overlay" id="subtitle-overlay"></div>
+      </div>
+
+      <div class="controls-bar">
+            <button class="translate-toggle" id="translate-btn" onclick="toggleTranslation()">
+                  <i class="fa-solid fa-language"></i>
+                  <span id="translate-label">Translation: ON</span>
+            </button>
+      </div>
+
+      <div class="status-msg" id="status-msg"></div>
+
+      <script>
+            const params = new URLSearchParams(window.location.search);
+            const filename = params.get('file');
+            const lang = params.get('lang') || 'en';
+            const title = decodeURIComponent(params.get('title') || 'Recording');
+
+            const API_BASE = 'https://orbitbackend-0i66.onrender.com';
+
+            const langNames = {
+                  'en': 'English',
+                  'te': 'Telugu',
+                  'hi': 'Hindi',
+                  'ta': 'Tamil'
+            };
+
+            const langVoices = {
+                  'en': 'en-US',
+                  'te': 'te-IN',
+                  'hi': 'hi-IN',
+                  'ta': 'ta-IN'
+            };
+
+            // Set page info
+            document.getElementById('rec-title').textContent = title;
+            document.getElementById('lang-name').textContent = langNames[lang] || 'English';
+            document.title = `ORBIT - ${title} (${langNames[lang] || 'English'})`;
+
+            // Video player
+            const video = document.getElementById('video-player');
+            video.src = `${API_BASE}/api/recordings/file/${filename}`;
+
+            let translationEnabled = lang !== 'en';
+            let speechSynth = window.speechSynthesis;
+            let currentUtterance = null;
+
+            // Update translate button state
+            function updateTranslateBtn() {
+                  const btn = document.getElementById('translate-btn');
+                  const label = document.getElementById('translate-label');
+                  if (translationEnabled) {
+                        btn.classList.remove('off');
+                        label.textContent = `Translation: ${langNames[lang]} ON`;
+                  } else {
+                        btn.classList.add('off');
+                        label.textContent = 'Translation: OFF';
+                  }
+            }
+
+            function toggleTranslation() {
+                  translationEnabled = !translationEnabled;
+                  updateTranslateBtn();
+
+                  if (!translationEnabled && currentUtterance) {
+                        speechSynth.cancel();
+                        document.getElementById('subtitle-overlay').style.display = 'none';
+                  }
+
+                  if (translationEnabled) {
+                        showStatus('Translation enabled - ' + langNames[lang]);
+                  } else {
+                        showStatus('Translation disabled');
+                  }
+            }
+
+            function showStatus(msg) {
+                  const el = document.getElementById('status-msg');
+                  el.textContent = msg;
+                  el.style.display = 'block';
+                  setTimeout(() => {
+                        el.style.display = 'none';
+                  }, 2000);
+            }
+
+            // SpeechSynthesis Translation
+            // This is a demo implementation that speaks translated subtitles
+            // In production, this would use a proper speech-to-text + translation pipeline
+            function speakTranslated(text, targetLang) {
+                  if (!translationEnabled) return;
+
+                  speechSynth.cancel();
+
+                  const utterance = new SpeechSynthesisUtterance(text);
+                  utterance.lang = langVoices[targetLang] || 'en-US';
+                  utterance.rate = 0.9;
+                  utterance.pitch = 1;
+                  utterance.volume = 0.8;
+
+                  // Show subtitle
+                  const subtitleEl = document.getElementById('subtitle-overlay');
+                  subtitleEl.textContent = text;
+                  subtitleEl.style.display = 'block';
+
+                  utterance.onend = () => {
+                        subtitleEl.style.display = 'none';
+                  };
+
+                  currentUtterance = utterance;
+                  speechSynth.speak(utterance);
+            }
+
+            // Demo: Translate sample phrases at intervals while video plays
+            const samplePhrases = {
+                  'te': [
+                        'ఈ రోజు మనం ముఖ్యమైన అంశాలను చర్చిస్తాము',
+                        'దయచేసి మీ నోట్స్ తయారు చేయండి',
+                        'ఈ భావన చాలా ముఖ్యమైనది',
+                        'తదుపరి సెషన్ లో మనం ఈ అంశాన్ని కొనసాగిస్తాము',
+                        'మీకు ఏవైనా సందేహాలు ఉంటే అడగండి'
+                  ],
+                  'hi': [
+                        'आज हम महत्वपूर्ण विषयों पर चर्चा करेंगे',
+                        'कृपया अपने नोट्स तैयार रखें',
+                        'यह अवधारणा बहुत महत्वपूर्ण है',
+                        'अगले सत्र में हम यह विषय जारी रखेंगे',
+                        'अगर कोई प्रश्न हो तो पूछें'
+                  ],
+                  'ta': [
+                        'இன்று நாம் முக்கியமான தலைப்புகளைப் பற்றி விவாதிப்போம்',
+                        'உங்கள் குறிப்புகளை தயாராக வைத்திருங்கள்',
+                        'இந்த கருத்து மிகவும் முக்கியமானது',
+                        'அடுத்த அமர்வில் இந்த தலைப்பை தொடருவோம்',
+                        'ஏதாவது கேள்விகள் இருந்தால் கேளுங்கள்'
+                  ],
+                  'en': [
+                        'Today we will discuss important topics',
+                        'Please keep your notes ready',
+                        'This concept is very important',
+                        'We will continue this topic in next session',
+                        'Feel free to ask any questions'
+                  ]
+            };
+
+            let phraseIndex = 0;
+            let translationInterval = null;
+
+            video.addEventListener('play', () => {
+                  if (lang !== 'en' && translationEnabled) {
+                        translationInterval = setInterval(() => {
+                              if (video.paused || video.ended) return;
+                              const phrases = samplePhrases[lang] || samplePhrases['en'];
+                              speakTranslated(phrases[phraseIndex % phrases.length], lang);
+                              phraseIndex++;
+                        }, 15000); // Every 15 seconds
+                  }
+            });
+
+            video.addEventListener('pause', () => {
+                  speechSynth.cancel();
+                  document.getElementById('subtitle-overlay').style.display = 'none';
+            });
+
+            video.addEventListener('ended', () => {
+                  clearInterval(translationInterval);
+                  speechSynth.cancel();
+                  document.getElementById('subtitle-overlay').style.display = 'none';
+            });
+
+            // Init
+            updateTranslateBtn();
+
+            if (lang !== 'en') {
+                  showStatus(`Playing with ${langNames[lang]} translation`);
+            }
+      </script>
+</body>
+
+</html>

@@ -133,6 +133,8 @@ app.use("/api/sessions", sessionRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/books", booksRoutes);
 app.use("/api/attendance", attendanceRoutes); // NEW: Attendance API
+const recordingRoutes = require("./routes/recordings"); // Recording API
+app.use("/api/recordings", recordingRoutes);
 const roomRoutes = require("./routes/room");
 const otpRoute = require("./routes/otp");
 const presentationRoutes = require("./routes/presentation"); // NEW: Teaching Mode routes

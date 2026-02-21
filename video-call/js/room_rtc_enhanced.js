@@ -173,6 +173,7 @@ async function continueJoinFlow() {
         window.SESSION_DATA = { 
             facultyEmail: data.facultyEmail, 
             facultyUid: data.facultyUid,
+            classId: data.classId,
             participants: data.participants 
         };
         console.log("✅ SESSION_DATA pre-loaded:", window.SESSION_DATA);
@@ -195,6 +196,11 @@ async function continueJoinFlow() {
     
     sessionActive = true;
     setupMediaControls();
+
+    // Initialize recording module for faculty
+    if (window.RecordingModule) {
+        window.RecordingModule.init();
+    }
 }
 
 async function validateSession() {
@@ -394,6 +400,9 @@ function setupMediaControls() {
     if(userRole !== 'faculty') {
         const screenBtn = document.getElementById('screen-btn');
         if(screenBtn) screenBtn.style.display = 'none';
+        // Hide Record button for students
+        const recordBtn = document.getElementById('record-btn');
+        if(recordBtn) recordBtn.style.display = 'none';
     }
 }
 
@@ -741,6 +750,13 @@ function enforceCameraAlwaysOn(track) {
 }
 
 async function leaveRoom() {
+    // Stop recording if active
+    if (window.RecordingModule && window.RecordingModule.isRecording()) {
+        window.RecordingModule.stop();
+        // Give a moment for upload to start
+        await new Promise(r => setTimeout(r, 500));
+    }
+
     for(let t of localTracks) { t.stop(); t.close(); }
     if(client) await client.leave();
     

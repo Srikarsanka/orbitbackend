@@ -569,3 +569,42 @@ body.presentation-active .premium-control-dock,
 .premium-control-dock {
       animation: fadeIn 300ms ease;
 }
+
+/* ========================================= */
+/* RECORDING BUTTON & INDICATOR */
+/* ========================================= */
+
+#record-btn {
+      color: #DC2626 !important;
+      font-size: 12px;
+}
+
+#record-btn.recording-active {
+      background: #DC2626 !important;
+      color: white !important;
+      animation: recordPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recordPulse {
+
+      0%,
+      100% {
+            box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+      }
+
+      50% {
+            box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+      }
+}
+
+@keyframes pulse {
+
+      0%,
+      100% {
+            opacity: 1;
+      }
+
+      50% {
+            opacity: 0.3;
+      }
+}

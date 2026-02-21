@@ -637,6 +637,7 @@ exports.getSessionStatus = async (req, res) => {
       classCode: classCode,
       facultyName: facultyName,
       facultyUid: session.facultyUid, // Return stored faculty UID
+      classId: session.classId, // For recording module
       presentationMode: session.presentationMode || { isActive: false, type: null },
       participants: session.participants.map(p => ({
         email: p.email,

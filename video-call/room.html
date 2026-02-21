@@ -166,11 +166,24 @@
             onclick="window.SessionManager.toggleOverlay('chat_section')">
             <i class="fa-solid fa-comment"></i>
         </button>
+        <button class="premium-control-btn" id="record-btn" title="Start Recording"
+            onclick="window.RecordingModule && window.RecordingModule.toggle()">
+            <i class="fa-solid fa-circle"></i>
+        </button>
         <div class="premium-control-separator"></div>
         <button class="premium-control-btn premium-end-call" id="leave-btn" title="End Class">
             <i class="fa-solid fa-phone-slash"></i>
             <span>End Class</span>
         </button>
+    </div>
+
+    <!-- Recording Indicator -->
+    <div id="recording-indicator" style="display:none; position:fixed; top:74px; left:50%; transform:translateX(-50%);
+        background:rgba(220,38,38,0.95); color:white; padding:6px 16px; border-radius:20px;
+        font-size:13px; font-weight:600; font-family:'Inter',sans-serif; z-index:9999;
+        display:none; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(220,38,38,0.3);">
+        <span style="width:8px;height:8px;background:white;border-radius:50%;animation:pulse 1s infinite;"></span>
+        REC <span id="recording-timer">00:00</span>
     </div>
 
     <!-- ORIGINAL CONTROLS PRESERVED (hidden but IDs intact) -->
@@ -517,6 +530,7 @@ for i in range(10):
     <script src="js/whiteboard_adapter.js"></script> <!-- Enhanced Adapter -->
     <script src="js/whiteboard_ui.js"></script> <!-- Glass UI -->
     <script src="js/face_verification.js"></script> <!-- Face Verification for Video Call Join -->
+    <script src="js/recording.js"></script> <!-- Recording Module -->
     <script src="js/room_rtc_enhanced.js"></script> <!-- RTC Logic -->
     <script src="js/attendance_client.js"></script>
     <script src="js/room.js"></script> <!-- UI Logic -->
