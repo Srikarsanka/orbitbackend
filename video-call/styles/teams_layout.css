@@ -164,9 +164,9 @@ body.teams-theme {
 
 /* Faculty Card Specifics - will be applied by JS moving it to primary area */
 #primary-video-container .video__containers {
-      width: 640px;
-      /* Slightly smaller to balance */
-      height: 360px;
+      width: 480px;
+      /* Reduced to balance with premium layout */
+      height: 270px;
       border: 3px solid var(--accent);
       /* Thicker border for emphasis */
 }
