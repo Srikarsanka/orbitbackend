@@ -180,41 +180,72 @@ router.post('/transcribe/:id', async (req, res) => {
             });
         }
 
-        // Proxy to Python Whisper service
+        // Proxy to Python Whisper service using native https
         const PYTHON_API = process.env.PYTHON_API_URL || 'https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net';
         console.log(`🎙️ Sending transcription request to Python service for recording ${req.params.id}...`);
 
-        const fetch = (await import('node-fetch')).default;
-        const whisperRes = await fetch(`${PYTHON_API}/api/transcribe`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                videoUrl: recording.fileUrl,
-                lang: targetLang
-            }),
-            timeout: 300000 // 5 min timeout for long videos
+        const requestBody = JSON.stringify({
+            videoUrl: recording.fileUrl,
+            lang: targetLang
         });
 
-        if (!whisperRes.ok) {
-            const errData = await whisperRes.json().catch(() => ({}));
-            console.error('Whisper API error:', errData);
-            return res.status(whisperRes.status).json({
-                error: 'Transcription failed',
-                details: errData.detail || 'Python service error'
+        // Use native https module (avoids ESM import issues with node-fetch v3)
+        const https = require('https');
+        const url = new URL(`${PYTHON_API}/api/transcribe`);
+        
+        const proxyReq = https.request({
+            hostname: url.hostname,
+            port: 443,
+            path: url.pathname,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            },
+            timeout: 300000
+        }, (proxyRes) => {
+            let body = '';
+            proxyRes.on('data', chunk => body += chunk);
+            proxyRes.on('end', async () => {
+                try {
+                    const data = JSON.parse(body);
+
+                    if (proxyRes.statusCode !== 200) {
+                        console.error('Whisper API error:', data);
+                        return res.status(proxyRes.statusCode).json({
+                            error: 'Transcription failed',
+                            details: data.detail || 'Python service error'
+                        });
+                    }
+
+                    // Cache the transcript in the database
+                    if (data.segments && data.segments.length > 0) {
+                        recording.transcript = data.segments;
+                        recording.transcriptLang = targetLang;
+                        await recording.save();
+                        console.log(`💾 Cached transcript for ${req.params.id} (${data.segments.length} segments)`);
+                    }
+
+                    res.json(data);
+                } catch (parseErr) {
+                    console.error('Response parse error:', parseErr.message, body.substring(0, 200));
+                    res.status(500).json({ error: 'Invalid response from transcription service' });
+                }
             });
-        }
+        });
 
-        const data = await whisperRes.json();
+        proxyReq.on('error', (err) => {
+            console.error('Whisper proxy error:', err.message);
+            res.status(502).json({ error: 'Cannot reach transcription service', details: err.message });
+        });
 
-        // Cache the transcript in the database
-        if (data.segments && data.segments.length > 0) {
-            recording.transcript = data.segments;
-            recording.transcriptLang = targetLang;
-            await recording.save();
-            console.log(`💾 Cached transcript for ${req.params.id} (${data.segments.length} segments)`);
-        }
+        proxyReq.on('timeout', () => {
+            proxyReq.destroy();
+            res.status(504).json({ error: 'Transcription timed out' });
+        });
 
-        res.json(data);
+        proxyReq.write(requestBody);
+        proxyReq.end();
     } catch (error) {
         console.error('Transcription error:', error.message || error);
         res.status(500).json({ error: 'Transcription failed', details: error.message });
