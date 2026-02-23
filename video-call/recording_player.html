@@ -18,39 +18,38 @@
 
             body {
                   font-family: 'Inter', sans-serif;
-                  background: #0a0a1a;
-                  color: #e2e8f0;
+                  background: #f0f2f5;
+                  color: #1e293b;
                   min-height: 100vh;
                   display: flex;
                   flex-direction: column;
-                  overflow: hidden;
             }
 
             /* ===== HEADER ===== */
             .player-header {
-                  background: rgba(15, 15, 35, 0.95);
-                  backdrop-filter: blur(20px);
-                  padding: 14px 28px;
+                  background: #ffffff;
+                  padding: 12px 24px;
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                  border-bottom: 1px solid #e2e8f0;
+                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
                   z-index: 10;
             }
 
             .header-left {
                   display: flex;
                   align-items: center;
-                  gap: 16px;
+                  gap: 14px;
             }
 
             .back-btn {
-                  background: rgba(255, 255, 255, 0.06);
-                  border: none;
-                  color: #94a3b8;
+                  background: #f1f5f9;
+                  border: 1px solid #e2e8f0;
+                  color: #475569;
                   width: 36px;
                   height: 36px;
-                  border-radius: 10px;
+                  border-radius: 8px;
                   cursor: pointer;
                   font-size: 14px;
                   display: flex;
@@ -60,24 +59,20 @@
             }
 
             .back-btn:hover {
-                  background: rgba(255, 255, 255, 0.12);
-                  color: white;
+                  background: #e2e8f0;
+                  color: #0f172a;
             }
 
             .header-info h1 {
                   font-size: 16px;
-                  font-weight: 600;
-                  color: white;
-                  max-width: 400px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
+                  font-weight: 700;
+                  color: #0f172a;
             }
 
             .header-meta {
                   display: flex;
                   align-items: center;
-                  gap: 12px;
+                  gap: 14px;
                   font-size: 12px;
                   color: #64748b;
                   margin-top: 2px;
@@ -112,7 +107,6 @@
                   flex: 1;
                   display: flex;
                   overflow: hidden;
-                  height: calc(100vh - 60px);
             }
 
             /* Video Section */
@@ -121,6 +115,7 @@
                   display: flex;
                   flex-direction: column;
                   min-width: 0;
+                  background: #0f172a;
             }
 
             .video-container {
@@ -128,60 +123,47 @@
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                  padding: 20px;
+                  padding: 16px;
                   position: relative;
-                  background: #000;
+                  min-height: 500px;
             }
 
             video {
-                  max-width: 100%;
-                  max-height: 100%;
-                  border-radius: 12px;
-                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+                  width: 100%;
+                  height: 100%;
+                  max-height: calc(100vh - 180px);
+                  border-radius: 8px;
+                  background: #000;
             }
 
             /* Subtitle Overlay */
             .subtitle-overlay {
                   position: absolute;
-                  bottom: 50px;
+                  bottom: 60px;
                   left: 50%;
                   transform: translateX(-50%);
-                  background: rgba(0, 0, 0, 0.85);
+                  background: rgba(0, 0, 0, 0.8);
                   padding: 10px 24px;
-                  border-radius: 10px;
-                  font-size: 17px;
+                  border-radius: 8px;
+                  font-size: 18px;
                   line-height: 1.5;
                   max-width: 80%;
                   text-align: center;
                   display: none;
-                  backdrop-filter: blur(10px);
-                  color: white;
-                  border: 1px solid rgba(255, 255, 255, 0.08);
-                  animation: fadeUp 0.2s ease;
-            }
-
-            @keyframes fadeUp {
-                  from {
-                        opacity: 0;
-                        transform: translateX(-50%) translateY(6px);
-                  }
-
-                  to {
-                        opacity: 1;
-                        transform: translateX(-50%) translateY(0);
-                  }
+                  color: #fff;
+                  font-weight: 500;
             }
 
             /* ===== CONTROLS BAR ===== */
             .controls-bar {
-                  background: rgba(15, 15, 35, 0.95);
-                  backdrop-filter: blur(20px);
-                  padding: 14px 24px;
-                  border-top: 1px solid rgba(255, 255, 255, 0.06);
+                  background: #ffffff;
+                  padding: 12px 20px;
+                  border-top: 1px solid #e2e8f0;
                   display: flex;
                   align-items: center;
-                  gap: 16px;
+                  gap: 12px;
                   flex-wrap: wrap;
+                  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.04);
             }
 
             .controls-group {
@@ -190,26 +172,35 @@
                   gap: 8px;
             }
 
+            .ctrl-label {
+                  font-size: 11px;
+                  color: #94a3b8;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+            }
+
             .ctrl-btn {
-                  background: rgba(255, 255, 255, 0.06);
-                  border: 1px solid rgba(255, 255, 255, 0.08);
-                  color: #cbd5e1;
-                  min-width: 38px;
-                  height: 38px;
-                  border-radius: 10px;
+                  background: #f1f5f9;
+                  border: 1px solid #e2e8f0;
+                  color: #475569;
+                  height: 36px;
+                  border-radius: 8px;
                   cursor: pointer;
-                  font-size: 14px;
+                  font-size: 13px;
+                  font-weight: 600;
                   transition: all 0.2s;
                   display: flex;
                   align-items: center;
                   justify-content: center;
                   gap: 6px;
-                  padding: 0 10px;
+                  padding: 0 14px;
+                  font-family: inherit;
             }
 
             .ctrl-btn:hover {
-                  background: rgba(255, 255, 255, 0.12);
-                  color: white;
+                  background: #e2e8f0;
+                  color: #0f172a;
             }
 
             .ctrl-btn.active {
@@ -218,46 +209,38 @@
                   border-color: #6366f1;
             }
 
-            .ctrl-btn span {
-                  font-size: 12px;
-                  font-weight: 600;
-                  white-space: nowrap;
-            }
-
-            .speed-select,
-            .lang-select {
-                  background: rgba(255, 255, 255, 0.06);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  color: #e2e8f0;
-                  padding: 8px 12px;
-                  border-radius: 10px;
+            .ctrl-select {
+                  background: #f8fafc;
+                  border: 1px solid #e2e8f0;
+                  color: #334155;
+                  padding: 7px 12px;
+                  border-radius: 8px;
                   font-size: 13px;
                   font-family: inherit;
+                  font-weight: 600;
                   cursor: pointer;
                   outline: none;
             }
 
-            .speed-select option,
-            .lang-select option {
-                  background: #1e1e3a;
-                  color: #e2e8f0;
+            .ctrl-select:focus {
+                  border-color: #6366f1;
             }
 
             .controls-separator {
                   width: 1px;
                   height: 24px;
-                  background: rgba(255, 255, 255, 0.1);
+                  background: #e2e8f0;
                   margin: 0 4px;
             }
 
             /* ===== TRANSCRIPT PANEL ===== */
             .transcript-panel {
-                  width: 380px;
-                  background: rgba(15, 15, 35, 0.98);
-                  border-left: 1px solid rgba(255, 255, 255, 0.06);
+                  width: 360px;
+                  background: #ffffff;
+                  border-left: 1px solid #e2e8f0;
                   display: flex;
                   flex-direction: column;
-                  transition: all 0.3s ease;
+                  transition: width 0.3s ease;
                   overflow: hidden;
             }
 
@@ -267,8 +250,8 @@
             }
 
             .transcript-header {
-                  padding: 16px 20px;
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                  padding: 14px 18px;
+                  border-bottom: 1px solid #f1f5f9;
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
@@ -278,51 +261,56 @@
             .transcript-header h3 {
                   font-size: 14px;
                   font-weight: 700;
-                  color: white;
+                  color: #0f172a;
                   display: flex;
                   align-items: center;
                   gap: 8px;
             }
 
+            .transcript-header h3 i {
+                  color: #6366f1;
+            }
+
             .transcript-search {
-                  margin: 12px 16px;
+                  margin: 10px 14px;
                   position: relative;
                   flex-shrink: 0;
             }
 
             .transcript-search input {
                   width: 100%;
-                  padding: 10px 14px 10px 36px;
-                  background: rgba(255, 255, 255, 0.06);
-                  border: 1px solid rgba(255, 255, 255, 0.1);
-                  border-radius: 10px;
-                  color: white;
+                  padding: 9px 12px 9px 34px;
+                  background: #f8fafc;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 8px;
+                  color: #334155;
                   font-size: 13px;
                   outline: none;
                   font-family: inherit;
             }
 
             .transcript-search input::placeholder {
-                  color: #64748b;
+                  color: #94a3b8;
             }
 
             .transcript-search input:focus {
                   border-color: #6366f1;
+                  background: white;
             }
 
             .transcript-search i {
                   position: absolute;
-                  left: 12px;
+                  left: 11px;
                   top: 50%;
                   transform: translateY(-50%);
-                  color: #64748b;
-                  font-size: 13px;
+                  color: #94a3b8;
+                  font-size: 12px;
             }
 
             .transcript-list {
                   flex: 1;
                   overflow-y: auto;
-                  padding: 8px 16px 20px;
+                  padding: 6px 14px 16px;
             }
 
             .transcript-list::-webkit-scrollbar {
@@ -334,83 +322,80 @@
             }
 
             .transcript-list::-webkit-scrollbar-thumb {
-                  background: rgba(255, 255, 255, 0.15);
+                  background: #cbd5e1;
                   border-radius: 4px;
             }
 
             .transcript-item {
-                  padding: 10px 12px;
-                  border-radius: 8px;
+                  padding: 8px 10px;
+                  border-radius: 6px;
                   cursor: pointer;
                   transition: all 0.15s;
                   display: flex;
-                  gap: 12px;
+                  gap: 10px;
                   margin-bottom: 2px;
             }
 
             .transcript-item:hover {
-                  background: rgba(255, 255, 255, 0.04);
+                  background: #f8fafc;
             }
 
             .transcript-item.active {
-                  background: rgba(99, 102, 241, 0.12);
-            }
-
-            .transcript-item.highlight {
-                  background: rgba(250, 204, 21, 0.1);
+                  background: #eef2ff;
             }
 
             .transcript-time {
                   font-size: 11px;
                   color: #6366f1;
-                  font-weight: 600;
+                  font-weight: 700;
                   font-variant-numeric: tabular-nums;
                   flex-shrink: 0;
                   padding-top: 2px;
-                  min-width: 40px;
+                  min-width: 38px;
             }
 
             .transcript-text {
                   font-size: 13px;
                   line-height: 1.5;
-                  color: #cbd5e1;
+                  color: #475569;
             }
 
             .transcript-text mark {
-                  background: rgba(250, 204, 21, 0.3);
-                  color: white;
+                  background: #fef08a;
+                  color: #1e293b;
                   border-radius: 2px;
                   padding: 0 2px;
             }
 
             .transcript-empty {
                   text-align: center;
-                  padding: 40px 20px;
-                  color: #64748b;
+                  padding: 30px 16px;
+                  color: #94a3b8;
             }
 
             .transcript-empty i {
-                  font-size: 36px;
-                  margin-bottom: 12px;
+                  font-size: 28px;
+                  margin-bottom: 10px;
                   display: block;
-                  color: #475569;
+                  color: #cbd5e1;
             }
 
             .transcript-status {
-                  padding: 8px 16px;
-                  font-size: 12px;
+                  padding: 8px 14px;
+                  font-size: 11px;
                   color: #64748b;
-                  border-top: 1px solid rgba(255, 255, 255, 0.06);
+                  border-top: 1px solid #f1f5f9;
                   display: flex;
                   align-items: center;
                   gap: 6px;
                   flex-shrink: 0;
+                  font-weight: 500;
             }
 
             .pulse-dot {
-                  width: 8px;
-                  height: 8px;
-                  background: #ef4444;
+                  width: 7px;
+                  height: 7px;
+                  background: #22c55e;
                   border-radius: 50%;
                   animation: pulse 1.5s infinite;
             }
@@ -423,50 +408,84 @@
                   }
 
                   50% {
-                        opacity: 0.4;
+                        opacity: 0.3;
                   }
             }
 
-            /* Status Toast */
+            /* Mic Permission Banner */
+            .mic-banner {
+                  background: #fffbeb;
+                  border: 1px solid #fde68a;
+                  border-radius: 10px;
+                  padding: 14px 20px;
+                  margin: 12px 16px 0;
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  font-size: 13px;
+                  color: #92400e;
+            }
+
+            .mic-banner i {
+                  font-size: 20px;
+                  color: #f59e0b;
+                  flex-shrink: 0;
+            }
+
+            .mic-banner.success {
+                  background: #f0fdf4;
+                  border-color: #bbf7d0;
+                  color: #166534;
+            }
+
+            .mic-banner.success i {
+                  color: #22c55e;
+            }
+
+            .mic-banner.error {
+                  background: #fef2f2;
+                  border-color: #fecaca;
+                  color: #991b1b;
+            }
+
+            .mic-banner.error i {
+                  color: #ef4444;
+            }
+
+            /* Toast */
             .status-toast {
                   position: fixed;
-                  top: 80px;
+                  top: 70px;
                   left: 50%;
                   transform: translateX(-50%);
-                  background: rgba(99, 102, 241, 0.95);
+                  background: #1e293b;
                   color: white;
-                  padding: 10px 24px;
-                  border-radius: 12px;
+                  padding: 8px 20px;
+                  border-radius: 8px;
                   font-size: 13px;
                   font-weight: 500;
                   z-index: 999;
                   display: none;
-                  backdrop-filter: blur(10px);
-                  animation: fadeUp 0.3s ease;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 
-            /* Responsive */
             @media (max-width: 768px) {
                   .transcript-panel {
                         width: 100%;
                         position: absolute;
                         right: 0;
                         z-index: 20;
-                        height: calc(100vh - 60px);
+                        height: calc(100vh - 56px);
+                        top: 56px;
                   }
 
                   .transcript-panel.collapsed {
                         width: 0;
                   }
 
-                  .header-info h1 {
-                        max-width: 200px;
-                        font-size: 14px;
-                  }
-
                   .controls-bar {
-                        padding: 10px 16px;
-                        gap: 8px;
+                        padding: 8px 12px;
+                        gap: 6px;
                   }
             }
       </style>
@@ -501,66 +520,34 @@
             <!-- Video Section -->
             <div class="video-section">
                   <div class="video-container">
-                        <video id="video-player" controls crossorigin="anonymous"></video>
+                        <video id="video-player" controls></video>
                         <div class="subtitle-overlay" id="subtitle-overlay"></div>
-                  </div>
-
-                  <!-- Controls Bar -->
-                  <div class="controls-bar">
-                        <div class="controls-group">
-                              <label style="font-size:12px; color:#64748b; font-weight:600;">SPEED</label>
-                              <select class="speed-select" id="speed-select" title="Playback speed">
-                                    <option value="0.5">0.5x</option>
-                                    <option value="0.75">0.75x</option>
-                                    <option value="1" selected>1x</option>
-                                    <option value="1.25">1.25x</option>
-                                    <option value="1.5">1.5x</option>
-                                    <option value="2">2x</option>
-                              </select>
-                        </div>
-
-                        <div class="controls-separator"></div>
-
-                        <div class="controls-group">
-                              <label style="font-size:12px; color:#64748b; font-weight:600;">LANGUAGE</label>
-                              <select class="lang-select" id="lang-select" title="Translation language">
-                                    <option value="en">English</option>
-                                    <option value="te">Telugu</option>
-                                    <option value="hi">Hindi</option>
-                                    <option value="ta">Tamil</option>
-                                    <option value="ml">Malayalam</option>
-                              </select>
-                        </div>
-
-                        <div class="controls-separator"></div>
-
-                        <button class="ctrl-btn active" id="subtitle-btn" title="Toggle subtitles">
-                              <i class="fa-solid fa-closed-captioning"></i>
-                              <span>CC</span>
-                        </button>
-
-                        <button class="ctrl-btn" id="transcript-toggle-btn" title="Toggle transcript panel">
-                              <i class="fa-solid fa-align-left"></i>
-                              <span>Transcript</span>
-                        </button>
-
-                        <div style="flex:1"></div>
-
-                        <button class="ctrl-btn" id="download-btn" title="Download recording">
-                              <i class="fa-solid fa-download"></i>
-                              <span>Download</span>
-                        </button>
                   </div>
             </div>
 
             <!-- Transcript Panel -->
             <div class="transcript-panel" id="transcript-panel">
                   <div class="transcript-header">
-                        <h3><i class="fa-solid fa-scroll"></i> Transcript</h3>
-                        <button class="back-btn" onclick="toggleTranscriptPanel()" title="Close panel">
+                        <h3><i class="fa-solid fa-scroll"></i> Live Transcript</h3>
+                        <button class="back-btn" onclick="toggleTranscriptPanel()" title="Close panel"
+                              style="width:28px;height:28px;font-size:12px;">
                               <i class="fa-solid fa-xmark"></i>
                         </button>
                   </div>
+
+                  <!-- Mic Permission Banner -->
+                  <div class="mic-banner" id="mic-banner">
+                        <i class="fa-solid fa-microphone"></i>
+                        <div>
+                              <strong>Microphone needed</strong> — Subtitles use your microphone to transcribe audio
+                              playing through speakers.
+                              <button onclick="requestMicAndStart()"
+                                    style="margin-top:6px; display:block; background:#f59e0b; color:white; border:none; padding:6px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">
+                                    <i class="fa-solid fa-microphone"></i> Enable Microphone
+                              </button>
+                        </div>
+                  </div>
+
                   <div class="transcript-search">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="transcript-search-input" placeholder="Search transcript...">
@@ -568,22 +555,70 @@
                   <div class="transcript-list" id="transcript-list">
                         <div class="transcript-empty">
                               <i class="fa-solid fa-microphone-lines"></i>
-                              <div style="font-size:14px; font-weight:600; margin-bottom:6px;">Live Transcription</div>
-                              <div style="font-size:13px;">Play the video to start generating subtitles using speech
-                                    recognition</div>
+                              <div style="font-size:13px; font-weight:600; margin-bottom:4px;">Live Transcription</div>
+                              <div style="font-size:12px;">Enable microphone and play the video to generate subtitles
+                              </div>
                         </div>
                   </div>
                   <div class="transcript-status" id="transcript-status">
-                        <i class="fa-solid fa-circle-info"></i> Ready — play video to begin
+                        <i class="fa-solid fa-circle-info"></i> Enable mic to start
                   </div>
             </div>
       </div>
 
-      <!-- Status Toast -->
+      <!-- Controls Bar (outside video, always visible) -->
+      <div class="controls-bar">
+            <div class="controls-group">
+                  <span class="ctrl-label">Speed</span>
+                  <select class="ctrl-select" id="speed-select" title="Playback speed">
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                  </select>
+            </div>
+
+            <div class="controls-separator"></div>
+
+            <div class="controls-group">
+                  <span class="ctrl-label">Language</span>
+                  <select class="ctrl-select" id="lang-select" title="Translation language">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="te">🇮🇳 Telugu</option>
+                        <option value="hi">🇮🇳 Hindi</option>
+                        <option value="ta">🇮🇳 Tamil</option>
+                        <option value="ml">🇮🇳 Malayalam</option>
+                  </select>
+            </div>
+
+            <div class="controls-separator"></div>
+
+            <button class="ctrl-btn active" id="subtitle-btn" title="Toggle subtitles">
+                  <i class="fa-solid fa-closed-captioning"></i> CC
+            </button>
+
+            <button class="ctrl-btn" id="mic-btn" title="Toggle microphone transcription">
+                  <i class="fa-solid fa-microphone-slash"></i> Mic Off
+            </button>
+
+            <button class="ctrl-btn" id="transcript-toggle-btn" title="Toggle transcript panel">
+                  <i class="fa-solid fa-align-left"></i> Transcript
+            </button>
+
+            <div style="flex:1"></div>
+
+            <button class="ctrl-btn" id="download-btn" title="Download recording">
+                  <i class="fa-solid fa-download"></i> Download
+            </button>
+      </div>
+
+      <!-- Toast -->
       <div class="status-toast" id="status-toast"></div>
 
       <script>
-            // ===== INITIALIZATION =====
+            // ===== INIT =====
             const params = new URLSearchParams(window.location.search);
             const filename = params.get('file');
             const directSrc = params.get('src');
@@ -600,24 +635,16 @@
                   'ta': 'Tamil', 'ml': 'Malayalam'
             };
 
-            const langCodes = {
-                  'en': 'en-US', 'te': 'te-IN', 'hi': 'hi-IN',
-                  'ta': 'ta-IN', 'ml': 'ml-IN'
-            };
-
-            // Set page info
+            // Fill page info
             document.getElementById('rec-title').textContent = title;
             document.getElementById('lang-label').textContent = langNames[lang] || 'English';
-            document.getElementById('meta-faculty').innerHTML = `<i class="fa-solid fa-user"></i> ${faculty}`;
-            if (recDate) {
-                  document.getElementById('meta-date').innerHTML = `<i class="fa-regular fa-calendar"></i> ${recDate}`;
+            document.getElementById('meta-faculty').innerHTML = '<i class="fa-solid fa-user"></i> ' + faculty;
+            if (recDate) document.getElementById('meta-date').innerHTML = '<i class="fa-regular fa-calendar"></i> ' + recDate;
+            if (recDuration && recDuration !== '0') {
+                  const m = Math.floor(recDuration / 60), s = recDuration % 60;
+                  document.getElementById('meta-duration').innerHTML = '<i class="fa-regular fa-clock"></i> ' + m + 'm ' + s + 's';
             }
-            if (recDuration) {
-                  const mins = Math.floor(recDuration / 60);
-                  const secs = recDuration % 60;
-                  document.getElementById('meta-duration').innerHTML = `<i class="fa-regular fa-clock"></i> ${mins}m ${secs}s`;
-            }
-            document.title = `ORBIT - ${title}`;
+            document.title = 'ORBIT - ' + title;
             document.getElementById('lang-select').value = lang;
 
             // Set video source
@@ -625,59 +652,87 @@
             if (directSrc) {
                   video.src = directSrc;
             } else if (filename) {
-                  video.src = `${API_BASE}/api/recordings/file/${filename}`;
+                  video.src = API_BASE + '/api/recordings/file/' + filename;
             } else {
-                  document.querySelector('.video-container').innerHTML = `
-                <div style="text-align:center; padding:60px; color:#ef4444; font-size:18px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size:48px; margin-bottom:16px; display:block;"></i>
-                    No recording source provided
-                </div>`;
+                  document.querySelector('.video-container').innerHTML =
+                        '<div style="text-align:center;padding:60px;color:#ef4444;font-size:18px;">' +
+                        '<i class="fa-solid fa-triangle-exclamation" style="font-size:48px;margin-bottom:16px;display:block;"></i>' +
+                        'No recording source provided</div>';
             }
 
-            // ===== WEB SPEECH API TRANSCRIPTION ENGINE =====
+            // ===== STATE =====
             let recognition = null;
-            let transcriptSegments = []; // { time: seconds, text: string, translated: string }
+            let transcriptSegments = [];
             let isTranscribing = false;
+            let micReady = false;
             let subtitlesEnabled = true;
             let currentLang = lang;
-            let translationCache = {}; // Avoid re-translating same text
+            let translationCache = {};
 
-            // Check browser support
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-            function initSpeechRecognition() {
+            // ===== MIC PERMISSION & SPEECH RECOGNITION =====
+            async function requestMicAndStart() {
+                  const banner = document.getElementById('mic-banner');
+                  const micBtn = document.getElementById('mic-btn');
+
                   if (!SpeechRecognition) {
-                        updateTranscriptStatus('Speech recognition not supported in this browser', 'error');
-                        return false;
+                        banner.className = 'mic-banner error';
+                        banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div><strong>Not Supported</strong> — Your browser does not support the Web Speech API. Please use Google Chrome.</div>';
+                        return;
                   }
+
+                  try {
+                        // Request mic permission
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        stream.getTracks().forEach(t => t.stop()); // We just needed permission
+
+                        micReady = true;
+                        banner.className = 'mic-banner success';
+                        banner.innerHTML = '<i class="fa-solid fa-circle-check"></i><div><strong>Microphone enabled!</strong> Play the video — subtitles will appear automatically from audio picked up by your microphone.</div>';
+
+                        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Mic On';
+                        micBtn.classList.add('active');
+
+                        initSpeechRecognition();
+                        updateTranscriptStatus('Ready — play video to begin', 'ready');
+
+                        // Auto-start if video is already playing
+                        if (!video.paused) startTranscription();
+
+                  } catch (err) {
+                        banner.className = 'mic-banner error';
+                        banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div><strong>Microphone denied</strong> — Allow microphone access in your browser settings, then try again.</div>';
+                  }
+            }
+
+            function initSpeechRecognition() {
+                  if (!SpeechRecognition) return;
 
                   recognition = new SpeechRecognition();
                   recognition.continuous = true;
                   recognition.interimResults = true;
-                  recognition.lang = 'en-US'; // Always recognize English (source language)
+                  recognition.lang = 'en-US';
                   recognition.maxAlternatives = 1;
 
-                  let interimText = '';
-
-                  recognition.onresult = (event) => {
+                  recognition.onresult = async (event) => {
                         let finalText = '';
                         let interim = '';
 
                         for (let i = event.resultIndex; i < event.results.length; i++) {
-                              const result = event.results[i];
-                              if (result.isFinal) {
-                                    finalText += result[0].transcript.trim() + ' ';
+                              if (event.results[i].isFinal) {
+                                    finalText += event.results[i][0].transcript.trim() + ' ';
                               } else {
-                                    interim += result[0].transcript;
+                                    interim += event.results[i][0].transcript;
                               }
                         }
 
-                        // Show interim results as subtitles
+                        // Show interim subtitles
                         if (interim && subtitlesEnabled) {
                               showSubtitle(interim, true);
                         }
 
-                        // Process final results
+                        // Process final text
                         if (finalText.trim()) {
                               const currentTime = Math.floor(video.currentTime);
                               const segment = {
@@ -686,7 +741,6 @@
                                     translated: ''
                               };
 
-                              // Translate if target language is not English
                               if (currentLang !== 'en') {
                                     translateText(finalText.trim(), currentLang).then(translated => {
                                           segment.translated = translated;
@@ -704,33 +758,23 @@
                   };
 
                   recognition.onerror = (event) => {
+                        if (event.error === 'no-speech') return; // Normal
+                        if (event.error === 'aborted') return;
                         console.warn('Speech recognition error:', event.error);
-                        if (event.error === 'no-speech') {
-                              // This is normal, just keep going
-                              return;
-                        }
-                        if (event.error === 'not-allowed') {
-                              updateTranscriptStatus('Microphone access denied. Enable it in browser settings.', 'error');
-                              return;
-                        }
-                        // Auto-restart on other errors
                         if (isTranscribing) {
-                              setTimeout(() => startTranscription(), 500);
+                              setTimeout(() => { try { recognition.start(); } catch (e) { } }, 1000);
                         }
                   };
 
                   recognition.onend = () => {
-                        // Auto-restart if video is still playing
                         if (isTranscribing && !video.paused && !video.ended) {
                               try { recognition.start(); } catch (e) { }
                         }
                   };
-
-                  return true;
             }
 
             function startTranscription() {
-                  if (!recognition && !initSpeechRecognition()) return;
+                  if (!micReady || !recognition) return;
                   try {
                         recognition.start();
                         isTranscribing = true;
@@ -745,34 +789,50 @@
                         try { recognition.stop(); } catch (e) { }
                   }
                   isTranscribing = false;
-                  updateTranscriptStatus('Paused', 'paused');
+                  if (micReady) updateTranscriptStatus('Paused', 'paused');
                   hideSubtitle();
             }
 
-            // ===== TRANSLATION (Free MyMemory API) =====
+            function toggleMic() {
+                  const micBtn = document.getElementById('mic-btn');
+                  if (!micReady) {
+                        requestMicAndStart();
+                        return;
+                  }
+                  if (isTranscribing) {
+                        stopTranscription();
+                        micReady = false;
+                        micBtn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> Mic Off';
+                        micBtn.classList.remove('active');
+                  } else {
+                        micReady = true;
+                        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Mic On';
+                        micBtn.classList.add('active');
+                        if (!video.paused) startTranscription();
+                  }
+            }
+
+            // ===== TRANSLATION (MyMemory — free, no CORS issues) =====
             async function translateText(text, targetLang) {
                   if (!text || targetLang === 'en') return text;
 
-                  const cacheKey = `${text}_${targetLang}`;
+                  const cacheKey = text.substring(0, 100) + '_' + targetLang;
                   if (translationCache[cacheKey]) return translationCache[cacheKey];
 
-                  // Map our lang codes to full translation codes
-                  const langMap = {
-                        'te': 'te', 'hi': 'hi', 'ta': 'ta', 'ml': 'ml'
-                  };
-
                   try {
-                        const response = await fetch(
-                              `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${langMap[targetLang] || targetLang}`
-                        );
+                        const url = 'https://api.mymemory.translated.net/get?q=' +
+                              encodeURIComponent(text.substring(0, 500)) +
+                              '&langpair=en|' + targetLang;
+
+                        const response = await fetch(url);
                         const data = await response.json();
 
-                        if (data.responseStatus === 200 && data.responseData) {
+                        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
                               const translated = data.responseData.translatedText;
                               translationCache[cacheKey] = translated;
                               return translated;
                         }
-                        return text; // Fallback to original
+                        return text;
                   } catch (error) {
                         console.warn('Translation error:', error);
                         return text;
@@ -787,18 +847,14 @@
                   el.style.opacity = isInterim ? '0.7' : '1';
                   el.style.fontStyle = isInterim ? 'italic' : 'normal';
 
-                  // Auto-hide after 5 seconds for final text
                   if (!isInterim) {
                         clearTimeout(el._hideTimer);
-                        el._hideTimer = setTimeout(() => {
-                              el.style.display = 'none';
-                        }, 5000);
+                        el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 6000);
                   }
             }
 
             function hideSubtitle() {
-                  const el = document.getElementById('subtitle-overlay');
-                  el.style.display = 'none';
+                  document.getElementById('subtitle-overlay').style.display = 'none';
             }
 
             // ===== TRANSCRIPT LIST =====
@@ -807,44 +863,37 @@
                   const searchTerm = document.getElementById('transcript-search-input').value.toLowerCase().trim();
 
                   if (transcriptSegments.length === 0) {
-                        list.innerHTML = `
-                    <div class="transcript-empty">
-                        <i class="fa-solid fa-microphone-lines"></i>
-                        <div style="font-size:14px; font-weight:600; margin-bottom:6px;">Live Transcription</div>
-                        <div style="font-size:13px;">Play the video to start generating subtitles using speech recognition</div>
-                    </div>`;
+                        list.innerHTML =
+                              '<div class="transcript-empty">' +
+                              '<i class="fa-solid fa-microphone-lines"></i>' +
+                              '<div style="font-size:13px;font-weight:600;margin-bottom:4px;">Live Transcription</div>' +
+                              '<div style="font-size:12px;">Enable microphone and play video to see transcript here</div></div>';
                         return;
                   }
 
                   const filtered = searchTerm
                         ? transcriptSegments.filter(s =>
                               s.text.toLowerCase().includes(searchTerm) ||
-                              (s.translated && s.translated.toLowerCase().includes(searchTerm))
-                        )
+                              (s.translated && s.translated.toLowerCase().includes(searchTerm)))
                         : transcriptSegments;
 
                   list.innerHTML = filtered.map((seg, i) => {
                         const timeStr = formatTime(seg.time);
                         let displayText = currentLang !== 'en' && seg.translated ? seg.translated : seg.text;
 
-                        // Highlight search matches
                         if (searchTerm) {
-                              const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
+                              const regex = new RegExp('(' + escapeRegex(searchTerm) + ')', 'gi');
                               displayText = displayText.replace(regex, '<mark>$1</mark>');
                         }
 
                         const isActive = video.currentTime >= seg.time &&
-                              (i + 1 >= filtered.length || video.currentTime < filtered[i + 1]?.time);
+                              (i + 1 >= filtered.length || video.currentTime < filtered[i + 1].time);
 
-                        return `
-                    <div class="transcript-item ${isActive ? 'active' : ''} ${searchTerm ? 'highlight' : ''}"
-                         onclick="seekTo(${seg.time})">
-                        <div class="transcript-time">${timeStr}</div>
-                        <div class="transcript-text">${displayText}</div>
-                    </div>`;
+                        return '<div class="transcript-item ' + (isActive ? 'active' : '') + '" onclick="seekTo(' + seg.time + ')">' +
+                              '<div class="transcript-time">' + timeStr + '</div>' +
+                              '<div class="transcript-text">' + displayText + '</div></div>';
                   }).join('');
 
-                  // Auto-scroll to active item
                   const activeItem = list.querySelector('.active');
                   if (activeItem && !searchTerm) {
                         activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -854,11 +903,11 @@
             function updateTranscriptStatus(msg, type) {
                   const el = document.getElementById('transcript-status');
                   if (type === 'active') {
-                        el.innerHTML = `<div class="pulse-dot"></div> ${msg}`;
+                        el.innerHTML = '<div class="pulse-dot"></div> ' + msg;
                   } else if (type === 'error') {
-                        el.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> ${msg}`;
+                        el.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> ' + msg;
                   } else {
-                        el.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+                        el.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + msg;
                   }
             }
 
@@ -866,7 +915,7 @@
             function formatTime(seconds) {
                   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
                   const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-                  return `${m}:${s}`;
+                  return m + ':' + s;
             }
 
             function escapeRegex(str) {
@@ -882,52 +931,48 @@
                   const el = document.getElementById('status-toast');
                   el.textContent = msg;
                   el.style.display = 'block';
-                  clearTimeout(el._timer);
-                  el._timer = setTimeout(() => { el.style.display = 'none'; }, 2500);
+                  clearTimeout(el._t);
+                  el._t = setTimeout(() => { el.style.display = 'none'; }, 2000);
+            }
+
+            function toggleTranscriptPanel() {
+                  const panel = document.getElementById('transcript-panel');
+                  panel.classList.toggle('collapsed');
+                  document.getElementById('transcript-toggle-btn').classList.toggle('active', !panel.classList.contains('collapsed'));
             }
 
             // ===== EVENT LISTENERS =====
 
-            // Video play/pause hooks
             video.addEventListener('play', () => {
-                  startTranscription();
+                  if (micReady) startTranscription();
             });
 
-            video.addEventListener('pause', () => {
-                  stopTranscription();
-            });
-
+            video.addEventListener('pause', () => { stopTranscription(); });
             video.addEventListener('ended', () => {
                   stopTranscription();
-                  updateTranscriptStatus(`Transcription complete — ${transcriptSegments.length} segments`, 'done');
+                  updateTranscriptStatus('Done — ' + transcriptSegments.length + ' segments captured', 'done');
             });
 
-            // Update duration when metadata loads
             video.addEventListener('loadedmetadata', () => {
-                  const mins = Math.floor(video.duration / 60);
-                  const secs = Math.floor(video.duration % 60);
-                  document.getElementById('meta-duration').innerHTML = `<i class="fa-regular fa-clock"></i> ${mins}m ${secs}s`;
+                  const m = Math.floor(video.duration / 60), s = Math.floor(video.duration % 60);
+                  document.getElementById('meta-duration').innerHTML = '<i class="fa-regular fa-clock"></i> ' + m + 'm ' + s + 's';
             });
 
-            // Update active transcript segment
-            video.addEventListener('timeupdate', () => {
-                  updateTranscriptList();
-            });
+            video.addEventListener('timeupdate', () => { updateTranscriptList(); });
 
             // Playback speed
             document.getElementById('speed-select').addEventListener('change', (e) => {
                   video.playbackRate = parseFloat(e.target.value);
-                  showToast(`Speed: ${e.target.value}x`);
+                  showToast('Speed: ' + e.target.value + 'x');
             });
 
             // Language change
             document.getElementById('lang-select').addEventListener('change', async (e) => {
                   currentLang = e.target.value;
                   document.getElementById('lang-label').textContent = langNames[currentLang] || 'English';
-                  showToast(`Language: ${langNames[currentLang]}`);
+                  showToast('Language: ' + (langNames[currentLang] || currentLang));
 
-                  // Re-translate existing segments
-                  if (currentLang !== 'en') {
+                  if (currentLang !== 'en' && transcriptSegments.length > 0) {
                         updateTranscriptStatus('Translating...', 'active');
                         for (let seg of transcriptSegments) {
                               seg.translated = await translateText(seg.text, currentLang);
@@ -940,44 +985,31 @@
             // Subtitle toggle
             document.getElementById('subtitle-btn').addEventListener('click', () => {
                   subtitlesEnabled = !subtitlesEnabled;
-                  const btn = document.getElementById('subtitle-btn');
-                  btn.classList.toggle('active', subtitlesEnabled);
+                  document.getElementById('subtitle-btn').classList.toggle('active', subtitlesEnabled);
                   if (!subtitlesEnabled) hideSubtitle();
-                  showToast(`Subtitles ${subtitlesEnabled ? 'ON' : 'OFF'}`);
+                  showToast('Subtitles ' + (subtitlesEnabled ? 'ON' : 'OFF'));
             });
 
-            // Transcript panel toggle
-            function toggleTranscriptPanel() {
-                  const panel = document.getElementById('transcript-panel');
-                  panel.classList.toggle('collapsed');
-                  const btn = document.getElementById('transcript-toggle-btn');
-                  btn.classList.toggle('active', !panel.classList.contains('collapsed'));
-            }
+            // Mic toggle
+            document.getElementById('mic-btn').addEventListener('click', toggleMic);
 
+            // Transcript panel
             document.getElementById('transcript-toggle-btn').addEventListener('click', toggleTranscriptPanel);
 
-            // Transcript search
-            document.getElementById('transcript-search-input').addEventListener('input', () => {
-                  updateTranscriptList();
-            });
+            // Search
+            document.getElementById('transcript-search-input').addEventListener('input', updateTranscriptList);
 
             // Download
             document.getElementById('download-btn').addEventListener('click', () => {
-                  const source = directSrc || (filename ? `${API_BASE}/api/recordings/file/${filename}` : '');
-                  if (!source) {
-                        showToast('No recording to download');
-                        return;
-                  }
+                  const source = directSrc || (filename ? API_BASE + '/api/recordings/file/' + filename : '');
+                  if (!source) { showToast('No recording to download'); return; }
                   const a = document.createElement('a');
                   a.href = source;
-                  a.download = `${title}.webm`;
+                  a.download = title + '.webm';
                   a.target = '_blank';
                   a.click();
                   showToast('Download started');
             });
-
-            // Initialize speech recognition on page load
-            initSpeechRecognition();
       </script>
 </body>
 
