@@ -555,7 +555,10 @@
       <div class="main-wrapper">
             <div class="video-section">
                   <div class="video-container">
-                        <video id="video-player" controls></video>
+                        <video id="video-player" controls crossorigin="anonymous" preload="auto" playsinline></video>
+                        <div id="video-error-banner"
+                              style="display:none;position:absolute;top:20px;left:50%;transform:translateX(-50%);background:#ef4444;color:white;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:5;">
+                        </div>
                         <div class="subtitle-overlay" id="subtitle-overlay"></div>
                   </div>
             </div>
@@ -687,8 +690,40 @@
             // Set video source
             const video = document.getElementById('video-player');
             const videoSrc = directSrc || (filename ? API_BASE + '/api/recordings/file/' + filename : '');
+            console.log('Video source:', videoSrc);
+
             if (videoSrc) {
+                  // Try setting source directly
                   video.src = videoSrc;
+                  video.load();
+
+                  // Handle video errors
+                  video.addEventListener('error', (e) => {
+                        console.error('Video error:', video.error);
+                        const errBanner = document.getElementById('video-error-banner');
+                        const code = video.error ? video.error.code : 'unknown';
+                        const msgs = {
+                              1: 'Video loading was aborted',
+                              2: 'Network error while loading video',
+                              3: 'Video format not supported by browser',
+                              4: 'Video source not found or access denied'
+                        };
+                        errBanner.textContent = (msgs[code] || 'Video failed to load') + ' — trying alternative...';
+                        errBanner.style.display = 'block';
+
+                        // Retry without crossorigin (some servers don't support CORS)
+                        if (video.crossOrigin) {
+                              console.log('Retrying without crossorigin...');
+                              video.removeAttribute('crossorigin');
+                              video.src = videoSrc;
+                              video.load();
+                        }
+                  });
+
+                  video.addEventListener('canplay', () => {
+                        console.log('Video can play');
+                        document.getElementById('video-error-banner').style.display = 'none';
+                  });
             } else {
                   document.querySelector('.video-container').innerHTML =
                         '<div style="text-align:center;padding:60px;color:#ef4444;font-size:18px;">' +
@@ -802,7 +837,7 @@
                   updateTranscriptStatus('Transcribing...', 'active');
 
                   try {
-                        const PYTHON_API = 'https://orbit-ai-backend.onrender.com';
+                        const PYTHON_API = 'https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net';
                         showProgress('Processing with Whisper AI...', 30);
 
                         const res = await fetch(PYTHON_API + '/api/transcribe', {
@@ -813,7 +848,7 @@
 
                         showProgress('Almost done...', 80);
 
-                        if (!res.ok) throw new Error('Transcription service error');
+                        if (!res.ok) throw new Error('Whisper service unavailable — trying browser speech recognition');
 
                         const data = await res.json();
                         showProgress('Done!', 100);
@@ -827,13 +862,102 @@
                               btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Try Again';
                         }
                   } catch (err) {
-                        console.error(err);
-                        showToast('Transcription failed');
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Retry';
-                        hideProgress();
+                        console.warn('Whisper unavailable, falling back to browser speech:', err.message);
+                        // Fall back to Web Speech API
+                        startBrowserTranscription();
                   }
                   isTranscribing = false;
+            }
+
+            // ===== FALLBACK: Browser Web Speech API =====
+            function startBrowserTranscription() {
+                  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                  if (!SpeechRecognition) {
+                        showToast('Speech recognition not supported — use Chrome');
+                        hideProgress();
+                        const btn = document.getElementById('transcribe-btn');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Retry';
+                        return;
+                  }
+
+                  showProgress('Using browser speech recognition (play audio through speakers)...', 50);
+                  updateTranscriptStatus('Listening via microphone... Play the video and speak or let audio play through speakers', 'active');
+
+                  const recognition = new SpeechRecognition();
+                  recognition.continuous = true;
+                  recognition.interimResults = true;
+                  recognition.lang = 'en-US';
+
+                  let segments = [];
+                  let segmentStart = video.currentTime;
+
+                  recognition.onresult = (event) => {
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                              if (event.results[i].isFinal) {
+                                    const text = event.results[i][0].transcript.trim();
+                                    if (text) {
+                                          segments.push({
+                                                start: segmentStart,
+                                                end: video.currentTime,
+                                                text: text
+                                          });
+                                          segmentStart = video.currentTime;
+                                          transcriptSegments = segments;
+                                          updateTranscriptList();
+                                          showSubtitle(text);
+                                    }
+                              } else {
+                                    // Show interim results as subtitle
+                                    showSubtitle(event.results[i][0].transcript);
+                              }
+                        }
+                  };
+
+                  recognition.onerror = (e) => {
+                        console.warn('Speech recognition error:', e.error);
+                        if (e.error === 'not-allowed') {
+                              showToast('Microphone permission denied — enable it in browser settings');
+                        }
+                  };
+
+                  recognition.onend = () => {
+                        // Auto-restart if video is still playing
+                        if (!video.paused && !video.ended) {
+                              recognition.start();
+                        } else {
+                              if (segments.length > 0) {
+                                    document.getElementById('transcribe-cta').style.display = 'none';
+                                    document.getElementById('transcript-search-wrap').style.display = 'block';
+                                    hideProgress();
+                                    updateTranscriptStatus(segments.length + ' segments captured', 'done');
+                              }
+                        }
+                  };
+
+                  // Request mic permission and start
+                  navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(() => {
+                              recognition.start();
+                              showToast('Listening... play the video with audio on speakers');
+                              video.play();
+                              const btn = document.getElementById('transcribe-btn');
+                              btn.innerHTML = '<i class="fa-solid fa-microphone"></i> Listening...';
+                              btn.onclick = () => {
+                                    recognition.stop();
+                                    btn.disabled = false;
+                                    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate Transcript';
+                                    btn.onclick = () => startTranscription();
+                                    hideProgress();
+                              };
+                        })
+                        .catch(() => {
+                              showToast('Microphone access needed for browser transcription');
+                              hideProgress();
+                              const btn = document.getElementById('transcribe-btn');
+                              btn.disabled = false;
+                              btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Retry';
+                        });
             }
 
             // ===== CALLBACK WHEN TRANSCRIPT IS READY =====
