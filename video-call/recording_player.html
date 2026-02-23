@@ -837,7 +837,7 @@
             }
 
             // ===== CALLBACK WHEN TRANSCRIPT IS READY =====
-            function onTranscriptReady(wasCached) {
+            async function onTranscriptReady(wasCached) {
                   document.getElementById('transcribe-cta').style.display = 'none';
                   document.getElementById('transcript-search-wrap').style.display = 'block';
                   hideProgress();
@@ -847,6 +847,16 @@
                         'done'
                   );
                   showToast('Transcript ready — ' + transcriptSegments.length + ' segments');
+
+                  // Auto-translate if non-English language is selected
+                  if (currentLang !== 'en') {
+                        const hasTranslation = transcriptSegments.some(s => s.translated);
+                        if (!hasTranslation) {
+                              await translateAllSegments(currentLang);
+                        } else {
+                              updateTranscriptList();
+                        }
+                  }
             }
 
             // ===== TRANSLATION =====
@@ -873,7 +883,7 @@
             }
 
             async function translateText(text, targetLang) {
-                  if (!text || targetLang === 'en') return text;
+                  if (!text || !text.trim() || targetLang === 'en') return text;
                   const cacheKey = text.substring(0, 80) + '_' + targetLang;
                   if (translationCache[cacheKey]) return translationCache[cacheKey];
 
@@ -883,12 +893,19 @@
                               '&langpair=en|' + targetLang;
                         const resp = await fetch(url);
                         const data = await resp.json();
-                        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+                        console.log('MyMemory response:', data.responseStatus, typeof data.responseStatus);
+                        if (data.responseData && data.responseData.translatedText) {
                               const result = data.responseData.translatedText;
-                              translationCache[cacheKey] = result;
-                              return result;
+                              if (result && result !== text) {
+                                    translationCache[cacheKey] = result;
+                                    return result;
+                              }
                         }
-                  } catch (e) { console.warn('Translation error:', e); }
+                        console.warn('Translation response issue:', JSON.stringify(data).substring(0, 200));
+                  } catch (e) {
+                        console.error('Translation fetch error:', e);
+                        showToast('Translation error — check console');
+                  }
                   return text;
             }
 
