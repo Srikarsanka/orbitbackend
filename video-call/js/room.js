@@ -100,6 +100,7 @@ const SessionManager = {
                 window.SESSION_DATA = {
                     facultyEmail: data.facultyEmail,
                     facultyUid: data.facultyUid,
+                    classId: data.classId,
                     participants: data.participants,
                     className: data.className,
                     classCode: data.classCode,
