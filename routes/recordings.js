@@ -88,8 +88,13 @@ router.post('/upload', upload.single('recording'), async (req, res) => {
         if (req.file) {
             try { fs.unlinkSync(req.file.path); } catch(e) {}
         }
-        console.error('Recording upload error:', error);
-        res.status(500).json({ error: 'Failed to save recording' });
+        console.error('Recording upload error:', error.message || error);
+        console.error('Full error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+        res.status(500).json({ 
+            error: 'Failed to save recording', 
+            details: error.message || 'Unknown error',
+            code: error.http_code || error.code || null
+        });
     }
 });
 

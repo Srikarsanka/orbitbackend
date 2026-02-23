@@ -213,6 +213,7 @@
       <script>
             const params = new URLSearchParams(window.location.search);
             const filename = params.get('file');
+            const directSrc = params.get('src'); // Cloudinary URL passed directly
             const lang = params.get('lang') || 'en';
             const title = decodeURIComponent(params.get('title') || 'Recording');
 
@@ -237,9 +238,15 @@
             document.getElementById('lang-name').textContent = langNames[lang] || 'English';
             document.title = `ORBIT - ${title} (${langNames[lang] || 'English'})`;
 
-            // Video player
+            // Video player - prefer direct Cloudinary URL, fallback to file endpoint
             const video = document.getElementById('video-player');
-            video.src = `${API_BASE}/api/recordings/file/${filename}`;
+            if (directSrc) {
+                  video.src = decodeURIComponent(directSrc);
+            } else if (filename) {
+                  video.src = `${API_BASE}/api/recordings/file/${filename}`;
+            } else {
+                  document.querySelector('.video-wrapper').innerHTML = '<div style="text-align:center;padding:60px;color:#ef4444;font-size:18px;"><i class="fa-solid fa-triangle-exclamation" style="font-size:48px;margin-bottom:16px;display:block;"></i>No recording source provided</div>';
+            }
 
             let translationEnabled = lang !== 'en';
             let speechSynth = window.speechSynthesis;

@@ -251,9 +251,17 @@
             });
 
             if (!response.ok) {
-                const errText = await response.text();
-                console.error('📹 Upload response error:', response.status, errText);
-                showUploadStatus('Upload failed: Server error', false);
+                let errMsg = `Server error (${response.status})`;
+                try {
+                    const errData = await response.json();
+                    console.error('📹 Upload response error:', response.status, errData);
+                    errMsg = errData.details || errData.error || errMsg;
+                } catch(parseErr) {
+                    const errText = await response.text();
+                    console.error('📹 Upload response error:', response.status, errText);
+                    errMsg = errText.substring(0, 100) || errMsg;
+                }
+                showUploadStatus('Upload failed: ' + errMsg, false);
                 return;
             }
 
@@ -267,8 +275,8 @@
                 showUploadStatus('Upload failed: ' + (result.error || 'Unknown error'), false);
             }
         } catch (error) {
-            console.error('📹 Upload error:', error);
-            showUploadStatus('Upload failed: Network error', false);
+            console.error('📹 Upload error:', error.message || error);
+            showUploadStatus('Upload failed: ' + (error.message || 'Network error'), false);
         }
 
         // Clear recorded data
