@@ -6,3 +6,6 @@ onnxruntime==1.17.3
 insightface==0.7.3
 openai
 python-multipart==0.0.9
+openai-whisper
+httpx
+torch

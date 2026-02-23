@@ -158,4 +158,92 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// POST /api/recordings/transcribe/:id - Transcribe a recording via Whisper
+router.post('/transcribe/:id', async (req, res) => {
+    try {
+        const recording = await Recording.findById(req.params.id);
+        if (!recording) {
+            return res.status(404).json({ error: 'Recording not found' });
+        }
+
+        const targetLang = req.body.lang || 'en';
+
+        // Check cache: if we have a transcript in the requested language, return it
+        if (recording.transcript && recording.transcript.length > 0 && recording.transcriptLang === targetLang) {
+            console.log(`📋 Returning cached transcript for ${req.params.id} (${targetLang})`);
+            return res.json({
+                success: true,
+                cached: true,
+                segments: recording.transcript,
+                targetLang: targetLang,
+                totalSegments: recording.transcript.length
+            });
+        }
+
+        // Proxy to Python Whisper service
+        const PYTHON_API = process.env.PYTHON_API_URL || 'https://orbit-ai-backend.onrender.com';
+        console.log(`🎙️ Sending transcription request to Python service for recording ${req.params.id}...`);
+
+        const fetch = (await import('node-fetch')).default;
+        const whisperRes = await fetch(`${PYTHON_API}/api/transcribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                videoUrl: recording.fileUrl,
+                lang: targetLang
+            }),
+            timeout: 300000 // 5 min timeout for long videos
+        });
+
+        if (!whisperRes.ok) {
+            const errData = await whisperRes.json().catch(() => ({}));
+            console.error('Whisper API error:', errData);
+            return res.status(whisperRes.status).json({
+                error: 'Transcription failed',
+                details: errData.detail || 'Python service error'
+            });
+        }
+
+        const data = await whisperRes.json();
+
+        // Cache the transcript in the database
+        if (data.segments && data.segments.length > 0) {
+            recording.transcript = data.segments;
+            recording.transcriptLang = targetLang;
+            await recording.save();
+            console.log(`💾 Cached transcript for ${req.params.id} (${data.segments.length} segments)`);
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error('Transcription error:', error.message || error);
+        res.status(500).json({ error: 'Transcription failed', details: error.message });
+    }
+});
+
+// GET /api/recordings/transcript/:id - Get cached transcript
+router.get('/transcript/:id', async (req, res) => {
+    try {
+        const recording = await Recording.findById(req.params.id);
+        if (!recording) {
+            return res.status(404).json({ error: 'Recording not found' });
+        }
+
+        if (!recording.transcript || recording.transcript.length === 0) {
+            return res.json({ success: true, cached: false, segments: [], message: 'No transcript available' });
+        }
+
+        res.json({
+            success: true,
+            cached: true,
+            segments: recording.transcript,
+            targetLang: recording.transcriptLang || 'en',
+            totalSegments: recording.transcript.length
+        });
+    } catch (error) {
+        console.error('Error fetching transcript:', error);
+        res.status(500).json({ error: 'Failed to fetch transcript' });
+    }
+});
+
 module.exports = router;

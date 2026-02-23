@@ -10,6 +10,13 @@ const recordingSchema = new mongoose.Schema({
     fileUrl: { type: String, required: true },       // Cloudinary video URL
     cloudinaryId: { type: String },                   // Cloudinary public_id for deletion
     originalLanguage: { type: String, default: 'en' },
+    transcript: [{
+        start: Number,
+        end: Number,
+        text: String,
+        translated: String
+    }],
+    transcriptLang: { type: String, default: '' },
     duration: { type: Number, default: 0 }, // seconds
     fileSize: { type: Number, default: 0 }, // bytes
     mimeType: { type: String, default: 'video/webm' },

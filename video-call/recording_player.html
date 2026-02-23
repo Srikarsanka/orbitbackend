@@ -109,7 +109,6 @@
                   overflow: hidden;
             }
 
-            /* Video Section */
             .video-section {
                   flex: 1;
                   display: flex;
@@ -125,13 +124,13 @@
                   justify-content: center;
                   padding: 16px;
                   position: relative;
-                  min-height: 500px;
+                  min-height: 520px;
             }
 
             video {
                   width: 100%;
                   height: 100%;
-                  max-height: calc(100vh - 180px);
+                  max-height: calc(100vh - 160px);
                   border-radius: 8px;
                   background: #000;
             }
@@ -139,11 +138,11 @@
             /* Subtitle Overlay */
             .subtitle-overlay {
                   position: absolute;
-                  bottom: 60px;
+                  bottom: 70px;
                   left: 50%;
                   transform: translateX(-50%);
-                  background: rgba(0, 0, 0, 0.8);
-                  padding: 10px 24px;
+                  background: rgba(0, 0, 0, 0.82);
+                  padding: 10px 26px;
                   border-radius: 8px;
                   font-size: 18px;
                   line-height: 1.5;
@@ -209,6 +208,11 @@
                   border-color: #6366f1;
             }
 
+            .ctrl-btn:disabled {
+                  opacity: 0.5;
+                  cursor: not-allowed;
+            }
+
             .ctrl-select {
                   background: #f8fafc;
                   border: 1px solid #e2e8f0;
@@ -235,12 +239,12 @@
 
             /* ===== TRANSCRIPT PANEL ===== */
             .transcript-panel {
-                  width: 360px;
+                  width: 370px;
                   background: #ffffff;
                   border-left: 1px solid #e2e8f0;
                   display: flex;
                   flex-direction: column;
-                  transition: width 0.3s ease;
+                  transition: width 0.3s;
                   overflow: hidden;
             }
 
@@ -351,7 +355,7 @@
                   font-variant-numeric: tabular-nums;
                   flex-shrink: 0;
                   padding-top: 2px;
-                  min-width: 38px;
+                  min-width: 42px;
             }
 
             .transcript-text {
@@ -381,13 +385,13 @@
             }
 
             .transcript-status {
-                  padding: 8px 14px;
-                  font-size: 11px;
+                  padding: 10px 14px;
+                  font-size: 12px;
                   color: #64748b;
                   border-top: 1px solid #f1f5f9;
                   display: flex;
                   align-items: center;
-                  gap: 6px;
+                  gap: 8px;
                   flex-shrink: 0;
                   font-weight: 500;
             }
@@ -412,47 +416,79 @@
                   }
             }
 
-            /* Mic Permission Banner */
-            .mic-banner {
-                  background: #fffbeb;
-                  border: 1px solid #fde68a;
-                  border-radius: 10px;
-                  padding: 14px 20px;
-                  margin: 12px 16px 0;
-                  display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  font-size: 13px;
-                  color: #92400e;
-            }
-
-            .mic-banner i {
-                  font-size: 20px;
-                  color: #f59e0b;
+            /* Transcribe CTA */
+            .transcribe-cta {
+                  margin: 12px 14px;
+                  padding: 16px;
+                  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+                  border-radius: 12px;
+                  text-align: center;
                   flex-shrink: 0;
             }
 
-            .mic-banner.success {
-                  background: #f0fdf4;
-                  border-color: #bbf7d0;
-                  color: #166534;
+            .transcribe-cta p {
+                  font-size: 13px;
+                  color: #475569;
+                  margin-bottom: 10px;
             }
 
-            .mic-banner.success i {
-                  color: #22c55e;
+            .transcribe-cta button {
+                  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                  color: white;
+                  border: none;
+                  padding: 10px 24px;
+                  border-radius: 8px;
+                  font-size: 13px;
+                  font-weight: 700;
+                  cursor: pointer;
+                  font-family: inherit;
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 8px;
+                  transition: all 0.2s;
             }
 
-            .mic-banner.error {
-                  background: #fef2f2;
-                  border-color: #fecaca;
-                  color: #991b1b;
+            .transcribe-cta button:hover {
+                  transform: translateY(-1px);
+                  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
             }
 
-            .mic-banner.error i {
-                  color: #ef4444;
+            .transcribe-cta button:disabled {
+                  opacity: 0.6;
+                  cursor: not-allowed;
+                  transform: none;
             }
 
-            /* Toast */
+            /* Progress bar */
+            .progress-container {
+                  margin: 8px 14px;
+                  flex-shrink: 0;
+                  display: none;
+            }
+
+            .progress-bar-bg {
+                  height: 6px;
+                  background: #e2e8f0;
+                  border-radius: 4px;
+                  overflow: hidden;
+            }
+
+            .progress-bar-fill {
+                  height: 100%;
+                  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+                  border-radius: 4px;
+                  width: 0%;
+                  transition: width 0.5s ease;
+            }
+
+            .progress-text {
+                  font-size: 11px;
+                  color: #94a3b8;
+                  margin-top: 4px;
+                  text-align: center;
+            }
+
+            /* Status toast */
             .status-toast {
                   position: fixed;
                   top: 70px;
@@ -517,7 +553,6 @@
 
       <!-- MAIN LAYOUT -->
       <div class="main-wrapper">
-            <!-- Video Section -->
             <div class="video-section">
                   <div class="video-container">
                         <video id="video-player" controls></video>
@@ -528,45 +563,51 @@
             <!-- Transcript Panel -->
             <div class="transcript-panel" id="transcript-panel">
                   <div class="transcript-header">
-                        <h3><i class="fa-solid fa-scroll"></i> Live Transcript</h3>
+                        <h3><i class="fa-solid fa-scroll"></i> Transcript</h3>
                         <button class="back-btn" onclick="toggleTranscriptPanel()" title="Close panel"
                               style="width:28px;height:28px;font-size:12px;">
                               <i class="fa-solid fa-xmark"></i>
                         </button>
                   </div>
 
-                  <!-- Mic Permission Banner -->
-                  <div class="mic-banner" id="mic-banner">
-                        <i class="fa-solid fa-microphone"></i>
-                        <div>
-                              <strong>Microphone needed</strong> — Subtitles use your microphone to transcribe audio
-                              playing through speakers.
-                              <button onclick="requestMicAndStart()"
-                                    style="margin-top:6px; display:block; background:#f59e0b; color:white; border:none; padding:6px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">
-                                    <i class="fa-solid fa-microphone"></i> Enable Microphone
-                              </button>
-                        </div>
+                  <!-- Transcribe CTA -->
+                  <div class="transcribe-cta" id="transcribe-cta">
+                        <p><strong>AI-Powered Transcription</strong><br>Generate subtitles and transcript using Whisper
+                              AI</p>
+                        <button id="transcribe-btn" onclick="startTranscription()">
+                              <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Transcript
+                        </button>
                   </div>
 
-                  <div class="transcript-search">
+                  <!-- Progress -->
+                  <div class="progress-container" id="progress-container">
+                        <div class="progress-bar-bg">
+                              <div class="progress-bar-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">Preparing...</div>
+                  </div>
+
+                  <div class="transcript-search" style="display:none;" id="transcript-search-wrap">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="transcript-search-input" placeholder="Search transcript...">
                   </div>
+
                   <div class="transcript-list" id="transcript-list">
                         <div class="transcript-empty">
-                              <i class="fa-solid fa-microphone-lines"></i>
-                              <div style="font-size:13px; font-weight:600; margin-bottom:4px;">Live Transcription</div>
-                              <div style="font-size:12px;">Enable microphone and play the video to generate subtitles
+                              <i class="fa-solid fa-wand-magic-sparkles"></i>
+                              <div style="font-size:13px; font-weight:600; margin-bottom:4px;">No transcript yet</div>
+                              <div style="font-size:12px;">Click "Generate Transcript" to create AI-powered subtitles
                               </div>
                         </div>
                   </div>
+
                   <div class="transcript-status" id="transcript-status">
-                        <i class="fa-solid fa-circle-info"></i> Enable mic to start
+                        <i class="fa-solid fa-circle-info"></i> Click to generate transcript
                   </div>
             </div>
       </div>
 
-      <!-- Controls Bar (outside video, always visible) -->
+      <!-- Controls Bar -->
       <div class="controls-bar">
             <div class="controls-group">
                   <span class="ctrl-label">Speed</span>
@@ -599,11 +640,7 @@
                   <i class="fa-solid fa-closed-captioning"></i> CC
             </button>
 
-            <button class="ctrl-btn" id="mic-btn" title="Toggle microphone transcription">
-                  <i class="fa-solid fa-microphone-slash"></i> Mic Off
-            </button>
-
-            <button class="ctrl-btn" id="transcript-toggle-btn" title="Toggle transcript panel">
+            <button class="ctrl-btn active" id="transcript-toggle-btn" title="Toggle transcript panel">
                   <i class="fa-solid fa-align-left"></i> Transcript
             </button>
 
@@ -614,11 +651,10 @@
             </button>
       </div>
 
-      <!-- Toast -->
       <div class="status-toast" id="status-toast"></div>
 
       <script>
-            // ===== INIT =====
+            // ===== CONFIG =====
             const params = new URLSearchParams(window.location.search);
             const filename = params.get('file');
             const directSrc = params.get('src');
@@ -627,6 +663,7 @@
             const faculty = decodeURIComponent(params.get('faculty') || 'Faculty');
             const recDate = params.get('date') || '';
             const recDuration = params.get('duration') || '';
+            const recordingId = params.get('id') || '';
 
             const API_BASE = 'https://orbitbackend-0i66.onrender.com';
 
@@ -649,10 +686,9 @@
 
             // Set video source
             const video = document.getElementById('video-player');
-            if (directSrc) {
-                  video.src = directSrc;
-            } else if (filename) {
-                  video.src = API_BASE + '/api/recordings/file/' + filename;
+            const videoSrc = directSrc || (filename ? API_BASE + '/api/recordings/file/' + filename : '');
+            if (videoSrc) {
+                  video.src = videoSrc;
             } else {
                   document.querySelector('.video-container').innerHTML =
                         '<div style="text-align:center;padding:60px;color:#ef4444;font-size:18px;">' +
@@ -661,196 +697,207 @@
             }
 
             // ===== STATE =====
-            let recognition = null;
             let transcriptSegments = [];
-            let isTranscribing = false;
-            let micReady = false;
             let subtitlesEnabled = true;
             let currentLang = lang;
+            let isTranscribing = false;
             let translationCache = {};
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            // ===== CHECK FOR CACHED TRANSCRIPT ON LOAD =====
+            if (recordingId) {
+                  checkCachedTranscript();
+            }
 
-            // ===== MIC PERMISSION & SPEECH RECOGNITION =====
-            async function requestMicAndStart() {
-                  const banner = document.getElementById('mic-banner');
-                  const micBtn = document.getElementById('mic-btn');
+            async function checkCachedTranscript() {
+                  try {
+                        updateTranscriptStatus('Checking for existing transcript...', 'loading');
+                        const res = await fetch(API_BASE + '/api/recordings/transcript/' + recordingId);
+                        const data = await res.json();
 
-                  if (!SpeechRecognition) {
-                        banner.className = 'mic-banner error';
-                        banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div><strong>Not Supported</strong> — Your browser does not support the Web Speech API. Please use Google Chrome.</div>';
+                        if (data.cached && data.segments && data.segments.length > 0) {
+                              transcriptSegments = data.segments;
+                              onTranscriptReady(true);
+
+                              // If different language requested, translate
+                              if (currentLang !== 'en' && currentLang !== data.targetLang) {
+                                    await translateAllSegments(currentLang);
+                              }
+                        } else {
+                              updateTranscriptStatus('Click to generate transcript', 'idle');
+                        }
+                  } catch (e) {
+                        console.warn('Cache check failed:', e);
+                        updateTranscriptStatus('Click to generate transcript', 'idle');
+                  }
+            }
+
+            // ===== TRANSCRIPTION VIA BACKEND =====
+            async function startTranscription() {
+                  if (isTranscribing) return;
+
+                  if (!recordingId) {
+                        // No recording ID — try direct transcription via Python service
+                        await startDirectTranscription();
                         return;
                   }
 
+                  isTranscribing = true;
+                  const btn = document.getElementById('transcribe-btn');
+                  btn.disabled = true;
+                  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transcribing...';
+
+                  showProgress('Sending to Whisper AI...', 10);
+                  updateTranscriptStatus('Transcribing with Whisper AI...', 'active');
+
                   try {
-                        // Request mic permission
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        stream.getTracks().forEach(t => t.stop()); // We just needed permission
+                        showProgress('Downloading & extracting audio...', 25);
 
-                        micReady = true;
-                        banner.className = 'mic-banner success';
-                        banner.innerHTML = '<i class="fa-solid fa-circle-check"></i><div><strong>Microphone enabled!</strong> Play the video — subtitles will appear automatically from audio picked up by your microphone.</div>';
+                        const res = await fetch(API_BASE + '/api/recordings/transcribe/' + recordingId, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ lang: currentLang })
+                        });
 
-                        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Mic On';
-                        micBtn.classList.add('active');
+                        showProgress('Processing audio with AI...', 60);
 
-                        initSpeechRecognition();
-                        updateTranscriptStatus('Ready — play video to begin', 'ready');
+                        if (!res.ok) {
+                              const err = await res.json().catch(() => ({}));
+                              throw new Error(err.details || err.error || 'Transcription failed');
+                        }
 
-                        // Auto-start if video is already playing
-                        if (!video.paused) startTranscription();
+                        const data = await res.json();
+                        showProgress('Transcript ready!', 100);
+
+                        if (data.segments && data.segments.length > 0) {
+                              transcriptSegments = data.segments;
+                              onTranscriptReady(data.cached);
+                        } else {
+                              showToast('No speech detected in the recording');
+                              btn.disabled = false;
+                              btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Try Again';
+                              updateTranscriptStatus('No speech detected', 'idle');
+                        }
 
                   } catch (err) {
-                        banner.className = 'mic-banner error';
-                        banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i><div><strong>Microphone denied</strong> — Allow microphone access in your browser settings, then try again.</div>';
+                        console.error('Transcription error:', err);
+                        showToast('Error: ' + err.message);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Retry';
+                        updateTranscriptStatus('Failed — ' + err.message, 'error');
+                        hideProgress();
                   }
+
+                  isTranscribing = false;
             }
 
-            function initSpeechRecognition() {
-                  if (!SpeechRecognition) return;
+            // Direct transcription (when no recordingId — calls Python directly)
+            async function startDirectTranscription() {
+                  if (!videoSrc) { showToast('No video source'); return; }
 
-                  recognition = new SpeechRecognition();
-                  recognition.continuous = true;
-                  recognition.interimResults = true;
-                  recognition.lang = 'en-US';
-                  recognition.maxAlternatives = 1;
+                  isTranscribing = true;
+                  const btn = document.getElementById('transcribe-btn');
+                  btn.disabled = true;
+                  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transcribing...';
+                  showProgress('Sending to Whisper AI...', 10);
+                  updateTranscriptStatus('Transcribing...', 'active');
 
-                  recognition.onresult = async (event) => {
-                        let finalText = '';
-                        let interim = '';
-
-                        for (let i = event.resultIndex; i < event.results.length; i++) {
-                              if (event.results[i].isFinal) {
-                                    finalText += event.results[i][0].transcript.trim() + ' ';
-                              } else {
-                                    interim += event.results[i][0].transcript;
-                              }
-                        }
-
-                        // Show interim subtitles
-                        if (interim && subtitlesEnabled) {
-                              showSubtitle(interim, true);
-                        }
-
-                        // Process final text
-                        if (finalText.trim()) {
-                              const currentTime = Math.floor(video.currentTime);
-                              const segment = {
-                                    time: currentTime,
-                                    text: finalText.trim(),
-                                    translated: ''
-                              };
-
-                              if (currentLang !== 'en') {
-                                    translateText(finalText.trim(), currentLang).then(translated => {
-                                          segment.translated = translated;
-                                          if (subtitlesEnabled) showSubtitle(translated, false);
-                                          updateTranscriptList();
-                                    });
-                              } else {
-                                    segment.translated = finalText.trim();
-                                    if (subtitlesEnabled) showSubtitle(finalText.trim(), false);
-                              }
-
-                              transcriptSegments.push(segment);
-                              updateTranscriptList();
-                        }
-                  };
-
-                  recognition.onerror = (event) => {
-                        if (event.error === 'no-speech') return; // Normal
-                        if (event.error === 'aborted') return;
-                        console.warn('Speech recognition error:', event.error);
-                        if (isTranscribing) {
-                              setTimeout(() => { try { recognition.start(); } catch (e) { } }, 1000);
-                        }
-                  };
-
-                  recognition.onend = () => {
-                        if (isTranscribing && !video.paused && !video.ended) {
-                              try { recognition.start(); } catch (e) { }
-                        }
-                  };
-            }
-
-            function startTranscription() {
-                  if (!micReady || !recognition) return;
                   try {
-                        recognition.start();
-                        isTranscribing = true;
-                        updateTranscriptStatus('Listening...', 'active');
-                  } catch (e) {
-                        console.warn('Recognition start error:', e);
-                  }
-            }
+                        const PYTHON_API = 'https://orbit-ai-backend.onrender.com';
+                        showProgress('Processing with Whisper AI...', 30);
 
-            function stopTranscription() {
-                  if (recognition) {
-                        try { recognition.stop(); } catch (e) { }
+                        const res = await fetch(PYTHON_API + '/api/transcribe', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ videoUrl: videoSrc, lang: currentLang })
+                        });
+
+                        showProgress('Almost done...', 80);
+
+                        if (!res.ok) throw new Error('Transcription service error');
+
+                        const data = await res.json();
+                        showProgress('Done!', 100);
+
+                        if (data.segments && data.segments.length > 0) {
+                              transcriptSegments = data.segments;
+                              onTranscriptReady(false);
+                        } else {
+                              showToast('No speech detected');
+                              btn.disabled = false;
+                              btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Try Again';
+                        }
+                  } catch (err) {
+                        console.error(err);
+                        showToast('Transcription failed');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Retry';
+                        hideProgress();
                   }
                   isTranscribing = false;
-                  if (micReady) updateTranscriptStatus('Paused', 'paused');
-                  hideSubtitle();
             }
 
-            function toggleMic() {
-                  const micBtn = document.getElementById('mic-btn');
-                  if (!micReady) {
-                        requestMicAndStart();
+            // ===== CALLBACK WHEN TRANSCRIPT IS READY =====
+            function onTranscriptReady(wasCached) {
+                  document.getElementById('transcribe-cta').style.display = 'none';
+                  document.getElementById('transcript-search-wrap').style.display = 'block';
+                  hideProgress();
+                  updateTranscriptList();
+                  updateTranscriptStatus(
+                        (wasCached ? 'Cached ' : '') + transcriptSegments.length + ' segments',
+                        'done'
+                  );
+                  showToast('Transcript ready — ' + transcriptSegments.length + ' segments');
+            }
+
+            // ===== TRANSLATION =====
+            async function translateAllSegments(targetLang) {
+                  if (targetLang === 'en') {
+                        updateTranscriptList();
                         return;
                   }
-                  if (isTranscribing) {
-                        stopTranscription();
-                        micReady = false;
-                        micBtn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> Mic Off';
-                        micBtn.classList.remove('active');
-                  } else {
-                        micReady = true;
-                        micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Mic On';
-                        micBtn.classList.add('active');
-                        if (!video.paused) startTranscription();
+
+                  updateTranscriptStatus('Translating to ' + (langNames[targetLang] || targetLang) + '...', 'active');
+
+                  for (let i = 0; i < transcriptSegments.length; i++) {
+                        const seg = transcriptSegments[i];
+                        if (!seg.translated || seg._translatedLang !== targetLang) {
+                              seg.translated = await translateText(seg.text, targetLang);
+                              seg._translatedLang = targetLang;
+                        }
+                        // Update progress occasionally
+                        if (i % 5 === 0) updateTranscriptList();
                   }
+
+                  updateTranscriptList();
+                  updateTranscriptStatus('Translated to ' + (langNames[targetLang] || targetLang), 'done');
             }
 
-            // ===== TRANSLATION (MyMemory — free, no CORS issues) =====
             async function translateText(text, targetLang) {
                   if (!text || targetLang === 'en') return text;
-
-                  const cacheKey = text.substring(0, 100) + '_' + targetLang;
+                  const cacheKey = text.substring(0, 80) + '_' + targetLang;
                   if (translationCache[cacheKey]) return translationCache[cacheKey];
 
                   try {
                         const url = 'https://api.mymemory.translated.net/get?q=' +
                               encodeURIComponent(text.substring(0, 500)) +
                               '&langpair=en|' + targetLang;
-
-                        const response = await fetch(url);
-                        const data = await response.json();
-
+                        const resp = await fetch(url);
+                        const data = await resp.json();
                         if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-                              const translated = data.responseData.translatedText;
-                              translationCache[cacheKey] = translated;
-                              return translated;
+                              const result = data.responseData.translatedText;
+                              translationCache[cacheKey] = result;
+                              return result;
                         }
-                        return text;
-                  } catch (error) {
-                        console.warn('Translation error:', error);
-                        return text;
-                  }
+                  } catch (e) { console.warn('Translation error:', e); }
+                  return text;
             }
 
             // ===== SUBTITLE DISPLAY =====
-            function showSubtitle(text, isInterim) {
+            function showSubtitle(text) {
+                  if (!subtitlesEnabled || !text) return;
                   const el = document.getElementById('subtitle-overlay');
                   el.textContent = text;
                   el.style.display = 'block';
-                  el.style.opacity = isInterim ? '0.7' : '1';
-                  el.style.fontStyle = isInterim ? 'italic' : 'normal';
-
-                  if (!isInterim) {
-                        clearTimeout(el._hideTimer);
-                        el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 6000);
-                  }
             }
 
             function hideSubtitle() {
@@ -865,9 +912,9 @@
                   if (transcriptSegments.length === 0) {
                         list.innerHTML =
                               '<div class="transcript-empty">' +
-                              '<i class="fa-solid fa-microphone-lines"></i>' +
-                              '<div style="font-size:13px;font-weight:600;margin-bottom:4px;">Live Transcription</div>' +
-                              '<div style="font-size:12px;">Enable microphone and play video to see transcript here</div></div>';
+                              '<i class="fa-solid fa-wand-magic-sparkles"></i>' +
+                              '<div style="font-size:13px;font-weight:600;margin-bottom:4px;">No transcript yet</div>' +
+                              '<div style="font-size:12px;">Click "Generate Transcript" to create AI-powered subtitles</div></div>';
                         return;
                   }
 
@@ -878,7 +925,7 @@
                         : transcriptSegments;
 
                   list.innerHTML = filtered.map((seg, i) => {
-                        const timeStr = formatTime(seg.time);
+                        const timeStr = formatTime(seg.start);
                         let displayText = currentLang !== 'en' && seg.translated ? seg.translated : seg.text;
 
                         if (searchTerm) {
@@ -886,10 +933,10 @@
                               displayText = displayText.replace(regex, '<mark>$1</mark>');
                         }
 
-                        const isActive = video.currentTime >= seg.time &&
-                              (i + 1 >= filtered.length || video.currentTime < filtered[i + 1].time);
+                        const isActive = video.currentTime >= seg.start &&
+                              (i + 1 >= transcriptSegments.length || video.currentTime < transcriptSegments[i + 1].start);
 
-                        return '<div class="transcript-item ' + (isActive ? 'active' : '') + '" onclick="seekTo(' + seg.time + ')">' +
+                        return '<div class="transcript-item ' + (isActive ? 'active' : '') + '" onclick="seekTo(' + seg.start + ')">' +
                               '<div class="transcript-time">' + timeStr + '</div>' +
                               '<div class="transcript-text">' + displayText + '</div></div>';
                   }).join('');
@@ -900,19 +947,29 @@
                   }
             }
 
-            function updateTranscriptStatus(msg, type) {
-                  const el = document.getElementById('transcript-status');
-                  if (type === 'active') {
-                        el.innerHTML = '<div class="pulse-dot"></div> ' + msg;
-                  } else if (type === 'error') {
-                        el.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> ' + msg;
+            // Show/update subtitle as video plays
+            function updateSubtitleOverlay() {
+                  if (!subtitlesEnabled || transcriptSegments.length === 0) {
+                        hideSubtitle();
+                        return;
+                  }
+
+                  const t = video.currentTime;
+                  const activeSeg = transcriptSegments.find(
+                        (seg, i) => t >= seg.start && t <= (seg.end || (transcriptSegments[i + 1]?.start || seg.start + 5))
+                  );
+
+                  if (activeSeg) {
+                        const displayText = currentLang !== 'en' && activeSeg.translated ? activeSeg.translated : activeSeg.text;
+                        showSubtitle(displayText);
                   } else {
-                        el.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + msg;
+                        hideSubtitle();
                   }
             }
 
-            // ===== HELPERS =====
+            // ===== UI HELPERS =====
             function formatTime(seconds) {
+                  if (seconds === undefined || seconds === null) return '00:00';
                   const m = Math.floor(seconds / 60).toString().padStart(2, '0');
                   const s = Math.floor(seconds % 60).toString().padStart(2, '0');
                   return m + ':' + s;
@@ -932,7 +989,7 @@
                   el.textContent = msg;
                   el.style.display = 'block';
                   clearTimeout(el._t);
-                  el._t = setTimeout(() => { el.style.display = 'none'; }, 2000);
+                  el._t = setTimeout(() => { el.style.display = 'none'; }, 3000);
             }
 
             function toggleTranscriptPanel() {
@@ -941,16 +998,36 @@
                   document.getElementById('transcript-toggle-btn').classList.toggle('active', !panel.classList.contains('collapsed'));
             }
 
+            function showProgress(text, pct) {
+                  const container = document.getElementById('progress-container');
+                  container.style.display = 'block';
+                  document.getElementById('progress-fill').style.width = pct + '%';
+                  document.getElementById('progress-text').textContent = text;
+            }
+
+            function hideProgress() {
+                  setTimeout(() => {
+                        document.getElementById('progress-container').style.display = 'none';
+                  }, 1000);
+            }
+
+            function updateTranscriptStatus(msg, type) {
+                  const el = document.getElementById('transcript-status');
+                  if (type === 'active') {
+                        el.innerHTML = '<div class="pulse-dot"></div> ' + msg;
+                  } else if (type === 'error') {
+                        el.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> ' + msg;
+                  } else if (type === 'done') {
+                        el.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> ' + msg;
+                  } else {
+                        el.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + msg;
+                  }
+            }
+
             // ===== EVENT LISTENERS =====
-
-            video.addEventListener('play', () => {
-                  if (micReady) startTranscription();
-            });
-
-            video.addEventListener('pause', () => { stopTranscription(); });
-            video.addEventListener('ended', () => {
-                  stopTranscription();
-                  updateTranscriptStatus('Done — ' + transcriptSegments.length + ' segments captured', 'done');
+            video.addEventListener('timeupdate', () => {
+                  updateSubtitleOverlay();
+                  updateTranscriptList();
             });
 
             video.addEventListener('loadedmetadata', () => {
@@ -958,9 +1035,7 @@
                   document.getElementById('meta-duration').innerHTML = '<i class="fa-regular fa-clock"></i> ' + m + 'm ' + s + 's';
             });
 
-            video.addEventListener('timeupdate', () => { updateTranscriptList(); });
-
-            // Playback speed
+            // Speed
             document.getElementById('speed-select').addEventListener('change', (e) => {
                   video.playbackRate = parseFloat(e.target.value);
                   showToast('Speed: ' + e.target.value + 'x');
@@ -972,14 +1047,11 @@
                   document.getElementById('lang-label').textContent = langNames[currentLang] || 'English';
                   showToast('Language: ' + (langNames[currentLang] || currentLang));
 
-                  if (currentLang !== 'en' && transcriptSegments.length > 0) {
-                        updateTranscriptStatus('Translating...', 'active');
-                        for (let seg of transcriptSegments) {
-                              seg.translated = await translateText(seg.text, currentLang);
-                        }
-                        updateTranscriptStatus('Translation complete', 'done');
+                  if (transcriptSegments.length > 0 && currentLang !== 'en') {
+                        await translateAllSegments(currentLang);
+                  } else {
+                        updateTranscriptList();
                   }
-                  updateTranscriptList();
             });
 
             // Subtitle toggle
@@ -990,10 +1062,7 @@
                   showToast('Subtitles ' + (subtitlesEnabled ? 'ON' : 'OFF'));
             });
 
-            // Mic toggle
-            document.getElementById('mic-btn').addEventListener('click', toggleMic);
-
-            // Transcript panel
+            // Transcript toggle
             document.getElementById('transcript-toggle-btn').addEventListener('click', toggleTranscriptPanel);
 
             // Search
@@ -1001,10 +1070,9 @@
 
             // Download
             document.getElementById('download-btn').addEventListener('click', () => {
-                  const source = directSrc || (filename ? API_BASE + '/api/recordings/file/' + filename : '');
-                  if (!source) { showToast('No recording to download'); return; }
+                  if (!videoSrc) { showToast('No recording to download'); return; }
                   const a = document.createElement('a');
-                  a.href = source;
+                  a.href = videoSrc;
                   a.download = title + '.webm';
                   a.target = '_blank';
                   a.click();

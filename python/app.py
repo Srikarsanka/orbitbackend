@@ -368,8 +368,152 @@ async def generate_ai_response(request: AIRequest):
             "response": "✓ Your code is on the right track!\n\n→ Focus on: Code readability, proper error handling, and testing with various inputs.\n\n→ Keep learning and experimenting with different approaches!"
         }
 
+# ============================================================
+# VIDEO TRANSCRIPTION & TRANSLATION ENDPOINT
+# ============================================================
+import tempfile
+import subprocess
+import json as json_lib
+import httpx
 
+# Global whisper model
+_whisper_model = None
 
+class TranscriptionRequest(BaseModel):
+    videoUrl: str
+    lang: str = "en"
+
+def get_whisper_model():
+    """Lazy-load Whisper model on first request"""
+    global _whisper_model
+    if _whisper_model is None:
+        try:
+            import whisper
+            logger.info("📥 Loading Whisper 'tiny' model (first time may download ~39MB)...")
+            _whisper_model = whisper.load_model("tiny")
+            logger.info("✅ Whisper model loaded successfully")
+        except ImportError:
+            logger.error("❌ openai-whisper not installed. Run: pip install openai-whisper")
+            raise HTTPException(status_code=503, detail="Whisper not installed on server")
+        except Exception as e:
+            logger.error(f"❌ Failed to load Whisper model: {e}")
+            raise HTTPException(status_code=503, detail=f"Failed to load Whisper: {str(e)}")
+    return _whisper_model
+
+async def translate_text_mymemory(text: str, target_lang: str) -> str:
+    """Translate text using MyMemory free API"""
+    if not text.strip() or target_lang == "en":
+        return text
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                "https://api.mymemory.translated.net/get",
+                params={"q": text[:500], "langpair": f"en|{target_lang}"}
+            )
+            data = resp.json()
+            if data.get("responseStatus") == 200:
+                translated = data["responseData"]["translatedText"]
+                return translated
+    except Exception as e:
+        logger.warning(f"Translation failed: {e}")
+    return text
+
+@app.post("/api/transcribe")
+async def transcribe_video(request: TranscriptionRequest):
+    """
+    Transcribe a video from URL using Whisper.
+    Downloads audio, runs Whisper tiny model, optionally translates.
+    Returns timestamped transcript segments.
+    """
+    video_url = request.videoUrl
+    target_lang = request.lang
+
+    if not video_url:
+        raise HTTPException(status_code=400, detail="videoUrl is required")
+
+    logger.info(f"🎙️ Transcription request: lang={target_lang}, url={video_url[:80]}...")
+
+    # Step 1: Download video and extract audio
+    tmp_video = None
+    tmp_audio = None
+    try:
+        tmp_video = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        tmp_audio = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        tmp_video.close()
+        tmp_audio.close()
+
+        # Download video
+        logger.info("⬇️ Downloading video...")
+        async with httpx.AsyncClient(timeout=120.0, follow_redirects=True) as client:
+            resp = await client.get(video_url)
+            if resp.status_code != 200:
+                raise HTTPException(status_code=400, detail=f"Failed to download video (HTTP {resp.status_code})")
+            with open(tmp_video.name, "wb") as f:
+                f.write(resp.content)
+
+        file_size_mb = os.path.getsize(tmp_video.name) / (1024 * 1024)
+        logger.info(f"✅ Downloaded {file_size_mb:.1f}MB")
+
+        # Extract audio with ffmpeg
+        logger.info("🔊 Extracting audio with ffmpeg...")
+        ffmpeg_cmd = [
+            "ffmpeg", "-i", tmp_video.name,
+            "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
+            "-y", tmp_audio.name
+        ]
+        result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            logger.error(f"ffmpeg error: {result.stderr[:500]}")
+            raise HTTPException(status_code=500, detail="Failed to extract audio from video")
+
+        # Step 2: Transcribe with Whisper
+        logger.info("🎙️ Running Whisper transcription...")
+        model = get_whisper_model()
+        whisper_result = model.transcribe(
+            tmp_audio.name,
+            language="en",
+            word_timestamps=False,
+            fp16=False  # CPU mode
+        )
+
+        segments = []
+        for seg in whisper_result.get("segments", []):
+            segments.append({
+                "start": round(seg["start"], 2),
+                "end": round(seg["end"], 2),
+                "text": seg["text"].strip()
+            })
+
+        logger.info(f"✅ Transcription complete: {len(segments)} segments")
+
+        # Step 3: Translate if needed
+        if target_lang != "en" and segments:
+            logger.info(f"🌐 Translating to {target_lang}...")
+            for seg in segments:
+                seg["translated"] = await translate_text_mymemory(seg["text"], target_lang)
+            logger.info("✅ Translation complete")
+
+        return {
+            "success": True,
+            "segments": segments,
+            "language": whisper_result.get("language", "en"),
+            "targetLang": target_lang,
+            "totalSegments": len(segments)
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Transcription error: {e}")
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
+    finally:
+        # Clean up temp files
+        for f in [tmp_video, tmp_audio]:
+            if f:
+                try:
+                    os.unlink(f.name)
+                except:
+                    pass
 
 
 
