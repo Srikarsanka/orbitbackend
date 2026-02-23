@@ -374,7 +374,14 @@ async def generate_ai_response(request: AIRequest):
 import tempfile
 import subprocess
 import json as json_lib
-import httpx
+
+# Conditional imports — these won't crash the rest of the app if missing
+try:
+    import httpx
+    _httpx_available = True
+except ImportError:
+    _httpx_available = False
+    logger.warning("⚠️ httpx not installed — transcription endpoint disabled")
 
 # Global whisper model
 _whisper_model = None
@@ -384,17 +391,17 @@ class TranscriptionRequest(BaseModel):
     lang: str = "en"
 
 def get_whisper_model():
-    """Lazy-load Whisper model on first request"""
+    """Lazy-load faster-whisper model on first request"""
     global _whisper_model
     if _whisper_model is None:
         try:
-            import whisper
-            logger.info("📥 Loading Whisper 'tiny' model (first time may download ~39MB)...")
-            _whisper_model = whisper.load_model("tiny")
+            from faster_whisper import WhisperModel
+            logger.info("📥 Loading faster-whisper 'tiny' model...")
+            _whisper_model = WhisperModel("tiny", device="cpu", compute_type="int8")
             logger.info("✅ Whisper model loaded successfully")
         except ImportError:
-            logger.error("❌ openai-whisper not installed. Run: pip install openai-whisper")
-            raise HTTPException(status_code=503, detail="Whisper not installed on server")
+            logger.error("❌ faster-whisper not installed. Run: pip install faster-whisper")
+            raise HTTPException(status_code=503, detail="faster-whisper not installed on server")
         except Exception as e:
             logger.error(f"❌ Failed to load Whisper model: {e}")
             raise HTTPException(status_code=503, detail=f"Failed to load Whisper: {str(e)}")
@@ -404,6 +411,8 @@ async def translate_text_mymemory(text: str, target_lang: str) -> str:
     """Translate text using MyMemory free API"""
     if not text.strip() or target_lang == "en":
         return text
+    if not _httpx_available:
+        return text
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(
@@ -411,9 +420,8 @@ async def translate_text_mymemory(text: str, target_lang: str) -> str:
                 params={"q": text[:500], "langpair": f"en|{target_lang}"}
             )
             data = resp.json()
-            if data.get("responseStatus") == 200:
-                translated = data["responseData"]["translatedText"]
-                return translated
+            if data.get("responseData") and data["responseData"].get("translatedText"):
+                return data["responseData"]["translatedText"]
     except Exception as e:
         logger.warning(f"Translation failed: {e}")
     return text
@@ -421,10 +429,13 @@ async def translate_text_mymemory(text: str, target_lang: str) -> str:
 @app.post("/api/transcribe")
 async def transcribe_video(request: TranscriptionRequest):
     """
-    Transcribe a video from URL using Whisper.
+    Transcribe a video from URL using faster-whisper.
     Downloads audio, runs Whisper tiny model, optionally translates.
     Returns timestamped transcript segments.
     """
+    if not _httpx_available:
+        raise HTTPException(status_code=503, detail="httpx not installed — transcription unavailable")
+
     video_url = request.videoUrl
     target_lang = request.lang
 
@@ -466,22 +477,22 @@ async def transcribe_video(request: TranscriptionRequest):
             logger.error(f"ffmpeg error: {result.stderr[:500]}")
             raise HTTPException(status_code=500, detail="Failed to extract audio from video")
 
-        # Step 2: Transcribe with Whisper
+        # Step 2: Transcribe with faster-whisper
         logger.info("🎙️ Running Whisper transcription...")
         model = get_whisper_model()
-        whisper_result = model.transcribe(
+        whisper_segments, info = model.transcribe(
             tmp_audio.name,
             language="en",
-            word_timestamps=False,
-            fp16=False  # CPU mode
+            beam_size=1,
+            vad_filter=True
         )
 
         segments = []
-        for seg in whisper_result.get("segments", []):
+        for seg in whisper_segments:
             segments.append({
-                "start": round(seg["start"], 2),
-                "end": round(seg["end"], 2),
-                "text": seg["text"].strip()
+                "start": round(seg.start, 2),
+                "end": round(seg.end, 2),
+                "text": seg.text.strip()
             })
 
         logger.info(f"✅ Transcription complete: {len(segments)} segments")
@@ -496,7 +507,7 @@ async def transcribe_video(request: TranscriptionRequest):
         return {
             "success": True,
             "segments": segments,
-            "language": whisper_result.get("language", "en"),
+            "language": info.language if info else "en",
             "targetLang": target_lang,
             "totalSegments": len(segments)
         }
@@ -514,7 +525,4 @@ async def transcribe_video(request: TranscriptionRequest):
                     os.unlink(f.name)
                 except:
                     pass
-
-
-
 
