@@ -208,10 +208,11 @@
             return;
         }
 
-        const blob = new Blob(recordedChunks, { type: mediaRecorder ? mediaRecorder.mimeType : 'video/webm' });
+        const mimeType = (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'video/webm';
+        const blob = new Blob(recordedChunks, { type: mimeType });
         const duration = recordingStartTime ? Math.round((Date.now() - recordingStartTime) / 1000) : 0;
 
-        console.log('📹 Uploading recording: size=' + (blob.size / 1024 / 1024).toFixed(2) + 'MB, duration=' + duration + 's');
+        console.log('📹 Uploading recording: size=' + (blob.size / 1024 / 1024).toFixed(2) + 'MB, duration=' + duration + 's, type=' + mimeType);
 
         const params = new URLSearchParams(window.location.search);
         const sessionIdParam = params.get('session') || params.get('room');
@@ -234,8 +235,10 @@
         // Show upload indicator
         showUploadStatus('⬆️ Uploading recording to cloud...', undefined);
 
+        const fileName = `recording_${sessionIdParam}_${Date.now()}.webm`;
+        const file = new File([blob], fileName, { type: mimeType });
         const formData = new FormData();
-        formData.append('recording', blob, `recording_${sessionIdParam}_${Date.now()}.webm`);
+        formData.append('recording', file, fileName);
         formData.append('sessionId', sessionIdParam);
         formData.append('classId', classId || '');
         formData.append('facultyEmail', email || '');

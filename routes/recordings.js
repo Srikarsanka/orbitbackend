@@ -28,10 +28,17 @@ const upload = multer({
     storage,
     limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('video/') || file.mimetype.startsWith('audio/')) {
+        // Accept video/audio mimetypes, application/octet-stream (browser blob uploads),
+        // and files with recording extensions
+        const validMime = file.mimetype.startsWith('video/') || 
+                         file.mimetype.startsWith('audio/') ||
+                         file.mimetype === 'application/octet-stream';
+        const validExt = /\.(webm|mp4|mkv|ogg|wav|mp3)$/i.test(file.originalname);
+        if (validMime || validExt) {
             cb(null, true);
         } else {
-            cb(new Error('Only video/audio files are allowed'), false);
+            console.warn(`⚠️ Rejected file: mimetype=${file.mimetype}, name=${file.originalname}`);
+            cb(new Error(`File type not allowed: ${file.mimetype} (${file.originalname})`), false);
         }
     }
 });
