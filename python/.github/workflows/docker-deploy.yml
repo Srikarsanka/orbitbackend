@@ -1,0 +1,75 @@
+name: Build and deploy Python app to Azure Web App Container - ORBIT
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/orbitapp:latest
+          file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Deploy to Azure Web App using Publish Profile and REST API
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_87CDAC12586E43EE8597799BC7E902EF }}
+          ACR_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_USER: ${{ secrets.ACR_USERNAME }}
+          ACR_PASS: ${{ secrets.ACR_PASSWORD }}
+          IMAGE_NAME: ${{ secrets.ACR_LOGIN_SERVER }}/orbitapp:latest
+        run: |
+          # 1. Parse the Azure Publish Profile XML to extract the deployment username and password
+          PUBLISH_USER=$(echo "$PUBLISH_PROFILE" | grep -oP 'userName="\K[^"]+')
+          PUBLISH_PASS=$(echo "$PUBLISH_PROFILE" | grep -oP 'userPWD="\K[^"]+')
+          
+          # The SCM (Kudu) endpoint can be derived from the app name
+          SCM_URL="https://ORBIT.scm.azurewebsites.net/api"
+          
+          echo "Updating App Settings to pull from ACR..."
+          
+          # 2. Update the App Settings via Kudu REST API to inject the ACR credentials
+          curl -X PUT "$SCM_URL/settings" \
+            -u "$PUBLISH_USER:$PUBLISH_PASS" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "DOCKER_REGISTRY_SERVER_URL": "https://'"$ACR_SERVER"'",
+              "DOCKER_REGISTRY_SERVER_USERNAME": "'"$ACR_USER"'",
+              "DOCKER_REGISTRY_SERVER_PASSWORD": "'"$ACR_PASS"'",
+              "DOCKER_CUSTOM_IMAGE_NAME": "'"$IMAGE_NAME"'"
+            }'
+            
+          echo "Settings updated successfully."
+          
+          # 3. Trigger a restart to pull the latest image
+          echo "Restarting the Azure Web App..."
+          # Note: Kudu doesn't have a direct restart endpoint, but touching web.config or updating settings triggers a container pull/restart.
+          # We can also call the ZipDeploy endpoint with an empty zip to force a deployment event, or just rely on the settings change.
+          # The settings change above automatically restarts the container!
+          echo "Deployment complete! The container is now restarting."
+

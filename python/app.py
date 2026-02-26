@@ -1,62 +1,12 @@
-# app.py (Optimized for Azure App Service)
-import os
-import contextlib
-
-# 1. Set persistent cache path BEFORE importing InsightFace
-# Azure persists files in /home, preventing re-download on app restart
-# Fallback to local 'models' dir if not running on Azure
-HOME_DIR = os.getenv("HOME", "/home")
-INSIGHTFACE_DIR = os.path.join(HOME_DIR, "insightface")
-os.environ["INSIGHTFACE_HOME"] = INSIGHTFACE_DIR
-
-from fastapi import FastAPI, File, UploadFile, HTTPException
+# app.py (replace existing encode endpoint)
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from insightface.app import FaceAnalysis
 from PIL import Image
 import io
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("orbit_backend")
-
-# Global model variable
-_face_analyzer = None
-
-@contextlib.asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifespan event handler to load heavy AI models once at startup.
-    This prevents memory spikes and latency on first request.
-    """
-    global _face_analyzer
-    try:
-        logger.info(f"🚀 Starting up... stored models at {INSIGHTFACE_DIR}")
-        
-        # Initialize InsightFace model
-        # allowed_modules=['detection', 'recognition'] loads minimal required models
-        model = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
-        
-        # ctx_id=-1 forces CPU (safer for generic Azure App Service plans)
-        # det_size=(640, 640) ensures consistent performance
-        model.prepare(ctx_id=-1, det_size=(640, 640))
-        
-        _face_analyzer = model
-        logger.info("✅ Face Analysis model loaded successfully")
-        
-    except Exception as e:
-        logger.error(f"❌ Failed to load AI models: {e}")
-        # We don't raise here to allow the app to start, but /encode will fail gracefully
-        
-    yield
-    
-    # Clean up resources if needed
-    _face_analyzer = None
-    logger.info("🛑 Shutting down...")
-
-app = FastAPI(lifespan=lifespan)
-
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -65,67 +15,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Root Health Check
-@app.get("/")
-async def health_check():
-    """Health check endpoint for Azure App Service"""
-    model_status = "loaded" if _face_analyzer else "not_loaded"
-    return {
-        "status": "ok", 
-        "message": "Orbit AI Backend is running", 
-        "service": "Face Analysis & Code Compiler",
-        "model_status": model_status
-    }
+model = FaceAnalysis(name="buffalo_l", allowed_modules=["detection", "recognition"])
+model.prepare(ctx_id=0, det_size=(640, 640))
 
 @app.post("/encode")
 async def encode(file: UploadFile = File(...)):
-    """
-    Generate face embedding from uploaded image.
-    Robust error handling ensures the backend doesn't crash on bad inputs.
-    """
-    global _face_analyzer
-    
-    if _face_analyzer is None:
-        raise HTTPException(status_code=503, detail="AI Model not ready. Please try again in a moment.")
+    img_bytes = await file.read()
+    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+    arr = np.array(img)
 
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload an image.")
+    faces = model.get(arr)
+    if not faces:
+        return {"error": "NO_FACE_FOUND"}
 
-    try:
-        # Read and validation
-        img_bytes = await file.read()
-        if not img_bytes:
-            raise HTTPException(status_code=400, detail="Empty file uploaded")
-            
-        try:
-            img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
-            arr = np.array(img)
-        except Exception as e:
-            logger.error(f"Image processing error: {e}")
-            raise HTTPException(status_code=400, detail="Invalid image file")
-
-        # Inference
-        # We use strict defensive copied input to avoid memory leaks in some libraries
-        faces = _face_analyzer.get(arr)
-        
-        if not faces:
-            return {"error": "NO_FACE_FOUND"}
-
-        # Use normalized embedding (unit vector) — stable for matching
-        # Taking the largest face (usually the user) if multiple detected
-        largest_face = max(faces, key=lambda f: f.det_score) if faces else None
-        
-        if not largest_face:
-             return {"error": "NO_FACE_FOUND"}
-             
-        embedding = largest_face.normed_embedding.tolist()
-        return {"embedding": embedding}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Prediction error: {e}")
-        raise HTTPException(status_code=500, detail="Internal processing error")
+    # Use normalized embedding (unit vector) — stable for matching
+    embedding = faces[0].normed_embedding.tolist()
+    return {"embedding": embedding}
 
 # ============================================================
 # CODE COMPILER ENDPOINTS
@@ -368,161 +273,9 @@ async def generate_ai_response(request: AIRequest):
             "response": "✓ Your code is on the right track!\n\n→ Focus on: Code readability, proper error handling, and testing with various inputs.\n\n→ Keep learning and experimenting with different approaches!"
         }
 
-# ============================================================
-# VIDEO TRANSCRIPTION & TRANSLATION ENDPOINT
-# ============================================================
-import tempfile
-import subprocess
-import json as json_lib
 
-# Conditional imports — these won't crash the rest of the app if missing
-try:
-    import httpx
-    _httpx_available = True
-except ImportError:
-    _httpx_available = False
-    logger.warning("⚠️ httpx not installed — transcription endpoint disabled")
 
-# Global whisper model
-_whisper_model = None
 
-class TranscriptionRequest(BaseModel):
-    videoUrl: str
-    lang: str = "en"
 
-def get_whisper_model():
-    """Lazy-load faster-whisper model on first request"""
-    global _whisper_model
-    if _whisper_model is None:
-        try:
-            from faster_whisper import WhisperModel
-            logger.info("📥 Loading faster-whisper 'tiny' model...")
-            _whisper_model = WhisperModel("tiny", device="cpu", compute_type="int8")
-            logger.info("✅ Whisper model loaded successfully")
-        except ImportError:
-            logger.error("❌ faster-whisper not installed. Run: pip install faster-whisper")
-            raise HTTPException(status_code=503, detail="faster-whisper not installed on server")
-        except Exception as e:
-            logger.error(f"❌ Failed to load Whisper model: {e}")
-            raise HTTPException(status_code=503, detail=f"Failed to load Whisper: {str(e)}")
-    return _whisper_model
 
-async def translate_text_mymemory(text: str, target_lang: str) -> str:
-    """Translate text using MyMemory free API"""
-    if not text.strip() or target_lang == "en":
-        return text
-    if not _httpx_available:
-        return text
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(
-                "https://api.mymemory.translated.net/get",
-                params={"q": text[:500], "langpair": f"en|{target_lang}"}
-            )
-            data = resp.json()
-            if data.get("responseData") and data["responseData"].get("translatedText"):
-                return data["responseData"]["translatedText"]
-    except Exception as e:
-        logger.warning(f"Translation failed: {e}")
-    return text
-
-@app.post("/api/transcribe")
-async def transcribe_video(request: TranscriptionRequest):
-    """
-    Transcribe a video from URL using faster-whisper.
-    Downloads audio, runs Whisper tiny model, optionally translates.
-    Returns timestamped transcript segments.
-    """
-    if not _httpx_available:
-        raise HTTPException(status_code=503, detail="httpx not installed — transcription unavailable")
-
-    video_url = request.videoUrl
-    target_lang = request.lang
-
-    if not video_url:
-        raise HTTPException(status_code=400, detail="videoUrl is required")
-
-    logger.info(f"🎙️ Transcription request: lang={target_lang}, url={video_url[:80]}...")
-
-    # Step 1: Download video and extract audio
-    tmp_video = None
-    tmp_audio = None
-    try:
-        tmp_video = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
-        tmp_audio = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        tmp_video.close()
-        tmp_audio.close()
-
-        # Download video
-        logger.info("⬇️ Downloading video...")
-        async with httpx.AsyncClient(timeout=120.0, follow_redirects=True) as client:
-            resp = await client.get(video_url)
-            if resp.status_code != 200:
-                raise HTTPException(status_code=400, detail=f"Failed to download video (HTTP {resp.status_code})")
-            with open(tmp_video.name, "wb") as f:
-                f.write(resp.content)
-
-        file_size_mb = os.path.getsize(tmp_video.name) / (1024 * 1024)
-        logger.info(f"✅ Downloaded {file_size_mb:.1f}MB")
-
-        # Extract audio with ffmpeg
-        logger.info("🔊 Extracting audio with ffmpeg...")
-        ffmpeg_cmd = [
-            "ffmpeg", "-i", tmp_video.name,
-            "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
-            "-y", tmp_audio.name
-        ]
-        result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, timeout=120)
-        if result.returncode != 0:
-            logger.error(f"ffmpeg error: {result.stderr[:500]}")
-            raise HTTPException(status_code=500, detail="Failed to extract audio from video")
-
-        # Step 2: Transcribe with faster-whisper
-        logger.info("🎙️ Running Whisper transcription...")
-        model = get_whisper_model()
-        whisper_segments, info = model.transcribe(
-            tmp_audio.name,
-            language="en",
-            beam_size=1,
-            vad_filter=True
-        )
-
-        segments = []
-        for seg in whisper_segments:
-            segments.append({
-                "start": round(seg.start, 2),
-                "end": round(seg.end, 2),
-                "text": seg.text.strip()
-            })
-
-        logger.info(f"✅ Transcription complete: {len(segments)} segments")
-
-        # Step 3: Translate if needed
-        if target_lang != "en" and segments:
-            logger.info(f"🌐 Translating to {target_lang}...")
-            for seg in segments:
-                seg["translated"] = await translate_text_mymemory(seg["text"], target_lang)
-            logger.info("✅ Translation complete")
-
-        return {
-            "success": True,
-            "segments": segments,
-            "language": info.language if info else "en",
-            "targetLang": target_lang,
-            "totalSegments": len(segments)
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Transcription error: {e}")
-        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
-    finally:
-        # Clean up temp files
-        for f in [tmp_video, tmp_audio]:
-            if f:
-                try:
-                    os.unlink(f.name)
-                except:
-                    pass
 

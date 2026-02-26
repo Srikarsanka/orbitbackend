@@ -65,7 +65,7 @@ async function verifyAndRecordAttendance(data) {
       contentType: "image/jpeg",
     });
 
-    const pyRes = await fetch("https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net/encode", {
+    const pyRes = await fetch("https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net/encode", {
       method: "POST",
       body: form,
     });

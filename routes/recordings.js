@@ -181,7 +181,7 @@ router.post('/transcribe/:id', async (req, res) => {
         }
 
         // Proxy to Python Whisper service using native https
-        const PYTHON_API = process.env.PYTHON_API_URL || 'https://orbitai-baeyetfhcdb2gtfu.eastasia-01.azurewebsites.net';
+        const PYTHON_API = process.env.PYTHON_API_URL || 'https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net';
         console.log(`🎙️ Sending transcription request to Python service for recording ${req.params.id}...`);
 
         const requestBody = JSON.stringify({
