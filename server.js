@@ -43,12 +43,12 @@ app.use(
       // Allowed origins
       const allowedOrigins = [
         'http://localhost:4200',  // Angular frontend
-        'http://localhost:5000',  // Backend itself
+        'https://orbitbackend-0i66.onrender.com',  // Backend itself
         'http://127.0.0.1:4200',
         'http://127.0.0.1:5000',
         'https://orbit-zqsz.vercel.app',
         'https://orbit-vert.vercel.app',
-        'http://localhost:5000' // Production Backend (Video Page)
+        'https://orbitbackend-0i66.onrender.com' // Production Backend (Video Page)
       ];
       
       // Allow all localhost origins for development

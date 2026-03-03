@@ -180,8 +180,8 @@ router.post('/transcribe/:id', async (req, res) => {
             });
         }
 
-        // Proxy to Docker voice translation service (localhost:8001)
-        const VOICE_API = process.env.VOICE_API_URL || 'http://localhost:8001';
+        // Proxy to Docker voice translation service
+        const VOICE_API = process.env.VOICE_API_URL || 'http://orbit-voice-translation.eastasia.azurecontainer.io:8001';
         console.log(`🎙️ Sending transcription request to Docker service for recording ${req.params.id}...`);
 
         const requestBody = JSON.stringify({
@@ -291,7 +291,7 @@ router.post('/translate-audio', async (req, res) => {
         const requestBody = JSON.stringify({ videoUrl, targetLanguage });
 
         const proxyReq = http.request({
-            hostname: 'localhost',
+            hostname: 'orbit-voice-translation.eastasia.azurecontainer.io',
             port: 8001,
             path: '/api/voice-translation/translate-json',
             method: 'POST',
@@ -346,7 +346,7 @@ router.post('/translate-text', async (req, res) => {
         const requestBody = JSON.stringify({ text, target_lang });
 
         const proxyReq = http.request({
-            hostname: 'localhost',
+            hostname: 'orbit-voice-translation.eastasia.azurecontainer.io',
             port: 8001,
             path: '/api/voice-translation/translate-text',
             method: 'POST',

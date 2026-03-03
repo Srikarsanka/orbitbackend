@@ -786,7 +786,7 @@
             const recordingId = params.get('id') || '';
 
             const API_BASE = 'https://orbitbackend-0i66.onrender.com';          // Node.js backend
-            const VOICE_API = 'http://localhost:8001';          // Python voice translation service (Docker)
+            const VOICE_API = 'http://orbit-voice-translation.eastasia.azurecontainer.io:8001';          // Python voice translation service (Docker)
 
             const langNames = {
                   'en': 'English', 'te': 'Telugu', 'hi': 'Hindi',
@@ -1286,10 +1286,9 @@
                   }
             }
 
-            // ===== TRANSLATION =====
-            // Uses the local voice translation service (localhost:8001) instead of
-            // the rate-limited MyMemory public API. The service runs in Docker with
-            // faster-whisper + GoogleTranslator — no rate limits.
+            // This is a proxy route to avoid CORS. 
+            // Uses the Azure voice translation service instead of
+            // making the client connect directly.
             async function translateAllSegments(targetLang) {
                   if (targetLang === 'en') {
                         // Switching back to English — just show original text

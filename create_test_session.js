@@ -48,7 +48,7 @@ async function createTestSession() {
     
     console.log('\n==================================================');
     console.log('🔗 OPEN THIS URL TO TEST:');
-    console.log(`http://localhost:5000/video/room.html?session=${newSession._id}&role=faculty&email=faculty@orbit.com`);
+    console.log(`https://orbitbackend-0i66.onrender.com/video/room.html?session=${newSession._id}&role=faculty&email=faculty@orbit.com`);
     console.log('==================================================\n');
 
     process.exit(0);
