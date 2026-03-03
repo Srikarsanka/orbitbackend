@@ -1,4 +1,4 @@
-﻿const ClassSession = require('../models/ClassSession');
+const ClassSession = require('../models/ClassSession');
 const ClassRoom = require('../models/createclass');
 const Whiteboard = require('../models/WhiteboardState');
 const ScheduledClass = require('../models/ScheduledClass');
@@ -23,7 +23,7 @@ const sendEmail = async (to, subject, html) => {
   try {
     if(!to || to.length === 0) return;
     await transporter.sendMail({ from: process.env.EMAIL_USER, to, subject, html });
-    console.log(`📧 Sent: ${subject}`);
+    console.log(`?? Sent: ${subject}`);
   } catch (e) {
     console.error('Email error:', e);
   }
@@ -43,7 +43,7 @@ function generateAgoraToken(channelName, uid, role = 'student') {
 
   // If no certificate, assume App ID only mode (insecure but common for dev)
   if (!APP_CERTIFICATE) {
-    console.warn('âš ï¸ Agora App Certificate missing. Using App ID only mode (token = null).');
+    console.warn('⚠️ Agora App Certificate missing. Using App ID only mode (token = null).');
     return null;
   }
 
@@ -104,7 +104,7 @@ exports.createSession = async (req, res) => {
       
       await recentlyEndedSession.save();
       
-      console.log(`ðŸ”„ Restarted session ${recentlyEndedSession._id} for class ${classId}`);
+      console.log(`🔄 Restarted session ${recentlyEndedSession._id} for class ${classId}`);
       
       return res.json({
         sessionId: recentlyEndedSession._id,
@@ -144,7 +144,7 @@ exports.createSession = async (req, res) => {
     if (scheduledClass) {
         scheduledClass.status = 'live';
         await scheduledClass.save();
-        console.log(`✅ Linked to Scheduled Class: ${scheduledClass._id}`);
+        console.log(`? Linked to Scheduled Class: ${scheduledClass._id}`);
 
         // Send "Class Started" Email
         const classDetails = await ClassRoom.findById(classId);
@@ -171,7 +171,7 @@ exports.createSession = async (req, res) => {
                  return transporter.sendMail({
                     from: `"Orbit Class Scheduler" <${process.env.EMAIL_USER}>`,
                     to: student.studentEmail,
-                    subject: `Class Started – ${classDetails.className} 🚀`,
+                    subject: `Class Started � ${classDetails.className} ??`,
                     html: html
                 });
             });
@@ -206,11 +206,11 @@ exports.getActiveSession = async (req, res) => {
     });
 
     if (!session) {
-      console.log(`âŒ No active session found for class: ${classId}`);
+      console.log(`❌ No active session found for class: ${classId}`);
       return res.json({ active: false });
     }
 
-    console.log(`âœ… Active session found: ${session._id}, Status: ${session.status}`);
+    console.log(`✅ Active session found: ${session._id}, Status: ${session.status}`);
     return res.json({ 
       active: true, 
       sessionId: session._id,
@@ -230,7 +230,7 @@ exports.validateSession = async (req, res) => {
   const { sessionId } = req.params; // Get sessionId from URL params
   const { email, role, deviceId } = req.body; // Get other data from request body
   console.log(`\n========================================`);
-  console.log(`ðŸ“¥ VALIDATE SESSION REQUEST`);
+  console.log(`📥 VALIDATE SESSION REQUEST`);
   console.log(`Session ID: ${sessionId}`);
   console.log(`Email: ${email}`);
   console.log(`Role: ${role}`);
@@ -241,12 +241,12 @@ exports.validateSession = async (req, res) => {
   const APP_ID = process.env.AGORA_APP_ID;
   const APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 
-  console.log(`🔍 [ValidateSession] Checking Agora Config...`);
-  console.log(`🆔 App ID: ${APP_ID ? '✅ Loaded' : '❌ MISSING'} ${APP_ID ? '(' + APP_ID.substring(0, 5) + '...)' : ''}`);
-  console.log(`🔑 App Cert: ${APP_CERTIFICATE ? '✅ Loaded' : '❌ MISSING'}`);
+  console.log(`?? [ValidateSession] Checking Agora Config...`);
+  console.log(`?? App ID: ${APP_ID ? '? Loaded' : '? MISSING'} ${APP_ID ? '(' + APP_ID.substring(0, 5) + '...)' : ''}`);
+  console.log(`?? App Cert: ${APP_CERTIFICATE ? '? Loaded' : '? MISSING'}`);
 
   if (!APP_ID || !APP_CERTIFICATE) {
-      console.error("❌ CRTICAL: Agora App ID or Certificate is missing in environment variables!");
+      console.error("? CRTICAL: Agora App ID or Certificate is missing in environment variables!");
       return res.status(500).json({ 
           isValid: false, 
           error: "Server configuration error: Agora credentials missing" 
@@ -308,7 +308,7 @@ exports.validateSession = async (req, res) => {
          
          if (activeSession) {
            // Redirect student to the active session
-           console.log(`[Validation] âœ… Found active session ${activeSession._id}, redirecting student`);
+           console.log(`[Validation] ✅ Found active session ${activeSession._id}, redirecting student`);
            return res.json({
              isValid: false,
              redirect: true,
@@ -372,7 +372,7 @@ exports.validateSession = async (req, res) => {
       if (session.status === 'ENDED') {
         session.participants = []; // Clear old participants
         session.actualEndTime = null; // Clear end time
-        console.log(`ðŸ”„ Restarting ENDED session...`);
+        console.log(`🔄 Restarting ENDED session...`);
       }
       
       // END any other LIVE sessions for this class (prevent multiple LIVE sessions)
@@ -391,10 +391,10 @@ exports.validateSession = async (req, res) => {
           }
         );
         if (otherLiveSessions.modifiedCount > 0) {
-          console.log(`ðŸ›‘ Ended ${otherLiveSessions.modifiedCount} other LIVE session(s) for this class`);
+          console.log(`🛑 Ended ${otherLiveSessions.modifiedCount} other LIVE session(s) for this class`);
         }
       } catch(e) {
-        console.error('âš ï¸ Failed to end other sessions:', e);
+        console.error('⚠️ Failed to end other sessions:', e);
       }
       
       session.facultyUid = uid;
@@ -403,14 +403,14 @@ exports.validateSession = async (req, res) => {
       
       try {
         await session.save(); // Save faculty UID immediately
-        console.log(`ðŸš€ Faculty validated. UID: ${uid}, Status: LIVE`);
-        console.log(`âœ… Faculty UID saved to database: ${session.facultyUid}`);
+        console.log(`🚀 Faculty validated. UID: ${uid}, Status: LIVE`);
+        console.log(`✅ Faculty UID saved to database: ${session.facultyUid}`);
         
         // Verify it was saved by re-fetching
         const verifySession = await ClassSession.findById(sessionId);
-        console.log(`ðŸ” Verification - Faculty UID in DB: ${verifySession.facultyUid}`);
+        console.log(`🔍 Verification - Faculty UID in DB: ${verifySession.facultyUid}`);
       } catch (saveError) {
-        console.error(`âŒ FAILED to save faculty UID:`, saveError);
+        console.error(`❌ FAILED to save faculty UID:`, saveError);
         throw saveError;
       }
     }
@@ -426,7 +426,7 @@ exports.validateSession = async (req, res) => {
       );
       
       if (duplicateByName) {
-        console.log(`❌ Duplicate entry prevented: ${userName} already in session`);
+        console.log(`? Duplicate entry prevented: ${userName} already in session`);
         return res.status(403).json({ 
           isValid: false, 
           reason: `A student with the name "${userName}" is already in this class. Duplicate entries are not allowed.` 
@@ -459,7 +459,7 @@ exports.validateSession = async (req, res) => {
     if(role === 'faculty') {
         screenUid = Number(uid) + 1000000;
         screenToken = generateAgoraToken(sessionId, screenUid, role);
-        console.log(`ðŸ–¥ï¸ Generated Screen Token for UID: ${screenUid}`);
+        console.log(`🖥️ Generated Screen Token for UID: ${screenUid}`);
     }
 
     const validationResponse = {
@@ -474,7 +474,7 @@ exports.validateSession = async (req, res) => {
       remainingTime: session.scheduledEndTime - now
     };
     
-    console.log(`âœ… Validation successful for ${role}: ${email}`);
+    console.log(`✅ Validation successful for ${role}: ${email}`);
     console.log(`   APP_ID: ${APP_ID ? APP_ID : 'MISSING!'}`);
     console.log(`   UID: ${uid}`);
     console.log(`   Token: ${token ? 'Generated' : 'NULL'}`);
@@ -618,10 +618,10 @@ exports.getSessionStatus = async (req, res) => {
           className = classDoc.className || className;
           classCode = classDoc.classCode || classCode;
           facultyName = classDoc.facultyName || facultyName;
-          console.log(`âœ… Fetched from Class: facultyEmail=${facultyEmail}, className=${className}, classCode=${classCode}, facultyName=${facultyName}`);
+          console.log(`✅ Fetched from Class: facultyEmail=${facultyEmail}, className=${className}, classCode=${classCode}, facultyName=${facultyName}`);
         }
       } catch (err) {
-        console.warn('âš ï¸ Failed to fetch class details:', err.message);
+        console.warn('⚠️ Failed to fetch class details:', err.message);
       }
     }
 
@@ -647,7 +647,7 @@ exports.getSessionStatus = async (req, res) => {
       }))
     };
     
-    console.log('ðŸ“Š getSessionStatus response:', {
+    console.log('📊 getSessionStatus response:', {
       sessionId,
       facultyEmail: responseData.facultyEmail,
       facultyUid: responseData.facultyUid,
@@ -695,7 +695,7 @@ exports.sessionHeartbeat = async (req, res) => {
 // 5.5. Start Session (Faculty Only)
 // ===============================================
 exports.startSession = async (req, res) => {
-  console.log('ðŸ“¥ START SESSION called:', req.params, req.body);
+  console.log('📥 START SESSION called:', req.params, req.body);
   try {
     const { sessionId } = req.params;
     const { email, facultyUid } = req.body; // Accept facultyUid
@@ -713,13 +713,13 @@ exports.startSession = async (req, res) => {
     
     // Clear participants from previous session if restarting
     if(session.participants && session.participants.length > 0) {
-      console.log(`ðŸ—‘ï¸ Clearing ${session.participants.length} old participants from previous session`);
+      console.log(`🗑️ Clearing ${session.participants.length} old participants from previous session`);
       session.participants = [];
     }
     
     await session.save();
     
-    console.log(`ðŸš€ Session started. Faculty UID: ${facultyUid}`);
+    console.log(`🚀 Session started. Faculty UID: ${facultyUid}`);
 
     return res.json({ success: true, message: 'Class is now LIVE', startTime: session.actualStartTime });
 

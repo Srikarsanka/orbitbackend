@@ -180,22 +180,21 @@ router.post('/transcribe/:id', async (req, res) => {
             });
         }
 
-        // Proxy to Python Whisper service using native https
-        const PYTHON_API = process.env.PYTHON_API_URL || 'https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net';
-        console.log(`🎙️ Sending transcription request to Python service for recording ${req.params.id}...`);
+        // Proxy to Docker voice translation service (localhost:8001)
+        const VOICE_API = process.env.VOICE_API_URL || 'http://localhost:8001';
+        console.log(`🎙️ Sending transcription request to Docker service for recording ${req.params.id}...`);
 
         const requestBody = JSON.stringify({
             videoUrl: recording.fileUrl,
             lang: targetLang
         });
 
-        // Use native https module (avoids ESM import issues with node-fetch v3)
-        const https = require('https');
-        const url = new URL(`${PYTHON_API}/api/transcribe`);
+        const http = require('http');
+        const url = new URL(`${VOICE_API}/api/voice-translation/transcribe`);
         
-        const proxyReq = https.request({
+        const proxyReq = http.request({
             hostname: url.hostname,
-            port: 443,
+            port: url.port || 8001,
             path: url.pathname,
             method: 'POST',
             headers: {
@@ -214,7 +213,7 @@ router.post('/transcribe/:id', async (req, res) => {
                         console.error('Whisper API error:', data);
                         return res.status(proxyRes.statusCode).json({
                             error: 'Transcription failed',
-                            details: data.detail || 'Python service error'
+                            details: data.detail || 'Voice service error'
                         });
                     }
 
@@ -274,6 +273,108 @@ router.get('/transcript/:id', async (req, res) => {
     } catch (error) {
         console.error('Error fetching transcript:', error);
         res.status(500).json({ error: 'Failed to fetch transcript' });
+    }
+});
+
+// POST /api/recordings/translate-audio - Proxy to Docker voice service for full audio translation
+// Returns: mp3 audio blob
+router.post('/translate-audio', async (req, res) => {
+    try {
+        const { videoUrl, targetLanguage } = req.body;
+        if (!videoUrl || !targetLanguage) {
+            return res.status(400).json({ error: 'videoUrl and targetLanguage are required' });
+        }
+
+        console.log(`🔊 Proxying audio translation: ${targetLanguage} for ${videoUrl.substring(0, 60)}...`);
+
+        const http = require('http');
+        const requestBody = JSON.stringify({ videoUrl, targetLanguage });
+
+        const proxyReq = http.request({
+            hostname: 'localhost',
+            port: 8001,
+            path: '/api/voice-translation/translate-json',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            },
+            timeout: 600000  // 10 min for long videos
+        }, (proxyRes) => {
+            console.log(`🔊 Docker responded: ${proxyRes.statusCode}`);
+            if (proxyRes.statusCode !== 200) {
+                let errBody = '';
+                proxyRes.on('data', c => errBody += c);
+                proxyRes.on('end', () => {
+                    console.error('Voice translate error:', proxyRes.statusCode, errBody.substring(0, 300));
+                    res.status(proxyRes.statusCode).json({ error: 'Audio translation failed', details: errBody.substring(0, 300) });
+                });
+                return;
+            }
+            // Stream the mp3 audio back to the browser
+            res.setHeader('Content-Type', 'audio/mpeg');
+            proxyRes.pipe(res);
+        });
+
+        proxyReq.on('error', (err) => {
+            console.error('Voice translate proxy error:', err.message);
+            res.status(502).json({ error: 'Cannot reach voice translation service', details: err.message });
+        });
+
+        proxyReq.on('timeout', () => {
+            proxyReq.destroy();
+            res.status(504).json({ error: 'Audio translation timed out (video may be too long)' });
+        });
+
+        proxyReq.write(requestBody);
+        proxyReq.end();
+    } catch (error) {
+        console.error('translate-audio error:', error.message);
+        res.status(500).json({ error: 'Audio translation failed', details: error.message });
+    }
+});
+
+// POST /api/recordings/translate-text - Proxy to Docker for text-only translation
+router.post('/translate-text', async (req, res) => {
+    try {
+        const { text, target_lang } = req.body;
+        if (!text || !target_lang) {
+            return res.status(400).json({ error: 'text and target_lang required' });
+        }
+
+        const http = require('http');
+        const requestBody = JSON.stringify({ text, target_lang });
+
+        const proxyReq = http.request({
+            hostname: 'localhost',
+            port: 8001,
+            path: '/api/voice-translation/translate-text',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(requestBody)
+            },
+            timeout: 30000
+        }, (proxyRes) => {
+            let body = '';
+            proxyRes.on('data', c => body += c);
+            proxyRes.on('end', () => {
+                try {
+                    res.status(proxyRes.statusCode).json(JSON.parse(body));
+                } catch (e) {
+                    res.status(500).json({ error: 'Invalid response' });
+                }
+            });
+        });
+
+        proxyReq.on('error', (err) => {
+            res.status(502).json({ error: 'Voice service unreachable', details: err.message });
+        });
+
+        proxyReq.write(requestBody);
+        proxyReq.end();
+    } catch (error) {
+        res.status(500).json({ error: 'Translation failed', details: error.message });
     }
 });
 

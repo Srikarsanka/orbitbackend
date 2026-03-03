@@ -20,21 +20,23 @@
                   font-family: 'Inter', sans-serif;
                   background: #f0f2f5;
                   color: #1e293b;
-                  min-height: 100vh;
+                  height: 100vh;
                   display: flex;
                   flex-direction: column;
+                  overflow: hidden;
             }
 
             /* ===== HEADER ===== */
             .player-header {
-                  background: #ffffff;
+                  background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
                   padding: 12px 24px;
                   display: flex;
                   align-items: center;
                   justify-content: space-between;
                   border-bottom: 1px solid #e2e8f0;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.06);
                   z-index: 10;
+                  flex-shrink: 0;
             }
 
             .header-left {
@@ -124,7 +126,8 @@
                   justify-content: center;
                   padding: 16px;
                   position: relative;
-                  min-height: 520px;
+                  min-height: 0;
+                  overflow: hidden;
             }
 
             video {
@@ -240,12 +243,13 @@
             /* ===== TRANSCRIPT PANEL ===== */
             .transcript-panel {
                   width: 370px;
-                  background: #ffffff;
+                  background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
                   border-left: 1px solid #e2e8f0;
                   display: flex;
                   flex-direction: column;
-                  transition: width 0.3s;
+                  transition: width 0.3s ease;
                   overflow: hidden;
+                  box-shadow: -2px 0 12px rgba(99, 102, 241, 0.04);
             }
 
             .transcript-panel.collapsed {
@@ -269,6 +273,7 @@
                   display: flex;
                   align-items: center;
                   gap: 8px;
+                  letter-spacing: -0.2px;
             }
 
             .transcript-header h3 i {
@@ -315,6 +320,7 @@
                   flex: 1;
                   overflow-y: auto;
                   padding: 6px 14px 16px;
+                  min-height: 0;
             }
 
             .transcript-list::-webkit-scrollbar {
@@ -326,8 +332,12 @@
             }
 
             .transcript-list::-webkit-scrollbar-thumb {
-                  background: #cbd5e1;
+                  background: linear-gradient(180deg, #a5b4fc, #818cf8);
                   border-radius: 4px;
+            }
+
+            .transcript-list::-webkit-scrollbar-thumb:hover {
+                  background: linear-gradient(180deg, #818cf8, #6366f1);
             }
 
             .transcript-item {
@@ -345,7 +355,9 @@
             }
 
             .transcript-item.active {
-                  background: #eef2ff;
+                  background: linear-gradient(135deg, #eef2ff, #e8ecff);
+                  border-left: 3px solid #6366f1;
+                  padding-left: 7px;
             }
 
             .transcript-time {
@@ -394,6 +406,7 @@
                   gap: 8px;
                   flex-shrink: 0;
                   font-weight: 500;
+                  background: linear-gradient(180deg, #fafbff 0%, #f1f5ff 100%);
             }
 
             .pulse-dot {
@@ -505,6 +518,92 @@
                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 
+            /* ===== AUDIO LOADING OVERLAY ===== */
+            .audio-loading-overlay {
+                  position: absolute;
+                  inset: 0;
+                  background: rgba(0, 0, 0, 0.7);
+                  backdrop-filter: blur(4px);
+                  display: none;
+                  align-items: center;
+                  justify-content: center;
+                  flex-direction: column;
+                  gap: 16px;
+                  z-index: 8;
+                  border-radius: 8px;
+            }
+
+            .audio-loading-overlay.active {
+                  display: flex;
+            }
+
+            .audio-loading-spinner {
+                  width: 48px;
+                  height: 48px;
+                  border: 4px solid rgba(255, 255, 255, 0.15);
+                  border-top-color: #818cf8;
+                  border-radius: 50%;
+                  animation: spin 0.8s linear infinite;
+            }
+
+            @keyframes spin {
+                  to {
+                        transform: rotate(360deg);
+                  }
+            }
+
+            .audio-loading-text {
+                  color: #e2e8f0;
+                  font-size: 14px;
+                  font-weight: 600;
+                  text-align: center;
+            }
+
+            .audio-loading-sub {
+                  color: #94a3b8;
+                  font-size: 12px;
+                  margin-top: -10px;
+            }
+
+            /* ===== AUDIO TRACK BADGE ===== */
+            .audio-track-badge {
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 5px;
+                  padding: 4px 10px;
+                  border-radius: 6px;
+                  font-size: 11px;
+                  font-weight: 700;
+                  text-transform: uppercase;
+                  letter-spacing: 0.3px;
+                  transition: all 0.3s;
+            }
+
+            .audio-track-badge.original {
+                  background: #f0fdf4;
+                  color: #16a34a;
+                  border: 1px solid #bbf7d0;
+            }
+
+            .audio-track-badge.translated {
+                  background: #eef2ff;
+                  color: #6366f1;
+                  border: 1px solid #c7d2fe;
+            }
+
+            /* ===== ENHANCED CONTROLS BAR ===== */
+            .controls-bar {
+                  background: linear-gradient(180deg, #ffffff, #f8fafc);
+                  padding: 10px 20px;
+                  border-top: 1px solid #e2e8f0;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  flex-wrap: wrap;
+                  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+                  flex-shrink: 0;
+            }
+
             @media (max-width: 768px) {
                   .transcript-panel {
                         width: 100%;
@@ -560,7 +659,13 @@
                               style="display:none;position:absolute;top:20px;left:50%;transform:translateX(-50%);background:#ef4444;color:white;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;z-index:5;">
                         </div>
                         <div class="subtitle-overlay" id="subtitle-overlay"></div>
+                        <div class="audio-loading-overlay" id="audio-loading-overlay">
+                              <div class="audio-loading-spinner"></div>
+                              <div class="audio-loading-text" id="audio-loading-text">Generating Telugu audio...</div>
+                              <div class="audio-loading-sub">This may take a minute for longer recordings</div>
+                        </div>
                   </div>
+                  <audio id="translated-audio" preload="auto" style="display:none;"></audio>
             </div>
 
             <!-- Transcript Panel -->
@@ -634,8 +739,20 @@
                         <option value="hi">🇮🇳 Hindi</option>
                         <option value="ta">🇮🇳 Tamil</option>
                         <option value="ml">🇮🇳 Malayalam</option>
+                        <option value="kn">🇮🇳 Kannada</option>
                   </select>
             </div>
+
+            <div class="controls-separator"></div>
+
+            <span class="audio-track-badge original" id="audio-track-badge">
+                  <i class="fa-solid fa-volume-high"></i> Original
+            </span>
+
+            <button class="ctrl-btn" id="play-pause-btn" title="Play / Pause" onclick="togglePlayPause()"
+                  style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; border-color:#6366f1; min-width:44px; font-size:15px;">
+                  <i class="fa-solid fa-play"></i>
+            </button>
 
             <div class="controls-separator"></div>
 
@@ -668,11 +785,12 @@
             const recDuration = params.get('duration') || '';
             const recordingId = params.get('id') || '';
 
-            const API_BASE = 'https://orbitbackend-0i66.onrender.com';
+            const API_BASE = 'https://orbitbackend-0i66.onrender.com';          // Node.js backend
+            const VOICE_API = 'http://localhost:8001';          // Python voice translation service (Docker)
 
             const langNames = {
                   'en': 'English', 'te': 'Telugu', 'hi': 'Hindi',
-                  'ta': 'Tamil', 'ml': 'Malayalam'
+                  'ta': 'Tamil', 'ml': 'Malayalam', 'kn': 'Kannada'
             };
 
             // Fill page info
@@ -737,6 +855,191 @@
             let currentLang = lang;
             let isTranscribing = false;
             let translationCache = {};
+
+            // ===== AUDIO TRACK MANAGER =====
+            const audioTrack = {
+                  translatedAudio: document.getElementById('translated-audio'),
+                  audioCache: {},        // { 'te': blobURL, 'hi': blobURL }
+                  currentTrack: 'original',
+                  isGenerating: false,
+                  syncInterval: null,
+
+                  // Switch audio to a language
+                  async switchLanguage(targetLang) {
+                        if (targetLang === 'en') {
+                              this.switchToOriginal();
+                              return;
+                        }
+
+                        // Check cache first
+                        if (this.audioCache[targetLang]) {
+                              this.playTranslated(targetLang);
+                              return;
+                        }
+
+                        // Generate translated audio via Docker service
+                        await this.generateAudio(targetLang);
+                  },
+
+                  async generateAudio(targetLang) {
+                        if (this.isGenerating) return;
+                        this.isGenerating = true;
+                        console.log('🔊 [AudioTrack] Generating audio for:', targetLang, 'video:', videoSrc);
+
+                        const langLabel = langNames[targetLang] || targetLang;
+                        const overlay = document.getElementById('audio-loading-overlay');
+                        const loadingText = document.getElementById('audio-loading-text');
+                        loadingText.textContent = 'Generating ' + langLabel + ' audio...';
+                        overlay.classList.add('active');
+
+                        try {
+                              // Call Node.js proxy (which forwards to Docker voice service)
+                              console.log('🔊 [AudioTrack] Calling Node proxy for audio translation...');
+                              const res = await fetch(API_BASE + '/api/recordings/translate-audio', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ videoUrl: videoSrc, targetLanguage: targetLang })
+                              });
+
+                              console.log('🔊 [AudioTrack] Response status:', res.status);
+                              if (!res.ok) {
+                                    const errData = await res.json().catch(() => ({}));
+                                    throw new Error(errData.error || errData.details || 'Translation service error');
+                              }
+
+                              const blob = await res.blob();
+                              console.log('🔊 [AudioTrack] Got audio blob, size:', blob.size);
+                              const blobUrl = URL.createObjectURL(blob);
+                              this.audioCache[targetLang] = blobUrl;
+
+                              this.playTranslated(targetLang);
+                              showToast('🔊 Audio switched to ' + langLabel);
+                        } catch (err) {
+                              console.error('🔊 [AudioTrack] Generation failed:', err);
+                              showToast('⚠️ Audio generation failed: ' + err.message);
+                        } finally {
+                              overlay.classList.remove('active');
+                              this.isGenerating = false;
+                        }
+                  },
+
+                  playTranslated(targetLang) {
+                        const blobUrl = this.audioCache[targetLang];
+                        if (!blobUrl) { console.error('🔊 No cached audio for', targetLang); return; }
+
+                        console.log('🔊 [AudioTrack] Loading translated audio for:', targetLang);
+                        this.translatedAudio.src = blobUrl;
+                        this.translatedAudio.playbackRate = video.playbackRate;
+                        this.currentTrack = targetLang;
+
+                        // Mute original video audio
+                        video.muted = true;
+                        console.log('🔊 [AudioTrack] Video muted:', video.muted);
+
+                        // Load audio and sync position — do NOT auto-play
+                        this.translatedAudio.onloadeddata = () => {
+                              console.log('🔊 [AudioTrack] Translated audio loaded, duration:', this.translatedAudio.duration);
+                              this.translatedAudio.currentTime = video.currentTime;
+                              // Only play if video is already playing
+                              if (!video.paused) {
+                                    this.translatedAudio.play().catch(err => {
+                                          console.error('🔊 [AudioTrack] Play failed:', err.message);
+                                    });
+                              }
+                        };
+
+                        this.startSync();
+                        this.updateBadge(targetLang);
+                  },
+
+                  switchToOriginal() {
+                        this.currentTrack = 'original';
+                        video.muted = false;
+                        this.translatedAudio.pause();
+                        this.translatedAudio.src = '';
+                        this.stopSync();
+                        this.updateBadge('en');
+                        showToast('🔊 Audio: Original');
+                  },
+
+                  startSync() {
+                        this.stopSync();
+                        this.syncInterval = setInterval(() => {
+                              if (this.currentTrack === 'original') return;
+                              if (this.translatedAudio.paused && !video.paused) {
+                                    this.translatedAudio.play().catch(() => { });
+                              }
+                              // Drift correction: resync if > 0.3s off
+                              const drift = Math.abs(this.translatedAudio.currentTime - video.currentTime);
+                              if (drift > 0.3 && !video.paused) {
+                                    this.translatedAudio.currentTime = video.currentTime;
+                              }
+                        }, 500);
+                  },
+
+                  stopSync() {
+                        if (this.syncInterval) {
+                              clearInterval(this.syncInterval);
+                              this.syncInterval = null;
+                        }
+                  },
+
+                  updateBadge(langCode) {
+                        const badge = document.getElementById('audio-track-badge');
+                        if (langCode === 'en') {
+                              badge.className = 'audio-track-badge original';
+                              badge.innerHTML = '<i class="fa-solid fa-volume-high"></i> Original';
+                        } else {
+                              const langLabel = langNames[langCode] || langCode;
+                              badge.className = 'audio-track-badge translated';
+                              badge.innerHTML = '<i class="fa-solid fa-language"></i> ' + langLabel;
+                        }
+                  }
+            };
+
+            // Sync events: when video plays/pauses/seeks, sync translated audio
+            video.addEventListener('play', () => {
+                  if (audioTrack.currentTrack !== 'original') {
+                        audioTrack.translatedAudio.currentTime = video.currentTime;
+                        audioTrack.translatedAudio.play().catch(() => { });
+                  }
+                  updatePlayPauseBtn();
+            });
+            video.addEventListener('pause', () => {
+                  if (audioTrack.currentTrack !== 'original') {
+                        audioTrack.translatedAudio.pause();
+                  }
+                  updatePlayPauseBtn();
+            });
+            video.addEventListener('seeked', () => {
+                  if (audioTrack.currentTrack !== 'original') {
+                        audioTrack.translatedAudio.currentTime = video.currentTime;
+                  }
+            });
+            video.addEventListener('ratechange', () => {
+                  audioTrack.translatedAudio.playbackRate = video.playbackRate;
+            });
+
+            // ===== PLAY / PAUSE TOGGLE =====
+            function togglePlayPause() {
+                  if (video.paused) {
+                        video.play().catch(() => { });
+                  } else {
+                        video.pause();
+                  }
+            }
+
+            function updatePlayPauseBtn() {
+                  const btn = document.getElementById('play-pause-btn');
+                  if (!btn) return;
+                  if (video.paused) {
+                        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                        btn.title = 'Play';
+                  } else {
+                        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                        btn.title = 'Pause';
+                  }
+            }
 
             // ===== CHECK FOR CACHED TRANSCRIPT ON LOAD =====
             if (recordingId) {
@@ -984,53 +1287,81 @@
             }
 
             // ===== TRANSLATION =====
+            // Uses the local voice translation service (localhost:8001) instead of
+            // the rate-limited MyMemory public API. The service runs in Docker with
+            // faster-whisper + GoogleTranslator — no rate limits.
             async function translateAllSegments(targetLang) {
                   if (targetLang === 'en') {
+                        // Switching back to English — just show original text
                         updateTranscriptList();
                         return;
                   }
 
-                  updateTranscriptStatus('Translating to ' + (langNames[targetLang] || targetLang) + '...', 'active');
+                  const langLabel = langNames[targetLang] || targetLang;
+                  updateTranscriptStatus('Translating to ' + langLabel + '...', 'active');
 
-                  for (let i = 0; i < transcriptSegments.length; i++) {
-                        const seg = transcriptSegments[i];
-                        if (!seg.translated || seg._translatedLang !== targetLang) {
-                              seg.translated = await translateText(seg.text, targetLang);
-                              seg._translatedLang = targetLang;
-                        }
-                        // Update progress occasionally
-                        if (i % 5 === 0) updateTranscriptList();
+                  // Check if we already have translations cached for this language
+                  const alreadyTranslated = transcriptSegments.every(
+                        s => s._translatedLang === targetLang && s.translated
+                  );
+                  if (alreadyTranslated) {
+                        updateTranscriptList();
+                        updateTranscriptStatus('Translated to ' + langLabel, 'done');
+                        return;
                   }
 
-                  updateTranscriptList();
-                  updateTranscriptStatus('Translated to ' + (langNames[targetLang] || targetLang), 'done');
+                  try {
+                        // Translate each segment individually via local service
+                        for (let i = 0; i < transcriptSegments.length; i++) {
+                              const seg = transcriptSegments[i];
+                              if (!seg.translated || seg._translatedLang !== targetLang) {
+                                    seg.translated = await translateText(seg.text, targetLang);
+                                    seg._translatedLang = targetLang;
+                              }
+                              if (i % 5 === 0) updateTranscriptList();
+                        }
+                        updateTranscriptList();
+                        updateTranscriptStatus('Translated to ' + langLabel, 'done');
+                  } catch (err) {
+                        console.error('translateAllSegments error:', err);
+                        showToast('⚠️ Translation failed: ' + err.message);
+                        updateTranscriptStatus('Translation failed — showing English', 'error');
+                        updateTranscriptList();
+                  }
             }
 
+            // Translate a single text string using the local voice translation service.
+            // Falls back gracefully to the original text if the service is unreachable.
             async function translateText(text, targetLang) {
                   if (!text || !text.trim() || targetLang === 'en') return text;
+
                   const cacheKey = text.substring(0, 80) + '_' + targetLang;
                   if (translationCache[cacheKey]) return translationCache[cacheKey];
 
                   try {
-                        const url = 'https://api.mymemory.translated.net/get?q=' +
-                              encodeURIComponent(text.substring(0, 500)) +
-                              '&langpair=en|' + targetLang;
-                        const resp = await fetch(url);
-                        const data = await resp.json();
-                        console.log('MyMemory response:', data.responseStatus, typeof data.responseStatus);
-                        if (data.responseData && data.responseData.translatedText) {
-                              const result = data.responseData.translatedText;
-                              if (result && result !== text) {
-                                    translationCache[cacheKey] = result;
-                                    return result;
-                              }
+                        // Call Node.js proxy (which forwards to Docker voice service)
+                        const resp = await fetch(API_BASE + '/api/recordings/translate-text', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ text: text.substring(0, 500), target_lang: targetLang })
+                        });
+
+                        if (!resp.ok) {
+                              console.warn('translate-text returned', resp.status, '— falling back to original');
+                              return text;
                         }
-                        console.warn('Translation response issue:', JSON.stringify(data).substring(0, 200));
+
+                        const data = await resp.json();
+                        const result = data.translated_text;
+                        if (result && result !== text) {
+                              translationCache[cacheKey] = result;
+                              return result;
+                        }
                   } catch (e) {
-                        console.error('Translation fetch error:', e);
-                        showToast('Translation error — check console');
+                        console.warn('translateText fetch error (voice service offline?):', e.message);
+                        // Don't show toast for every segment — caller handles overall error
                   }
-                  return text;
+                  return text;  // graceful fallback to original text
             }
 
             // ===== SUBTITLE DISPLAY =====
@@ -1182,12 +1513,17 @@
                   showToast('Speed: ' + e.target.value + 'x');
             });
 
-            // Language change
+            // Language change — switch both subtitles AND audio track
             document.getElementById('lang-select').addEventListener('change', async (e) => {
                   currentLang = e.target.value;
+                  console.log('🌐 Language changed to:', currentLang);
                   document.getElementById('lang-label').textContent = langNames[currentLang] || 'English';
-                  showToast('Language: ' + (langNames[currentLang] || currentLang));
 
+                  // Switch audio track (generates TTS if not cached, or instant switch)
+                  console.log('🌐 Switching audio track...');
+                  await audioTrack.switchLanguage(currentLang);
+
+                  // Also translate subtitles/transcript text
                   if (transcriptSegments.length > 0 && currentLang !== 'en') {
                         await translateAllSegments(currentLang);
                   } else {

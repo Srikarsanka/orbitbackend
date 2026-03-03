@@ -48,7 +48,7 @@ app.use(
         'http://127.0.0.1:5000',
         'https://orbit-zqsz.vercel.app',
         'https://orbit-vert.vercel.app',
-        'https://orbitbackend-0i66.onrender.com' // Production Backend (Video Page)
+        'http://localhost:5000' // Production Backend (Video Page)
       ];
       
       // Allow all localhost origins for development
