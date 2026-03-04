@@ -48,6 +48,7 @@ app.use(
         'http://127.0.0.1:5000',
         'https://orbit-zqsz.vercel.app',
         'https://orbit-vert.vercel.app',
+        'https://orbit-pgd9.vercel.app', // New Vercel Deployment
         'https://orbitbackend-0i66.onrender.com' // Production Backend (Video Page)
       ];
       
