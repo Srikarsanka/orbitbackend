@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../utlils/multer");
+const upload = require("../utils/multer");
 const controller = require("../controllers/materialscontroller");
 
 router.post("/upload", upload.single("material"), controller.uploadMaterial);
