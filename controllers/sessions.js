@@ -731,7 +731,13 @@ function calculateAttendance(participant, session) {
     ? (session.actualEndTime - session.actualStartTime) / 1000
     : (new Date() - session.actualStartTime) / 1000;
 
-  const attendancePercentage = (totalActiveTime / sessionDuration) * 100;
+  let attendancePercentage = 0;
+  if (sessionDuration > 0) {
+    attendancePercentage = (totalActiveTime / sessionDuration) * 100;
+  }
+  
+  // Cap at 100% in case of overlapping time periods
+  attendancePercentage = Math.min(attendancePercentage, 100);
 
   // Mark as present if attendance >= 75%
   participant.attendanceVerified = attendancePercentage >= 75;
@@ -946,9 +952,13 @@ exports.getStudentAttendance = async (req, res) => {
           }
           
           // Percentage of time spent in session
-          const timeSpentPercentage = sessionDuration > 0
+          let timeSpentPercentage = sessionDuration > 0
             ? Math.round((timeSpent / sessionDuration) * 100)
             : 0;
+            
+          // Cap the percentages at 100
+          timeSpentPercentage = Math.min(timeSpentPercentage, 100);
+          attendancePercentage = Math.min(attendancePercentage, 100);
 
           sessionDetails.push({
             sessionId: session._id,
