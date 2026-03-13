@@ -478,14 +478,21 @@ window.startScreenShareForPresentation = async function() {
     try {
         console.log("🎬 Starting screen share for presentation...");
         
-        // Create Screen Track with auto-select current tab
-        localScreenTracks = await AgoraRTC.createScreenVideoTrack({
+        // Create Screen Track with auto-select current tab (AND audio if possible)
+        const screenResult = await AgoraRTC.createScreenVideoTrack({
             encoderConfig: "1080p_1",
             optimizationMode: "detail",
-            // Auto-select current tab (no prompt!)
-            screenSourceType: 'screen',
-            displaySurface: 'browser' // This hints to select browser tab
-        }, false); // false = don't include audio
+            screenSourceType: 'screen'
+        }, "auto"); // "auto" captures audio if the user checks the "Also share system audio" box
+        
+        // When audio is captured, Agora returns an array: [screenVideoTrack, screenAudioTrack]
+        if (Array.isArray(screenResult)) {
+            localScreenTracks = screenResult[0];
+            window.localScreenAudioTrack = screenResult[1]; // Expose for recording
+        } else {
+            localScreenTracks = screenResult;
+            window.localScreenAudioTrack = null;
+        }
 
         // Create Screen Client (Separate Client)
         screenClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -598,9 +605,58 @@ async function toggleScreenShare(e) {
             await client.unpublish(videoTrack);
         }
 
+        // 🔔 Show a reminder BEFORE the browser dialog opens
+        const audioHint = document.createElement('div');
+        audioHint.id = 'screen-audio-hint';
+        audioHint.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+                <span style="font-size:22px;">🔊</span>
+                <div>
+                    <b style="font-size:14px;">To capture YouTube / Video audio:</b>
+                    <p style="margin:5px 0 0 0; font-size:13px; color:#ddd; line-height:1.5;">
+                        In the browser dialog that just opened,<br>
+                        ✅ Check the <b>"Also share system audio"</b> box<br>
+                        before clicking <b>Share</b>.
+                    </p>
+                </div>
+            </div>
+        `;
+        audioHint.style.cssText = `
+            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%);
+            background: rgba(15,23,42,0.97); color: white; padding: 14px 20px;
+            border-radius: 10px; z-index: 999999; font-family: 'Inter', sans-serif;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.5); border-left: 4px solid #f59e0b;
+            min-width: 340px; max-width: 400px; backdrop-filter: blur(8px);
+            animation: slideUp 0.3s ease;
+        `;
+        document.body.appendChild(audioHint);
+        setTimeout(() => {
+            audioHint.style.opacity = '0';
+            audioHint.style.transition = 'opacity 0.5s';
+            setTimeout(() => audioHint.remove(), 500);
+        }, 8000); // Shows for 8 seconds
+
         try {
-            screenTrack = await AgoraRTC.createScreenVideoTrack();
-            await client.publish(screenTrack);
+            const screenResult = await AgoraRTC.createScreenVideoTrack({
+                encoderConfig: "1080p_1",
+                optimizationMode: "detail",
+                screenSourceType: 'screen'
+            }, "auto"); // Capture audio if user allows
+            
+            if (Array.isArray(screenResult)) {
+                screenTrack = screenResult[0];
+                window.localScreenAudioTrack = screenResult[1];
+            } else {
+                screenTrack = screenResult;
+                window.localScreenAudioTrack = null;
+            }
+
+            // Publish BOTH tracks if audio exists
+            if (window.localScreenAudioTrack) {
+                await client.publish([screenTrack, window.localScreenAudioTrack]);
+            } else {
+                await client.publish(screenTrack);
+            }
             btn.classList.add('active');
             
             // Native Stop Listener
@@ -750,11 +806,23 @@ function enforceCameraAlwaysOn(track) {
 }
 
 async function leaveRoom() {
+    // Check if recording is uploading to cloud
+    if (window.isUploadingRecording) {
+        alert("⚠️ Cannot end class. Your recording is still uploading to the cloud. \n\nPlease wait a few seconds until you see the 'Recording saved to cloud' success message!");
+        return;
+    }
+
     // Stop recording if active
     if (window.RecordingModule && window.RecordingModule.isRecording()) {
         window.RecordingModule.stop();
         // Give a moment for upload to start
         await new Promise(r => setTimeout(r, 500));
+        
+        // Let the user know the backend needs a second to process if it instantly starts uploading
+        if (window.isUploadingRecording) {
+            alert("⚠️ Recording upload just started. Please wait a few seconds before ending the class!");
+            return;
+        }
     }
 
     for(let t of localTracks) { t.stop(); t.close(); }
@@ -775,6 +843,8 @@ window.joinRoomInit = joinRoomInit;
 window.leaveRoom = leaveRoom;
 window.isRTCActive = () => sessionActive;
 window.stopScreenShare = stopScreenShare; // Expose for Teaching Mode
+window.isSharingScreen = () => sharingScreen;
+window.getScreenTrack = () => localScreenTracks;
 
 // ===============================================
 // Layout Helpers

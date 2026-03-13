@@ -1,0 +1,158 @@
+[dotenv@17.2.3] injecting env (14) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+📦 Sessions routes loaded
+⏳ Class Scheduler Started (Checks every minute)
+🎨 WBO Whiteboard Process started on port 5001
+🚀 Backend running on http://localhost:5000
+🔌 Socket.IO whiteboard ready at /whiteboard
+📹 Video Call App served at http://localhost:5000/video/room.html
+✅ Server is ready to accept connections on 0.0.0.0:5000
+✅ MongoDB connected successfully
+server started	{"port":5001}
+Incoming Request => GET /auth/redirect Time: 2026-03-08T17:04:57.824Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T17:04:58.527Z
+Incoming Request => GET /api/sessions/attendance/student Time: 2026-03-08T17:04:58.888Z
+JWT ERROR: JsonWebTokenError: jwt malformed
+    at module.exports [as verify] (C:\ORBIT\backend\node_modules\jsonwebtoken\verify.js:70:17)
+    at auth (C:\ORBIT\backend\middleware\auth.js:20:25)
+    at Layer.handleRequest (C:\ORBIT\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\ORBIT\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\ORBIT\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\ORBIT\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\ORBIT\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\ORBIT\backend\node_modules\router\index.js:295:15
+    at processParams (C:\ORBIT\backend\node_modules\router\index.js:582:12)
+    at next (C:\ORBIT\backend\node_modules\router\index.js:291:5)
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T17:04:58.907Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /auth/redirect Time: 2026-03-08T17:15:19.693Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T17:15:19.771Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T17:15:19.831Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /auth/redirect Time: 2026-03-08T17:19:40.526Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T17:19:40.691Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T17:19:40.772Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /auth/redirect Time: 2026-03-08T17:46:24.976Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T17:46:25.150Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T17:46:25.438Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /auth/redirect Time: 2026-03-08T17:53:14.183Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T17:53:14.245Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T17:53:14.290Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /auth/redirect Time: 2026-03-08T18:02:03.028Z
+🔍 [REDIRECT] API called
+🔍 [REDIRECT] Token source: header
+🔍 [REDIRECT] Token present: true
+🔍 [REDIRECT] Decoded JWT: {
+  id: '698765442230fc7b0333b0e6',
+  email: 'sankasrikar@gmail.com',
+  role: 'student'
+}
+🔍 [REDIRECT] User found in DB: true
+🔍 [REDIRECT] User details: {
+  email: 'sankasrikar@gmail.com',
+  role: 'student',
+  fullName: 'Sanka Saran sai krishna srikar'
+}
+✅ [REDIRECT] Sending redirect response: /studentdashboard for role: student
+Incoming Request => POST /api/student/classes Time: 2026-03-08T18:02:03.093Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T18:02:03.159Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => GET /api/recordings/class/69876afd2230fc7b0333b105 Time: 2026-03-08T18:47:05.749Z
+Incoming Request => GET /api/recordings/class/698a0786b935009f953f593b Time: 2026-03-08T18:47:07.734Z
+Incoming Request => POST /api/announcements/student Time: 2026-03-08T18:47:17.083Z
+🔍 Fetching announcements for student: sankasrikar@gmail.com
+📚 Found 2 classes for student. IDs: [ '69876afd2230fc7b0333b105', '698a0786b935009f953f593b' ]
+📣 Found 4 aggregated announcements
+Incoming Request => POST /api/compiler/execute Time: 2026-03-08T18:48:06.233Z

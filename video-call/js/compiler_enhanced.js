@@ -3,8 +3,8 @@
    For Video Call Application
    =================================== */
 
-// API Configuration - Render Backend
-const API_BASE_URL = 'https://orbitbackend-0i66.onrender.com/api';
+// API Configuration - Render Backend (Now Local for Testing)
+const API_BASE_URL = 'http://localhost:5000/api';
 
 // Language file extensions mapping
 const LANGUAGE_EXTENSIONS = {

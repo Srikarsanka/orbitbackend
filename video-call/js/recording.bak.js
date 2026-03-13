@@ -8,7 +8,7 @@
     'use strict';
 
     // Use localhost for local testing
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = 'https://orbitbackend-0i66.onrender.com';
     // const API_BASE = 'https://orbitbackend-0i66.onrender.com';
     
     let mediaRecorder = null;
@@ -16,20 +16,6 @@
     let recordingStartTime = null;
     let timerInterval = null;
     let isRecording = false;
-
-    // --- hidden canvas mixer variables ---
-    let mixerCanvas = null;
-    let mixerCtx = null;
-    let mixerRAF = null;
-    let hiddenVideoEl = document.createElement('video');
-    hiddenVideoEl.autoplay = true;
-    hiddenVideoEl.muted = true;
-    hiddenVideoEl.playsInline = true;
-    
-    let hiddenScreenEl = document.createElement('video');
-    hiddenScreenEl.autoplay = true;
-    hiddenScreenEl.muted = true;
-    hiddenScreenEl.playsInline = true;
 
     /**
      * Initialize recording controls
@@ -88,46 +74,32 @@
 
             if (localAudioTrack) {
                 try {
-                    const nativeAudio = localAudioTrack.getMediaStreamTrack ? localAudioTrack.getMediaStreamTrack() : localAudioTrack;
+                    const nativeAudio = localAudioTrack.getMediaStreamTrack();
                     if (nativeAudio && nativeAudio.readyState === 'live') {
                         combinedStream.addTrack(nativeAudio);
                         tracksAdded++;
-                        console.log('📹 Mic Audio track added to recording stream');
+                        console.log('📹 Audio track added to recording stream');
                     } else {
-                        console.warn('📹 Mic Audio track not live:', nativeAudio ? nativeAudio.readyState : 'null');
+                        console.warn('📹 Audio track not live:', nativeAudio ? nativeAudio.readyState : 'null');
                     }
                 } catch(e) {
-                    console.warn('📹 Failed to get Mic audio MediaStreamTrack:', e);
-                }
-            }
-            
-            // Check for System Audio (Screen Share)
-            const systemAudioTrack = window.localScreenAudioTrack;
-            if (systemAudioTrack) {
-                try {
-                    const nativeSysAudio = systemAudioTrack.getMediaStreamTrack ? systemAudioTrack.getMediaStreamTrack() : systemAudioTrack;
-                    if (nativeSysAudio && nativeSysAudio.readyState === 'live') {
-                        combinedStream.addTrack(nativeSysAudio);
-                        tracksAdded++;
-                        console.log('📹 System/Screen Audio track added to recording stream');
-                    }
-                } catch(e) {
-                    console.warn('📹 Failed to get System audio MediaStreamTrack:', e);
+                    console.warn('📹 Failed to get audio MediaStreamTrack:', e);
                 }
             }
 
-            // Setup Video Mixer Canvas
-            mixerCanvas = document.createElement('canvas');
-            mixerCanvas.width = 1920; // 1080p
-            mixerCanvas.height = 1080;
-            mixerCtx = mixerCanvas.getContext('2d');
-            
-            // Generate canvas stream
-            const canvasStream = mixerCanvas.captureStream(30); // 30 FPS
-            if (canvasStream && canvasStream.getVideoTracks().length > 0) {
-                combinedStream.addTrack(canvasStream.getVideoTracks()[0]);
-                tracksAdded++;
-                console.log('📹 Canvas video track added to recording stream');
+            if (localVideoTrack) {
+                try {
+                    const nativeVideo = localVideoTrack.getMediaStreamTrack();
+                    if (nativeVideo && nativeVideo.readyState === 'live') {
+                        combinedStream.addTrack(nativeVideo);
+                        tracksAdded++;
+                        console.log('📹 Video track added to recording stream');
+                    } else {
+                        console.warn('📹 Video track not live:', nativeVideo ? nativeVideo.readyState : 'null');
+                    }
+                } catch(e) {
+                    console.warn('📹 Failed to get video MediaStreamTrack:', e);
+                }
             }
 
             if (tracksAdded === 0) {
@@ -191,9 +163,6 @@
             isRecording = true;
             recordingStartTime = Date.now();
 
-            // Start Mixer Loop
-            startMixerLoop();
-
             // Update UI
             updateRecordingUI(true);
             startTimer();
@@ -226,132 +195,9 @@
 
         isRecording = false;
         clearInterval(timerInterval);
-        
-        if (mixerRAF) cancelAnimationFrame(mixerRAF);
-        
         updateRecordingUI(false);
 
         console.log('📹 Recording stopped');
-    }
-    
-    /**
-     * Seamless source substitution via requestAnimationFrame
-     */
-    function startMixerLoop() {
-        if (!isRecording || !mixerCanvas || !mixerCtx) return;
-
-        // Default black bg
-        mixerCtx.fillStyle = '#000000';
-        mixerCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
-
-        let sourceToDraw = null;
-        let scaleMode = 'contain';
-
-        // 1. Detect Active Mode
-        const wbContainer = document.getElementById('whiteboard__section');
-        const compilerContainer = document.getElementById('compiler_section');
-        let whiteboardActive = (wbContainer && !wbContainer.classList.contains('hidden'));
-        let compilerActive = (compilerContainer && !compilerContainer.classList.contains('hidden'));
-        let sharingScreen = window.isSharingScreen ? window.isSharingScreen() : false;
-
-        if (sharingScreen && window.getScreenTrack) {
-            // Draw screen share first priority
-            let screenTrack = window.getScreenTrack();
-            if (screenTrack) {
-                let nativeScreenTrack = screenTrack.getMediaStreamTrack ? screenTrack.getMediaStreamTrack() : screenTrack;
-                
-                if (hiddenScreenEl.srcObject) {
-                    let currentTrack = hiddenScreenEl.srcObject.getVideoTracks()[0];
-                    if (currentTrack !== nativeScreenTrack) {
-                        hiddenScreenEl.srcObject = new MediaStream([nativeScreenTrack]);
-                        hiddenScreenEl.play().catch(e => console.warn(e));
-                    }
-                } else {
-                    hiddenScreenEl.srcObject = new MediaStream([nativeScreenTrack]);
-                    hiddenScreenEl.play().catch(e => console.warn(e));
-                }
-
-                if (hiddenScreenEl.readyState >= 2) {
-                    sourceToDraw = hiddenScreenEl;
-                    scaleMode = 'contain';
-                }
-            }
-        } else if (whiteboardActive) {
-            // Draw Whiteboard Canvas safely
-            const wbCanvas = document.getElementById('whiteboard-canvas');
-            if (wbCanvas && wbCanvas.width > 0 && wbCanvas.height > 0) {
-                sourceToDraw = wbCanvas;
-                mixerCtx.fillStyle = '#ffffff'; // Use white bg for whiteboard
-                mixerCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
-                scaleMode = 'contain';
-            }
-        } else {
-            // Default to Camera
-            const localVideoTrack = window.localTracks ? window.localTracks[1] : null;
-            if (localVideoTrack && localVideoTrack.enabled !== false) {
-                let nativeCamTrack = localVideoTrack.getMediaStreamTrack ? localVideoTrack.getMediaStreamTrack() : localVideoTrack;
-                
-                if (hiddenVideoEl.srcObject) {
-                    let currentTrack = hiddenVideoEl.srcObject.getVideoTracks()[0];
-                    if (currentTrack !== nativeCamTrack) {
-                        hiddenVideoEl.srcObject = new MediaStream([nativeCamTrack]);
-                        hiddenVideoEl.play().catch(e => console.warn(e));
-                    }
-                } else {
-                    hiddenVideoEl.srcObject = new MediaStream([nativeCamTrack]);
-                    hiddenVideoEl.play().catch(e => console.warn(e));
-                }
-
-                if (hiddenVideoEl.readyState >= 2) {
-                    sourceToDraw = hiddenVideoEl;
-                    scaleMode = 'cover';
-                }
-            }
-            
-            // If in compiler mode without screen share, notify the user visually on stream
-            if (compilerActive && !sourceToDraw) {
-                mixerCtx.fillStyle = '#1e1e1e';
-                mixerCtx.fillRect(0, 0, mixerCanvas.width, mixerCanvas.height);
-                mixerCtx.fillStyle = '#ffffff';
-                mixerCtx.font = '40px Inter, sans-serif';
-                mixerCtx.textAlign = 'center';
-                mixerCtx.fillText('Compiler Mode Active', mixerCanvas.width/2, mixerCanvas.height/2 - 20);
-                mixerCtx.font = '24px Inter, sans-serif';
-                mixerCtx.fillText('Please click "Share Screen" to record the code.', mixerCanvas.width/2, mixerCanvas.height/2 + 30);
-            }
-        }
-
-        // Output to Canvas
-        if (sourceToDraw) {
-            try {
-                let sw = sourceToDraw.videoWidth || sourceToDraw.width;
-                let sh = sourceToDraw.videoHeight || sourceToDraw.height;
-                let dw = mixerCanvas.width;
-                let dh = mixerCanvas.height;
-
-                if (sw > 0 && sh > 0) {
-                    if (scaleMode === 'contain') {
-                        let scale = Math.min(dw / sw, dh / sh);
-                        let w = sw * scale;
-                        let h = sh * scale;
-                        let x = (dw - w) / 2;
-                        let y = (dh - h) / 2;
-                        mixerCtx.drawImage(sourceToDraw, x, y, w, h);
-                    } else if (scaleMode === 'cover') {
-                        let scale = Math.max(dw / sw, dh / sh);
-                        let w = sw * scale;
-                        let h = sh * scale;
-                        let x = (dw - w) / 2;
-                        let y = (dh - h) / 2;
-                        mixerCtx.drawImage(sourceToDraw, x, y, w, h);
-                    }
-                }
-            } catch (err) {
-                // Ignore drawImage errors (e.g. video not ready)
-            }
-        }
-
-        mixerRAF = requestAnimationFrame(startMixerLoop);
     }
 
     /**

@@ -343,11 +343,13 @@ async function getFacultyAttendanceAnalytics(facultyEmail) {
     const sessionSummaries = await Promise.all(
         sessions.map(async (session) => {
             try {
-                // Determine actual duration
+                // Determine actual duration based on attendance tracking window
                 let durationMinutes = 0;
-                if (session.attendanceConfig && session.attendanceConfig.startTime && session.attendanceConfig.endTime) {
+                if (session.attendanceConfig && session.attendanceConfig.startTime) {
                     const start = new Date(session.attendanceConfig.startTime);
-                    const end = new Date(session.attendanceConfig.endTime);
+                    // Use explicitly locked endTime if available, otherwise use current time or actualEndTime
+                    const end = session.attendanceConfig.endTime ? new Date(session.attendanceConfig.endTime) : 
+                                (session.actualEndTime ? new Date(session.actualEndTime) : new Date());
                     durationMinutes = Math.round((end - start) / 60000);
                 } else if (session.duration) {
                      durationMinutes = session.duration;

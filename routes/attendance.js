@@ -194,13 +194,35 @@ router.post('/stop-tracking', async (req, res) => {
     }
     
     // Update attendance config
-    session.attendanceConfig.endTime = new Date();
+    const endTime = new Date();
+    session.attendanceConfig.endTime = endTime;
+    
+    // Calculate final locked intervals for the whole class
+    const startTime = session.attendanceConfig.startTime ? new Date(session.attendanceConfig.startTime) : session.createdAt;
+    const captureInterval = session.attendanceConfig.captureInterval || 60;
+    
+    // Total expected intervals for the entire locked duration
+    const finalExpectedIntervals = Math.max(1, Math.floor(((endTime - startTime) / 1000) / captureInterval));
+    session.attendanceConfig.totalIntervals = finalExpectedIntervals;
+    
     await session.save();
+
+    // Now, force update all student attendance records to use this new locked denominator
+    const SessionAttendance = require('../models/SessionAttendance');
+    const attendances = await SessionAttendance.find({ sessionId: session._id });
+    
+    for (let att of attendances) {
+        // We overwrite their personal totalIntervals with the class's locked totalIntervals
+        att.totalIntervals = finalExpectedIntervals;
+        att.calculateAttendance();
+        await att.save();
+    }
     
     res.json({
       success: true,
-      message: 'Attendance tracking stopped',
-      config: session.attendanceConfig
+      message: 'Attendance tracking stopped and percentages locked.',
+      config: session.attendanceConfig,
+      finalExpectedIntervals
     });
     
   } catch (err) {

@@ -131,6 +131,11 @@ const SessionManager = {
             badge.innerHTML = "● LIVE";
             badge.classList.add("live");
             this.toggleInteractiveFeatures(true);
+            // Show the Stop Attendance button only for faculty
+            if(this.state.role === 'faculty') {
+                const stopBtn = document.getElementById('stop-attendance-btn');
+                if(stopBtn) stopBtn.style.display = 'inline-flex';
+            }
             // Attempt to join Agora if not already active
             if(window.joinRoomInit && (!window.isRTCActive || !window.isRTCActive())) {
                 console.log("Session is LIVE -> Joining RTC...");
@@ -157,6 +162,89 @@ const SessionManager = {
         });
         alert("Class Started!");
         location.reload();
+    },
+
+    stopAttendance: async function() {
+        // Create custom confirmation toast
+        const toast = document.createElement('div');
+        toast.innerHTML = `
+            <div style="margin-bottom: 12px;">
+                <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; font-size: 24px; margin-bottom: 8px;"></i>
+                <h3 style="margin: 0 0 5px 0; font-size: 16px;">End Attendance Tracking?</h3>
+                <p style="margin: 0; font-size: 13px; color: #ddd; line-height: 1.4;">
+                    Students will no longer capture attendance matches. <br>The total class duration will be locked in.
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <button id="cancel-stop-btn" style="padding: 8px 16px; border: 1px solid #555; background: transparent; color: white; border-radius: 4px; cursor: pointer; transition: 0.2s;">
+                    Cancel
+                </button>
+                <button id="confirm-stop-btn" style="padding: 8px 16px; border: none; background: #dc2626; color: white; border-radius: 4px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                    Stop Tracking
+                </button>
+            </div>
+        `;
+        toast.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.95); color: white; padding: 20px 25px;
+            border-radius: 12px; z-index: 999999; font-family: 'Inter', sans-serif;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); text-align: center; border: 1px solid #334155;
+            min-width: 320px; backdrop-filter: blur(8px);
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 999998; backdrop-filter: blur(2px);
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(toast);
+
+        // Handle Cancel
+        document.getElementById('cancel-stop-btn').onclick = () => {
+            document.body.removeChild(toast);
+            document.body.removeChild(overlay);
+        };
+
+        // Handle Confirm
+        document.getElementById('confirm-stop-btn').onclick = async () => {
+            document.body.removeChild(toast);
+            document.body.removeChild(overlay);
+            
+            try {
+                const btn = document.getElementById('stop-attendance-btn');
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+
+                await fetch(`/api/attendance/stop-tracking`, {
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ sessionId: this.state.sessionId })
+                });
+
+                // Show Success Toast
+                const successToast = document.createElement('div');
+                successToast.innerHTML = `<i class="fa-solid fa-check-circle"></i> <b>Tracking Stopped</b><br><span style="font-size:12px;">The total class duration is now locked in.</span>`;
+                successToast.style.cssText = `
+                    position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+                    background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 20px;
+                    border-radius: 8px; z-index: 99999; font-family: 'Inter', sans-serif;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
+                `;
+                document.body.appendChild(successToast);
+                setTimeout(() => {
+                    successToast.style.opacity = '0';
+                    successToast.style.transition = 'opacity 0.5s';
+                    setTimeout(() => successToast.remove(), 500);
+                }, 4000);
+
+                btn.innerHTML = `<i class="fa-solid fa-user-check" style="color:var(--success);"></i>`; // Change icon to locked
+            } catch(err) {
+                console.error("Failed to stop attendance:", err);
+                alert("Failed to stop attendance. See console.");
+            }
+        };
     },
 
     tick: function() {
@@ -372,7 +460,26 @@ const SessionManager = {
                     });
                 }
             }
-            if(sectionId === 'compiler_section') this.initCompiler();
+            if(sectionId === 'compiler_section') {
+                this.initCompiler();
+                // Remind faculty to share screen for recording
+                if(this.state.role === 'faculty') {
+                    const toast = document.createElement('div');
+                    toast.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <b>Screen Share Required</b><br><span style="font-size:12px;">To record your code, please click the 'Share Screen' button.</span>`;
+                    toast.style.cssText = `
+                        position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+                        background: rgba(245, 158, 11, 0.95); color: white; padding: 12px 20px;
+                        border-radius: 8px; z-index: 99999; font-family: 'Inter', sans-serif;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center;
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transition = 'opacity 0.5s';
+                        setTimeout(() => toast.remove(), 500);
+                    }, 5000);
+                }
+            }
             if(sectionId === 'insights_section') this.initAnalytics();
             if(sectionId === 'chat_section') {
                  // Scroll to bottom
