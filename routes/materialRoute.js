@@ -4,6 +4,7 @@ const upload = require("../utils/multer");
 const controller = require("../controllers/materialscontroller");
 
 router.post("/upload", upload.single("material"), controller.uploadMaterial);
+router.post("/student", controller.getStudentMaterials);
 router.get("/:classId", controller.getMaterials);
 router.delete("/delete/:id", controller.deleteMaterial);
 

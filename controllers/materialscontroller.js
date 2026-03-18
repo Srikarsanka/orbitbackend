@@ -204,6 +204,40 @@ exports.getMaterials = async (req, res) => {
   }
 };
 
+// Get all materials for all classes a student is enrolled in
+exports.getStudentMaterials = async (req, res) => {
+  try {
+    const { studentEmail } = req.body;
+    if (!studentEmail) return res.status(400).json({ message: "studentEmail is required" });
+
+    // Find all classes the student is enrolled in
+    const classes = await Class.find({ 'students.studentEmail': studentEmail });
+    const classIds = classes.map(c => c._id);
+
+    if (!classIds.length) return res.status(200).json({ materials: [] });
+
+    // Fetch all materials for those classes and enrich with class info
+    const materials = await Material.find({ classId: { $in: classIds } }).sort({ createdAt: -1 });
+
+    const classMap = {};
+    classes.forEach(c => { classMap[c._id.toString()] = c; });
+
+    const enriched = materials.map(m => {
+      const cls = classMap[m.classId?.toString()] || {};
+      return {
+        ...m.toObject(),
+        className: cls.className || 'Unknown Class',
+        facultyName: cls.facultyName || '',
+        subject: cls.subject || ''
+      };
+    });
+
+    res.status(200).json({ materials: enriched });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+};
+
 exports.deleteMaterial = async (req, res) => {
   try {
     const { id } = req.params;
