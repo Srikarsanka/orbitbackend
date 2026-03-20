@@ -596,6 +596,128 @@ Please respond in JSON format with the following structure:
     }
 });
 
+// ===== /api/compiler/execute — Alias for /api/compile (used by student dashboard) =====
+app.post('/api/compiler/execute', async (req, res) => {
+    const clientIp = req.ip;
+
+    if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({
+            success: false,
+            error: 'Rate limit exceeded. Please try again later.'
+        });
+    }
+
+    const { language, code, input = '' } = req.body;
+
+    if (!language || !code) {
+        return res.status(400).json({
+            success: false,
+            error: 'Language and code are required'
+        });
+    }
+
+    const startTime = Date.now();
+
+    try {
+        let result;
+
+        switch (language.toLowerCase()) {
+            case 'javascript':
+                result = await executeJavaScript(code, input);
+                break;
+            case 'python':
+                result = await executePython(code, input);
+                break;
+            case 'c':
+                result = await executeC(code, input);
+                break;
+            case 'cpp':
+            case 'c++':
+                result = await executeCPP(code, input);
+                break;
+            case 'java':
+                result = await executeJava(code, input);
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    error: 'Unsupported language'
+                });
+        }
+
+        const executionTime = Date.now() - startTime;
+
+        res.json({
+            success: result.error ? false : true,
+            output: result.output,
+            error: result.error,
+            executionTime
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            executionTime: Date.now() - startTime
+        });
+    }
+});
+
+// ===== /api/ai/generate — Google Gemini (FREE) powered AI endpoint =====
+app.post('/api/ai/generate', async (req, res) => {
+    const clientIp = req.ip;
+
+    if (!checkRateLimit(clientIp)) {
+        return res.status(429).json({
+            success: false,
+            error: 'Rate limit exceeded. Please try again later.'
+        });
+    }
+
+    const { prompt } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({
+            success: false,
+            error: 'Prompt is required'
+        });
+    }
+
+    try {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error('GEMINI_API_KEY is not configured');
+        }
+
+        // Use gemini-1.5-flash — fastest & free (1M tokens/day on free tier)
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-1.5-flash',
+            generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 1024
+            }
+        });
+
+        const fullPrompt = "You are an expert programming assistant for students. Provide clear, helpful, and educational code analysis. Avoid markdown formatting like asterisks or bold text — use plain text only. Be concise and conversational.\n\n" + prompt;
+
+        const result = await model.generateContent(fullPrompt);
+        const aiResponse = result.response.text();
+
+        res.json({
+            success: true,
+            response: aiResponse
+        });
+
+    } catch (error) {
+        console.error('Gemini AI Error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'AI generation failed: ' + error.message,
+            response: 'AI suggestions are temporarily unavailable. Please try again.'
+        });
+    }
+});
+
+
 // ===== CODE EXECUTION FUNCTIONS =====
 
 async function executeJavaScript(code, input) {
