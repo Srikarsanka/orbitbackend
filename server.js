@@ -688,9 +688,9 @@ app.post('/api/ai/generate', async (req, res) => {
             throw new Error('GEMINI_API_KEY is not configured');
         }
 
-        // Use gemini-1.5-flash — fastest & free (1M tokens/day on free tier)
+        // Use gemini-pro — universally supported across all API key versions
         const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-pro',
             generationConfig: {
                 temperature: 0.3,
                 maxOutputTokens: 1024
