@@ -379,6 +379,17 @@ app.use('/wbo', createProxyMiddleware({
     }
 }));
 
+// Proxy voice translation to Docker container to fix HTTPS mixed content issues
+app.use('/api/voice-translation', createProxyMiddleware({
+    target: process.env.VOICE_API_URL || 'http://orbit-voice-translation.eastasia.azurecontainer.io:8001',
+    changeOrigin: true,
+    timeout: 600000, // 10 minutes for slow translations
+    onError: (err, req, res) => {
+        console.error('🔥 Voice Translation Proxy Error:', err.message);
+        res.status(503).send('Voice Translation service unavailable');
+    }
+}));
+
 // Presentation Mode (Teaching Mode) - NEW
 app.use("/api/sessions", require("./routes/presentation"));
 
