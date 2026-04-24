@@ -42,7 +42,7 @@ exports.signup = async (req, res) => {
     // SEND TO PYTHON FASTAPI
     let pyRes;
     try {
-      pyRes = await fetch("http://localhost:8000/encode", {
+      pyRes = await fetch("https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net/encode", {
         method: "POST",
         body: form,
       });
