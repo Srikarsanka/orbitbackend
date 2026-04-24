@@ -8,8 +8,8 @@
     'use strict';
 
     // Use localhost for local testing
-    const API_BASE = 'http://localhost:5000';
-    // const API_BASE = 'https://orbitbackend-0i66.onrender.com';
+    // const API_BASE = 'http://localhost:5000';
+    const API_BASE = 'https://orbitbackend-0i66.onrender.com';
     
     let mediaRecorder = null;
     let recordedChunks = [];

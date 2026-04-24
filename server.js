@@ -15,7 +15,7 @@ const app = express(); // Initialize Express App
 const server = http.createServer(app); // Create HTTP server
 
 // 🔥 CRITICAL: Define PORT (Render requires this!)
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Root Route for Health Check
 app.get("/", (req, res) => {
@@ -46,7 +46,7 @@ app.use(
         'https://orbitbackend-0i66.onrender.com',  // Backend itself
         'http://127.0.0.1:4200',
         'http://127.0.0.1:5000',
-        'https://orbit-zqsz.vercel.app',
+        'https://orbit-pgd9.vercel.app',
         'https://orbit-vert.vercel.app',
         'https://orbit-pgd9.vercel.app', // New Vercel Deployment
         'https://orbitbackend-0i66.onrender.com' // Production Backend (Video Page)
@@ -1040,7 +1040,7 @@ const io = socketIo(server, {
     origin: ["http://localhost:4200",    "http://localhost:4200",
     "http://127.0.0.1:4200",
     "https://orbit-vert.vercel.app",
-    "https://orbit-zqsz.vercel.app", "http://127.0.0.1:5000", "https://orbit-zqsz.vercel.app"],
+    "https://orbit-pgd9.vercel.app", "http://127.0.0.1:5000", "https://orbit-pgd9.vercel.app"],
     credentials: true,
     methods: ["GET", "POST"]
   }

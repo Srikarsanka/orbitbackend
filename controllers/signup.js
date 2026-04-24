@@ -40,10 +40,22 @@ exports.signup = async (req, res) => {
     });
 
     // SEND TO PYTHON FASTAPI
-    const pyRes = await fetch("https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net/encode", {
-      method: "POST",
-      body: form,
-    });
+    let pyRes;
+    try {
+      pyRes = await fetch("http://localhost:8000/encode", {
+        method: "POST",
+        body: form,
+      });
+    } catch (fetchErr) {
+      console.error("❌ Face API unreachable:", fetchErr.message);
+      return res.status(503).json({ message: "Face recognition service is currently unavailable. Please try again later." });
+    }
+
+    const contentType = pyRes.headers.get("content-type") || "";
+    if (!pyRes.ok || !contentType.includes("application/json")) {
+      console.error(`❌ Face API returned status ${pyRes.status}, content-type: ${contentType}`);
+      return res.status(503).json({ message: "Face recognition service returned an invalid response. The service may be down." });
+    }
 
     const pyOut = await pyRes.json();
     console.log("🔥 FASTAPI SIGNUP OUTPUT:", pyOut);

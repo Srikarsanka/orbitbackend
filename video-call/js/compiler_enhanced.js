@@ -4,7 +4,7 @@
    =================================== */
 
 // API Configuration - Render Backend (Now Local for Testing)
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://orbitbackend-0i66.onrender.com/api';
 
 // Language file extensions mapping
 const LANGUAGE_EXTENSIONS = {

@@ -73,7 +73,7 @@ exports.scheduleClass = async (req, res) => {
           TIME: formatTime(startTime),
           START_ISO: formatISO(startTime),
           END_ISO: formatISO(endTime),
-          JOIN_LINK: `https://orbit-zqsz.vercel.app/`,
+          JOIN_LINK: `https://orbit-pgd9.vercel.app/`,
           STUDENT_NAME: 'Student'
       };
 

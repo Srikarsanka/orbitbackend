@@ -43,10 +43,25 @@ const login = async (req, res) => {
     // Face recognition via FASTAPI (REPLACEMENT FOR spawn python)
     const form = formFromBase64(photoBase64);
 
-    const pyRes = await fetch("https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net/encode", {
-      method: "POST",
-      body: form,
-    });
+    let pyRes;
+    try {
+      pyRes = await fetch("http://localhost:8000/encode", {
+        method: "POST",
+        body: form,
+      });
+    } catch (fetchErr) {
+      console.error("❌ Face API unreachable:", fetchErr.message);
+      return res.status(503).json({ message: "Face recognition service is currently unavailable. Please try again later." });
+    }
+
+    // Check if response is valid before parsing
+    const contentType = pyRes.headers.get("content-type") || "";
+    if (!pyRes.ok || !contentType.includes("application/json")) {
+      const rawBody = await pyRes.text();
+      console.error(`❌ Face API returned status ${pyRes.status}, content-type: ${contentType}`);
+      console.error("❌ Face API raw response (first 200 chars):", rawBody.substring(0, 200));
+      return res.status(503).json({ message: "Face recognition service returned an invalid response. The service may be down or restarting." });
+    }
 
     const pyOut = await pyRes.json();
     console.log("🔥 FASTAPI OUTPUT:", pyOut);

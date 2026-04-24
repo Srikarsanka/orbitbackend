@@ -115,7 +115,7 @@ exports.sendAnnouncement = async (req, res) => {
 
     <!-- Call to Action -->
     <div style="text-align: center; margin: 30px 0 20px 0;">
-      <a href="https://orbit-zqsz.vercel.app/" 
+      <a href="https://orbit-pgd9.vercel.app/" 
          style="display: inline-block; background: #4A47E6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 15px; transition: all 0.3s ease;">
         <i class="fas fa-external-link-alt" style="margin-right: 8px;"></i> View Full Announcement
       </a>
