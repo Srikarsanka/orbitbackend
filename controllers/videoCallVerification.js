@@ -116,7 +116,7 @@ const verifyVideoCallJoin = async (req, res) => {
       contentType: "image/jpeg",
     });
 
-    const pyRes = await fetch("https://orbit-afavcgereabweje3.eastasia-01.azurewebsites.net/encode", {
+    const pyRes = await fetch(process.env.PYTHON_API_URL || "https://srikar048-orbit-python-ai.hf.space/encode", {
       method: "POST",
       body: form,
     });

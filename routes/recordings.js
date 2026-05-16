@@ -181,7 +181,7 @@ router.post('/transcribe/:id', async (req, res) => {
         }
 
         // Proxy to Docker voice translation service
-        const VOICE_API = process.env.VOICE_API_URL || 'http://orbit-voice-translation.eastasia.azurecontainer.io:8001';
+        const VOICE_API = process.env.VOICE_API_URL || 'https://srikar048-orbit-voice-translation.hf.space';
         console.log(`🎙️ Sending transcription request to Docker service for recording ${req.params.id}...`);
 
         const requestBody = JSON.stringify({
@@ -189,12 +189,12 @@ router.post('/transcribe/:id', async (req, res) => {
             lang: targetLang
         });
 
-        const http = require('http');
+        const https = require('https');
         const url = new URL(`${VOICE_API}/api/voice-translation/transcribe`);
         
-        const proxyReq = http.request({
+        const proxyReq = https.request({
             hostname: url.hostname,
-            port: url.port || 8001,
+            port: url.port || 443,
             path: url.pathname,
             method: 'POST',
             headers: {
@@ -287,12 +287,12 @@ router.post('/translate-audio', async (req, res) => {
 
         console.log(`🔊 Proxying audio translation: ${targetLanguage} for ${videoUrl.substring(0, 60)}...`);
 
-        const http = require('http');
+        const https = require('https');
         const requestBody = JSON.stringify({ videoUrl, targetLanguage });
 
-        const proxyReq = http.request({
-            hostname: 'orbit-voice-translation.eastasia.azurecontainer.io',
-            port: 8001,
+        const proxyReq = https.request({
+            hostname: 'srikar048-orbit-voice-translation.hf.space',
+            port: 443,
             path: '/api/voice-translation/translate-json',
             method: 'POST',
             headers: {
@@ -342,12 +342,12 @@ router.post('/translate-text', async (req, res) => {
             return res.status(400).json({ error: 'text and target_lang required' });
         }
 
-        const http = require('http');
+        const https = require('https');
         const requestBody = JSON.stringify({ text, target_lang });
 
-        const proxyReq = http.request({
-            hostname: 'orbit-voice-translation.eastasia.azurecontainer.io',
-            port: 8001,
+        const proxyReq = https.request({
+            hostname: 'srikar048-orbit-voice-translation.hf.space',
+            port: 443,
             path: '/api/voice-translation/translate-text',
             method: 'POST',
             headers: {

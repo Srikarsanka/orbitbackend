@@ -1,0 +1,15 @@
+node_modules
+.git
+.env
+venv
+.venv
+python
+voice_translation
+whiteboard/node_modules
+__pycache__
+*.log
+logs_*.txt
+geminierror.txt
+temp/*
+uploads/*
+whiteboard_data/*

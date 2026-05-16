@@ -381,7 +381,7 @@ app.use('/wbo', createProxyMiddleware({
 
 // Proxy voice translation to Docker container to fix HTTPS mixed content issues
 app.use('/api/voice-translation', createProxyMiddleware({
-    target: process.env.VOICE_API_URL || 'http://orbit-voice-translation.eastasia.azurecontainer.io:8001',
+    target: process.env.VOICE_API_URL || 'https://srikar048-orbit-voice-translation.hf.space',
     changeOrigin: true,
     timeout: 600000, // 10 minutes for slow translations
     onError: (err, req, res) => {
